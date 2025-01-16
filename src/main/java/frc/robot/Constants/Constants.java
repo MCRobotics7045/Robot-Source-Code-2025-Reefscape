@@ -42,10 +42,10 @@ public final class Constants {
 
 
     public static class SwerveConstants {
-        public static final double MaxSpeed = Units.feetToMeters(10); // 15
+        public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt
         public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
-        public static final double SlewRate = 4;
+        public static final double SlewRate = 1;
     } 
 
     public static class LEDConstants {
@@ -77,6 +77,16 @@ public final class Constants {
 
     }
 
+    public static class ElevatorConstants {
+        public static final int Elevator_MotorID = 14;
+        public static final int MaxHeightSensorID = 1;
+        public static final int StowPostiontSensorID = 2;
+        public static final int MaxHeight = 10;
+        public static final int StowPostion = 0;
+        public static final int L2Height = 3;
+        public static final int L3Height = 5;
+
+    }
 
     public static class Vision {
 

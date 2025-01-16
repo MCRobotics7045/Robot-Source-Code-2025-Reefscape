@@ -23,7 +23,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.Simulation.SimulationTele;
-
+import frc.robot.subsystems.ElevatorSubsystem;
 import static frc.robot.Constants.Constants.InputConstants.*;
 
 
@@ -36,6 +36,7 @@ public class RobotContainer {
   public static final Pigon PIGEON = new Pigon();
   public static final VisionSubsystem VISION  = new VisionSubsystem(); 
   public static final SimulationTele SIMULATION_TELE = new SimulationTele();
+  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {
@@ -57,17 +58,19 @@ public class RobotContainer {
     // final POVButton dPadLeft = new POVButton(XBOX, 270);
     // final POVButton dPadUp = new POVButton(XBOX, 0);
     // final POVButton dPadDown = new POVButton(XBOX, 180);
-    // final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
-    // // final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
-    // final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
-    // final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
+    final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
+    final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
+    final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
+    final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
     // // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
     // final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
     
-    // buttonX.onTrue(new InstantCommand(PIGEON::zeroPigeon));
-    
+    buttonX.onTrue(new InstantCommand(ELEVATOR::RaiseMax));
+    buttonA.onTrue(new InstantCommand(ELEVATOR::LowerMax));
+    buttonY.onTrue(new InstantCommand(ELEVATOR::setPointL2));
+    buttonB.onTrue(new InstantCommand(ELEVATOR::setPointL3));
   }
 
 
