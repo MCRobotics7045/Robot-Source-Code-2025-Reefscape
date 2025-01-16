@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,7 +18,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AlignWithAprilTag extends Command{
     private final SwerveSubsystem m_swerve;
-    private final SwerveRequest.FieldCentric m_drive;
+    private final LegacySwerveRequest.FieldCentric m_drive;
 
     private final PIDController turnController = new PIDController(0.5, .5, .0);
     int shottimeout = 0;
@@ -27,7 +28,7 @@ public class AlignWithAprilTag extends Command{
     private int CycleNeeded = 2;
     private int Cycle = 0;
 
-    public AlignWithAprilTag(SwerveSubsystem swerve, SwerveRequest.FieldCentric drive,PhotonCamera picam) {
+    public AlignWithAprilTag(SwerveSubsystem swerve, LegacySwerveRequest.FieldCentric drive,PhotonCamera picam) {
         m_swerve = swerve;
         m_drive = drive;
         m_camera = picam;
@@ -52,7 +53,7 @@ public class AlignWithAprilTag extends Command{
     if (result.hasTargets()) {
         PhotonTrackedTarget target = result.getBestTarget();
         double rotationSpeed = turnController.calculate(target.getYaw(), 0);
-        Supplier<SwerveRequest> requestSupplier =  () -> m_drive.withRotationalRate(rotationSpeed*MaxAngularRate);
+        Supplier<LegacySwerveRequest> requestSupplier =  () -> m_drive.withRotationalRate(rotationSpeed*MaxAngularRate);
         m_swerve.setControl(requestSupplier.get());
     }
 

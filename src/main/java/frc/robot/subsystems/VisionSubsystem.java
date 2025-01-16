@@ -88,7 +88,7 @@ public class VisionSubsystem extends SubsystemBase {
       new Translation3d(0,0,Units.inchesToMeters(5)), //dont know correct
       new Rotation3d(0,Units.degreesToRadians(15), 0));
       
-    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, poseCam, camPose);
+    // photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, poseCam, camPose);
   }
 
   
@@ -198,20 +198,20 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
  
-  public Optional<EstimatedRobotPose> EST_POSE_RETURN() {
-    if (poseCam.getLatestResult().getTargets().isEmpty()){
-            done = false;
-            return Optional.empty();
-        }
-    if(poseCam.getLatestResult().getTargets().isEmpty() || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 5 || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 6 ){
-            done = false;
-            return Optional.empty();
-    }
+  // public Optional<EstimatedRobotPose> EST_POSE_RETURN() {
+  //   if (poseCam.getLatestResult().getTargets().isEmpty()){
+  //           done = false;
+  //           return Optional.empty();
+  //       }
+  //   if(poseCam.getLatestResult().getTargets().isEmpty() || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 5 || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 6 ){
+  //           done = false;
+  //           return Optional.empty();
+  //   }
 
-        done = true;
-        return photonPoseEstimator.update();
+  //       done = true;
+  //       return photonPoseEstimator.update();
         
         
-	}
+	// }
 }
 

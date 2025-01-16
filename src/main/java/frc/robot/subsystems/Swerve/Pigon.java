@@ -16,13 +16,13 @@ public class Pigon extends SubsystemBase {
     PIGON = new Pigeon2(Pigeon2Iid);
   }
 
-  public Rotation2d getYawAsRotation2d() {
-		return Rotation2d.fromDegrees(PIGON.getYaw().getValue());
-	}
+  // public Rotation2d getYawAsRotation2d() {
+	// 	return Rotation2d.fromDegrees(PIGON.getYaw().getValue());
+	// }
 
-  public double getYawFromPigeon() {
-    return PIGON.getYaw().getValue();
-  }
+  // public double getYawFromPigeon() {
+  //   // return PIGON.getYaw().getValue();
+  // }
 
   public void zeroPigeon() {
     PIGON.setYaw(0);

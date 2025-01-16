@@ -6,16 +6,18 @@ import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrain;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.ApplyChassisSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.filter.LinearFilter;
@@ -43,18 +45,18 @@ import org.littletonrobotics.junction.Logger;
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
-public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
+public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem {
     private static final LinearFilter speedSmoother = LinearFilter.movingAverage(5);
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
+    private final LegacySwerveRequest.ApplyChassisSpeeds m_pathApplyRobotSpeeds = new LegacySwerveRequest.ApplyChassisSpeeds();
     Field2d field = new Field2d();
     public Double SpeedMultipler = 1.0;
     private Optional<EstimatedRobotPose> estimated;
     double[] states = new double[8];
     
-    public SwerveSubsystem(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, LegacySwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         configurePathPlanner();
         if (Utils.isSimulation()) {
@@ -62,7 +64,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         }
     }
 
-    public SwerveSubsystem(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, LegacySwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         configurePathPlanner();
         if (Utils.isSimulation()) {
@@ -77,13 +79,13 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
 
    
 
-    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+    public Command applyRequest(Supplier<LegacySwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
 
     public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
 
-        final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+        final LegacySwerveRequest.FieldCentric driveRequest = new LegacySwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
@@ -111,27 +113,25 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         return getState().Pose;
     }
 
-    public void configurePathPlanner() {
-        double driveBaseRadius = 0;
-        for (var moduleLocation : m_moduleLocations) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
-        AutoBuilder.configureHolonomic(
-                this::getPose,
-                this::seedFieldRelative,
-                this::getCurrentRobotChassisSpeeds,
-                (speeds) -> this.setControl(AutoRequest.withSpeeds(speeds)),
-                new HolonomicPathFollowerConfig(
-                        new PIDConstants(10, 0, 0),
-                        new PIDConstants(10, 0, 0),
-                        TunerConstants.kSpeedAt12VoltsMps,
-                        driveBaseRadius,
-                        new ReplanningConfig()),
+    private void configurePathPlanner() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                this::getPose,   // Supplier of current robot pose
+                this::seedFieldRelative,         // Consumer for seeding pose against auto
+                this::getCurrentRobotChassisSpeeds, // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)),
+                new PPHolonomicDriveController(
+                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(7, 0, 0)),
+                config,
                 () -> RobotContainer.IsRed(),
                 this);
-
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
     }
-
 
     public Command getAutoPath(String pathName) {
         return new PathPlannerAuto(pathName);
@@ -178,7 +178,7 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         
        
         // SmartDashboard.putString("pose", getPose().toString());
-        estimated = VISION.EST_POSE_RETURN();
+        // estimated = VISION.EST_POSE_RETURN();
         UpdatePose();
         
        

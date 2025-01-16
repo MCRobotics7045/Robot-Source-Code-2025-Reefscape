@@ -5,7 +5,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrain.LegacySwerveDriveState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -117,7 +117,7 @@ public class SimulationTele {
 
    
     /* Accept the swerve drive state and telemeterize it to smartdashboard */
-    public void telemeterize(SwerveDriveState state) {
+    public void telemeterize(LegacySwerveDriveState state) {
         /* Telemeterize the pose */
         Pose2d pose = SWERVE.getPose();
         fieldTypePub.set("Field2d");
