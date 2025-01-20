@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
@@ -23,7 +24,12 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.Simulation.SimulationTele;
+import frc.robot.subsystems.AlgeeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.GripperSubsystem;
+import frc.robot.subsystems.IntakeFunnelSubsystem;
+import frc.robot.subsystems.PneumaticSubsystem;
+
 import static frc.robot.Constants.Constants.InputConstants.*;
 
 
@@ -37,6 +43,10 @@ public class RobotContainer {
   public static final VisionSubsystem VISION  = new VisionSubsystem(); 
   public static final SimulationTele SIMULATION_TELE = new SimulationTele();
   public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
+  public static final GripperSubsystem GRIPPER = new GripperSubsystem();
+  public static final IntakeFunnelSubsystem INTAKE_FUNNEL = new IntakeFunnelSubsystem();
+  public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
+  public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {
@@ -67,10 +77,18 @@ public class RobotContainer {
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
     
-    buttonX.onTrue(new InstantCommand(ELEVATOR::RaiseMax));
-    buttonA.onTrue(new InstantCommand(ELEVATOR::LowerMax));
-    buttonY.onTrue(new InstantCommand(ELEVATOR::setPointL2));
-    buttonB.onTrue(new InstantCommand(ELEVATOR::setPointL3));
+    buttonX.onTrue(new InstantCommand(ELEVATOR::RaiseMax));  //Raise Elevator
+    buttonA.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator
+    buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
+    buttonY.whileTrue(  //Spit Coral Out
+      new RunCommand(GRIPPER::RollerOut, GRIPPER)
+        .andThen(() -> GRIPPER.StopRoller())
+    );  
+    buttonB.whileTrue(  //Suck Coral In
+      new RunCommand(GRIPPER::RollerIn, GRIPPER)
+        .andThen(() -> GRIPPER.StopRoller())
+    );
+    
   }
 
 

@@ -24,8 +24,10 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double robotWidthInches = 30;
-    public static final double robotLengthInches  = 30;
+
+    //unasined random stuff 
+    public static final double robotWidthInches = 27;
+    public static final double robotLengthInches  = 27;
     public static final double WheelRadiusInches = 2;
     public static final double robotWidthMeters = Units.inchesToMeters(robotWidthInches);
     public static final double robotLengthMeters = Units.inchesToMeters(robotLengthInches);
@@ -40,7 +42,20 @@ public final class Constants {
     // XBOX Buttons
     
 
-
+    public static class PneumaticConstatns {
+        //Solenoid 1
+        public static final int DSOL1_PORT_FWD = 5;
+        public static final int DSOL1_PORT_REV = 6;
+        //Solenoid 2
+        public static final int DSOL2_PORT_FWD = 5;
+        public static final int DSOL2_PORT_REV = 6;
+        //Solenoid 3
+        public static final int DSOL3_PORT_FWD = 5;
+        public static final int DSOL3_PORT_REV = 6;
+        //Solenoid 4
+        public static final int DSOL4_PORT_FWD = 5;
+        public static final int DSOL4_PORT_REV = 6;
+    }
     public static class SwerveConstants {
         public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt
         public static final double MaxRotationSpeed = 4 * Math.PI;
@@ -77,6 +92,11 @@ public final class Constants {
 
     }
 
+    public static class GripperConstants {
+        public static final int Coral_MotorID = 14;
+        public static final int MotorReverseSpeed = 100;
+        public static final int MotorFowardSpeed = 100;
+    }
     public static class ElevatorConstants {
         public static final int Elevator_MotorID = 14;
         public static final int MaxHeightSensorID = 1;

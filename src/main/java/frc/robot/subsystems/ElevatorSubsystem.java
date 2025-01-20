@@ -39,6 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       .idleMode(IdleMode.kBrake)
       .openLoopRampRate(0.1)
       .inverted(false);
+
     Elev_Motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     Elev_Motor_controller = Elev_Motor.getClosedLoopController();
     Elevator_encoder = Elev_Motor.getEncoder();
@@ -92,6 +93,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     Elv_proccsesvarible = Elevator_encoder.getPosition();
   }
 
+  public void StopMotor() {
+    Elev_Motor.stopMotor();
+  }
+  
   public boolean MaxHeightSwitch() {
     if (MaxHeightSensor.get() == true) {
       return true;
