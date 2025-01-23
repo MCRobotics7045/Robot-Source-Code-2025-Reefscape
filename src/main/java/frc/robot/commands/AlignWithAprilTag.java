@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
+
 import edu.wpi.first.math.controller.PIDController;
 
 import edu.wpi.first.wpilibj2.command.Command;

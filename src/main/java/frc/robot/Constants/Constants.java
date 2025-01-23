@@ -96,6 +96,9 @@ public final class Constants {
         public static final int Coral_MotorID = 14;
         public static final int MotorReverseSpeed = 100;
         public static final int MotorFowardSpeed = 100;
+        public static final int MotorIntakeSpeed = 100;
+        public static final int CoralEnterSensorID = 1;
+        public static final int CoralExitSensorID = 2;
     }
     public static class ElevatorConstants {
         public static final int Elevator_MotorID = 14;

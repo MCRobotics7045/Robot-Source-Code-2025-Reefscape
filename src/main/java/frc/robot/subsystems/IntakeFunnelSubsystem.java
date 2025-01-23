@@ -10,7 +10,11 @@ public class IntakeFunnelSubsystem extends SubsystemBase {
   /** Creates a new IntakeFunnelSubsystem. */
   public IntakeFunnelSubsystem() {}
 
+  // its nono motorized :(((((((((((
+  //THIS IS USELESS AHHHHH D:
+
   @Override
+
   public void periodic() {
     // This method will be called once per scheduler run
   }

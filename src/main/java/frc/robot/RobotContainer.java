@@ -14,8 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
 
@@ -29,9 +32,10 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GripperSubsystem;
 import frc.robot.subsystems.IntakeFunnelSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
-
 import static frc.robot.Constants.Constants.InputConstants.*;
 
+//Commands
+import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 
 
 
@@ -48,10 +52,11 @@ public class RobotContainer {
   public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
   public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
+  
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {
     
-    System.out.println("Robot Started ");
+    System.out.println("Robot Container Started ");
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
@@ -62,29 +67,31 @@ public class RobotContainer {
 
 
   private void configureBindings() {
-    System.out.println("Config Bind Ready");
-    //=================================================================================================================================
-    // final POVButton dPadRight = new POVButton(XBOX, 90);
-    // final POVButton dPadLeft = new POVButton(XBOX, 270);
-    // final POVButton dPadUp = new POVButton(XBOX, 0);
-    // final POVButton dPadDown = new POVButton(XBOX, 180);
+    final POVButton dPadRight = new POVButton(XBOX, 90);
+    final POVButton dPadLeft = new POVButton(XBOX, 270);
+    final POVButton dPadUp = new POVButton(XBOX, 0);
+    final POVButton dPadDown = new POVButton(XBOX, 180);
     final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
     final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
     final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
+  
     // // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
-    // final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
+    final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
+
     
-    buttonX.onTrue(new InstantCommand(ELEVATOR::RaiseMax));  //Raise Elevator
-    buttonA.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator
-    buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
-    buttonY.whileTrue(  //Spit Coral Out
+
+    buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
+    dPadUp.onTrue(new InstantCommand(ELEVATOR::RaiseMax));  //Raise Elevator
+    dPadDown.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator
+    // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
+    dPadLeft.whileTrue(  //Spit Coral Out
       new RunCommand(GRIPPER::RollerOut, GRIPPER)
         .andThen(() -> GRIPPER.StopRoller())
     );  
-    buttonB.whileTrue(  //Suck Coral In
+    dPadRight.whileTrue(  //Suck Coral In
       new RunCommand(GRIPPER::RollerIn, GRIPPER)
         .andThen(() -> GRIPPER.StopRoller())
     );

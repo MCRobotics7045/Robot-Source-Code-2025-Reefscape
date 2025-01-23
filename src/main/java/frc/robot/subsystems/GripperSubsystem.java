@@ -16,6 +16,7 @@ import static frc.robot.Constants.Constants.GripperConstants.*;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,7 +26,9 @@ public class GripperSubsystem extends SubsystemBase {
   public SparkClosedLoopController coralMotorClosedLoopController;
   public RelativeEncoder coral_Encoder;
   public SparkMaxConfig config;
-
+  DigitalInput CoralEnterSensor = new DigitalInput(CoralEnterSensorID);
+  DigitalInput CoralExitSensor = new DigitalInput(CoralExitSensorID);
+  
   public GripperSubsystem() {
     coralMotor = new SparkMax(Coral_MotorID, MotorType.kBrushless);
     config = new SparkMaxConfig();
@@ -63,12 +66,32 @@ public class GripperSubsystem extends SubsystemBase {
     coralMotor.set(speedSet);
   }
 
+  public void RollerIntakeCoral() {
+    coralMotor.set(MotorIntakeSpeed);
+  }
+  
   public void StopRoller(){
     coralMotor.stopMotor();;
   }
 
   public boolean RollerEngaged() {
     if (coral_Encoder.getVelocity() < 0 && coral_Encoder.getVelocity() > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean CoralEnterSensorTriggered() {
+    if (CoralEnterSensor.get()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean CoralExitSensorTriggered() {
+    if (CoralExitSensor.get()) {
       return true;
     } else {
       return false;
