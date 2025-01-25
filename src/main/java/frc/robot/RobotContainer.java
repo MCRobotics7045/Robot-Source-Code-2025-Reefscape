@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
 
-import frc.robot.commands.DriveCommands.DefaultDrive;
+
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
@@ -36,7 +36,9 @@ import static frc.robot.Constants.Constants.InputConstants.*;
 
 //Commands
 import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
-
+import frc.robot.commands.DriveCommands.DefaultDrive;
+import frc.robot.commands.DriveCommands.TunePIDDrive;
+import frc.robot.commands.DriveCommands.AlignInFrontofTagCommand;
 
 
 public class RobotContainer {
@@ -45,7 +47,7 @@ public class RobotContainer {
 
   public static final Pigon PIGEON = new Pigon();
   public static final VisionSubsystem VISION  = new VisionSubsystem(); 
-  public static final SimulationTele SIMULATION_TELE = new SimulationTele();
+  // public static final SimulationTele SIMULATION_TELE = new SimulationTele();
   public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
   public static final GripperSubsystem GRIPPER = new GripperSubsystem();
   public static final IntakeFunnelSubsystem INTAKE_FUNNEL = new IntakeFunnelSubsystem();
@@ -76,13 +78,13 @@ public class RobotContainer {
     final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
   
-    // // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
+    final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
     final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
 
-    
-
+    buttonA.whileTrue(new TunePIDDrive(SWERVE));
+    buttonRB.whileTrue(new AlignInFrontofTagCommand(SWERVE, VISION, VISION.postionCamera, XBOX));
     buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
     dPadUp.onTrue(new InstantCommand(ELEVATOR::RaiseMax));  //Raise Elevator
     dPadDown.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator

@@ -32,7 +32,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 public class SimulationTele {
 
-    PhotonCamera SimCam = VISION.poseCam;
+    PhotonCamera SimCam = VISION.postionCamera;
     boolean IsSimReady = false; 
     /**
      * Construct a telemetry object, with the specified max speed of the robot

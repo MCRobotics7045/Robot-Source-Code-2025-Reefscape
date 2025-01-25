@@ -11,34 +11,34 @@ import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.ApplyChassisSpeeds;
-import com.ctre.phoenix6.swerve.SwerveRequest;
+// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.ApplyChassisSpeeds;
+// import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import org.photonvision.EstimatedRobotPose;
+// import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+// import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.Robot;
+// import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.Constants;
-import frc.robot.Constants.TunerConstants;
+// import frc.robot.Constants.Constants;
+// import frc.robot.Constants.TunerConstants;
 import static frc.robot.RobotContainer.VISION;
-import static frc.robot.RobotContainer.SIMULATION_TELE;
-import static frc.robot.Constants.Constants.SwerveConstants.*;
+// import static frc.robot.RobotContainer.SIMULATION_TELE;
+// import static frc.robot.Constants.Constants.SwerveConstants.*;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -178,15 +178,15 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         
        
         // SmartDashboard.putString("pose", getPose().toString());
-        // estimated = VISION.EST_POSE_RETURN();
+        estimated = VISION.getEstimatedGlobalPose(getPose());
         UpdatePose();
         
        
          
-         if (Robot.isSimulation()) {
-            SIMULATION_TELE.visionSim.update(getPose());
-            SIMULATION_TELE.visionSim.getDebugField();
-        }
+        //  if (Robot.isSimulation()) {
+        //     SIMULATION_TELE.visionSim.update(getPose());
+        //     SIMULATION_TELE.visionSim.getDebugField();
+        // }
            
           
         

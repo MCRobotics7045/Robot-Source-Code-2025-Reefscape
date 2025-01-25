@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -25,7 +26,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
-  public PhotonCamera poseCam; 
+  public PhotonCamera postionCamera; 
 
 
   int FoundID; 
@@ -45,26 +46,25 @@ public class VisionSubsystem extends SubsystemBase {
 
   public VisionSubsystem() {
     super();
-    poseCam = new PhotonCamera("Pi_Camera");
-    AprilTagSelector = new SendableChooser<Integer>();
-    AprilTagSelector.setDefaultOption("Tag 1", 1);
-    AprilTagSelector.addOption("Tag 2", 2);
-    AprilTagSelector.addOption("Tag 3", 3);
-    AprilTagSelector.addOption("Tag 4", 4);
-    AprilTagSelector.addOption("Tag 5", 5);
-    AprilTagSelector.addOption("Tag 6", 6);
-    AprilTagSelector.addOption("Tag 7", 7);
-    AprilTagSelector.addOption("Tag 8", 8);
-    AprilTagSelector.addOption("Tag 9", 9);
-    AprilTagSelector.addOption("Tag 10", 10);
-    AprilTagSelector.addOption("Tag 11", 11);
-    AprilTagSelector.addOption("Tag 12", 12);
-    AprilTagSelector.addOption("Tag 13", 13);
-    AprilTagSelector.addOption("Tag 14", 14);
-    SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
 
-    var result = poseCam.getLatestResult();
 
+//------------------------------------------------------------------------------------
+   AprilTagSelector = new SendableChooser<Integer>();
+
+   for (int i = 1; i <= 22; i++) {
+    if (i == 1) {
+        AprilTagSelector.setDefaultOption("Tag " + i, i); 
+    } else {
+        AprilTagSelector.addOption("Tag " + i, i);
+    }
+  }
+  SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
+
+//----------------------------------------------------------------------------------
+
+    postionCamera = new PhotonCamera("PLACEHOLDER");
+//---------------------------------------------------------------------------------
+    var result = postionCamera.getLatestResult();
     if (result.hasTargets()) {
       PhotonTrackedTarget target = result.getBestTarget();
       int StartupTargetID = target.getFiducialId();
@@ -74,21 +74,17 @@ public class VisionSubsystem extends SubsystemBase {
     } else {
       System.out.println("Warning No Tag Found");
     }
+//------------------------------------------------------------------------------------
 
-    SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
 
-     try {
-			fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
-		} catch (IOException exception) {
-			System.out.println("Couldn't Find April Tag Layout File");
-			exception.printStackTrace();
-		}
-
+		fieldLayout =  AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+	
     camPose = new Transform3d(
       new Translation3d(0,0,Units.inchesToMeters(5)), //dont know correct
       new Rotation3d(0,Units.degreesToRadians(15), 0));
       
-    // photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, poseCam, camPose);
+    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camPose);
+
   }
 
   
@@ -100,31 +96,39 @@ public class VisionSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     // GetResults(2);
 
-    if (Cycle >= 50) {
-      Cycle = 0;
-      SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
-      PhotonTrackedTarget bestTarget = selectBestTarget();
-      if (bestTarget != null) {
-        BestFoundTag = bestTarget.getFiducialId();
-        yaw = bestTarget.getYaw();
-      }
-    }
-    Cycle = Cycle + 1;
+  //   if (Cycle >= 50) {
+  //     Cycle = 0;
+  //     SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
+  //     PhotonTrackedTarget bestTarget = selectBestTarget();
+  //     if (bestTarget != null) {
+  //       BestFoundTag = bestTarget.getFiducialId();
+  //       yaw = bestTarget.getYaw();
+  //     }
+  //   }
+  //   Cycle = Cycle + 1;
     
     SelectedID = AprilTagSelector.getSelected();
-    SmartDashboard.putNumber("Best Tag Seen", BestFoundTag);
-    SmartDashboard.putNumber("Yaw Of AprilTag", yaw);
+    // SmartDashboard.putNumber("Best Tag Seen", BestFoundTag);
+    // SmartDashboard.putNumber("Yaw Of AprilTag", yaw);
 
   }
 
 
 
-  
+  public Pose2d getAprilTagPose2d(int TagId) {
+    Optional<Pose3d> tagPoseOpt = fieldLayout.getTagPose(TagId);
+    if (tagPoseOpt.isPresent()) {
+      return tagPoseOpt.get().toPose2d();
+  } else {
+    System.out.print("April Tag Id invalid. Wow that was not a april tag number!!!!!!!!! ");
+    return null;
+  }
+  }
 
   // Declare these as class-level variables to persist across function calls
 
   private PhotonTrackedTarget selectBestTarget() {
-    var result = poseCam.getLatestResult();
+    var result = postionCamera.getLatestResult();
     if (!result.hasTargets()) {
         return null; 
     }
@@ -132,7 +136,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public double FindPitch() {
-    var result = poseCam.getLatestResult();
+    var result = postionCamera.getLatestResult();
     if (result.hasTargets()) {
         PhotonTrackedTarget target = result.getBestTarget();
         double Pitch = target.getPitch();  
@@ -143,7 +147,7 @@ public class VisionSubsystem extends SubsystemBase {
 }
   
   public boolean CheckTagID(int TagId) {
-    var result = poseCam.getLatestResult();
+    var result = postionCamera.getLatestResult();
     int FoundID = -1; 
     int CurrentID;
     
@@ -174,44 +178,29 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   
-  public double FindTagIDyaw(int TagId) {
-    var result = poseCam.getLatestResult();
-    double targetYaw = 0.0;
+  // public double FindTagIDyaw(int TagId) {
+  //   var result = poseCam.getLatestResult();
+  //   double targetYaw = 0.0;
 
-    if (result.hasTargets()) {
-      for (var target : result.getTargets()) {
-          if (target.getFiducialId() == TagId) {
-              targetYaw = target.getYaw();
+  //   if (result.hasTargets()) {
+  //     for (var target : result.getTargets()) {
+  //         if (target.getFiducialId() == TagId) {
+  //             targetYaw = target.getYaw();
               
-          }
-      }
-    } else {
-      targetYaw = 0.0;
-    }
-    return targetYaw;
+  //         }
+  //     }
+  //   } else {
+  //     targetYaw = 0.0;
+  //   }
+  //   return targetYaw;
 
-
-
-    
-
-
-  }
+  // } 
 
  
-  // public Optional<EstimatedRobotPose> EST_POSE_RETURN() {
-  //   if (poseCam.getLatestResult().getTargets().isEmpty()){
-  //           done = false;
-  //           return Optional.empty();
-  //       }
-  //   if(poseCam.getLatestResult().getTargets().isEmpty() || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 5 || poseCam.getLatestResult().getTargets().get(0).getFiducialId() == 6 ){
-  //           done = false;
-  //           return Optional.empty();
-  //   }
-
-  //       done = true;
-  //       return photonPoseEstimator.update();
-        
-        
-	// }
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+        var result = postionCamera.getLatestResult();
+        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return photonPoseEstimator.update(result);
+  }
 }
 
