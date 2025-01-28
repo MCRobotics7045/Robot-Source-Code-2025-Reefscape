@@ -41,6 +41,13 @@ public class ElevatorSubsystem extends SubsystemBase {
       .inverted(false);
 
     Elev_Motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //JACK IF YOU DONT SEE CHANGES WHEN PID GETS CHANGED CREATE A NEW CONFIG PARAMETER CAUSE ITS PROPALLY NOT SEQUENTIAL 1/27/2025
+    config.closedLoop // pid pid pid help 
+      .p(2)
+      .i(1)
+      .d(1);
+
+    Elev_Motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     Elev_Motor_controller = Elev_Motor.getClosedLoopController();
     Elevator_encoder = Elev_Motor.getEncoder();
     

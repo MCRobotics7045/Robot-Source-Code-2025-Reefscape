@@ -93,7 +93,8 @@ public final class Constants {
     }
 
     public static class GripperConstants {
-        public static final int Coral_MotorID = 14;
+        public static final int Top_MotorID = 14;
+        public static final int Bottom_MotorID = 15;
         public static final int MotorReverseSpeed = 100;
         public static final int MotorFowardSpeed = 100;
         public static final int MotorIntakeSpeed = 100;
