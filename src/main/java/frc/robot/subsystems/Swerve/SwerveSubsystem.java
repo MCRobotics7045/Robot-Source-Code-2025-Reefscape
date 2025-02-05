@@ -153,11 +153,33 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
    
    
     public void UpdatePose() {
+        Pose2d currentPose = getPose();
+        estimated = VISION.getEstimatedGlobalPose(getPose());
+        Pose2d pathPlannerPose = AutoBuilder.getCurrentPose(); 
+
         if (estimated.isPresent()){
             EstimatedRobotPose Given = estimated.get();
-            addVisionMeasurement(Given.estimatedPose.toPose2d(),Given.timestampSeconds);
-            
+            Pose2d visionPose = Given.estimatedPose.toPose2d();
+
+            Pose2d correctedPose = blendPoses(pathPlannerPose, visionPose, 0.8); 
+            seedFieldRelative(correctedPose);  
+
+            addVisionMeasurement(visionPose, Given.timestampSeconds);
+            field.setRobotPose(correctedPose);
+            Logger.recordOutput("Updated Pose (PathPlanner + Vision)", correctedPose);
+
+        } else {
+            seedFieldRelative(pathPlannerPose);
+            field.setRobotPose(pathPlannerPose);
+            Logger.recordOutput("Updated Pose (PathPlanner Only)", pathPlannerPose);
         }
+    }
+
+    private Pose2d blendPoses(Pose2d pathPose, Pose2d visionPose, double BLENDER) {
+        double x = (1 - BLENDER) * pathPose.getX() + BLENDER * visionPose.getX();
+        double y = (1 - BLENDER) * pathPose.getY() + BLENDER * visionPose.getY();
+        double rotation = (1 - BLENDER) * pathPose.getRotation().getRadians() + BLENDER * visionPose.getRotation().getRadians();
+        return new Pose2d(x, y, new edu.wpi.first.math.geometry.Rotation2d(rotation));
     }
 
     @Override
@@ -173,23 +195,23 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         for (int i = 0; i < 4; i++)
             states[i * 2] = getModule(i).getTargetState().angle.getRadians();
 
-        Logger.recordOutput("Pose", getPose());
+        Logger.recordOutput("Bare Pose", getPose());
         Logger.recordOutput("Target States", states);
         // for (int i = 0; i < 4; i++) states[i * 2 + 1] = getModule(i).getCurrentState().speedMetersPerSecond;
         // for (int i = 0; i < 4; i++)
         //     states[i * 2] = getModule(i).getCurrentState().angle.getRadians();
         // Logger.recordOutput("Measured States", states);
 
-        // // Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
-        // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
+        Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
+        Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
         
        
         // SmartDashboard.putString("pose", getPose().toString());
-        estimated = VISION.getEstimatedGlobalPose(getPose());
+        
         UpdatePose();
         
        
-         
+        SmartDashboard.putData("GameFeild", field);
         //  if (Robot.isSimulation()) {
         //     SIMULATION_TELE.visionSim.update(getPose());
         //     SIMULATION_TELE.visionSim.getDebugField();
