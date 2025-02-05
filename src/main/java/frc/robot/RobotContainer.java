@@ -30,7 +30,6 @@ import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeIntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GripperSubsystem;
-import frc.robot.subsystems.IntakeFunnelSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import static frc.robot.Constants.Constants.InputConstants.*;
 
@@ -48,9 +47,9 @@ public class RobotContainer {
   public static final Pigon PIGEON = new Pigon();
   public static final VisionSubsystem VISION  = new VisionSubsystem(); 
   // public static final SimulationTele SIMULATION_TELE = new SimulationTele();
-  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
   public static final GripperSubsystem GRIPPER = new GripperSubsystem();
-  public static final IntakeFunnelSubsystem INTAKE_FUNNEL = new IntakeFunnelSubsystem();
+  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
+
   public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
   public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;

@@ -44,17 +44,17 @@ public final class Constants {
 
     public static class PneumaticConstatns {
         //Solenoid 1
-        public static final int DSOL1_PORT_FWD = 5;
-        public static final int DSOL1_PORT_REV = 6;
+        public static final int DSOL1_PORT_FWD = 1;
+        public static final int DSOL1_PORT_REV = 2;
         //Solenoid 2
-        public static final int DSOL2_PORT_FWD = 5;
-        public static final int DSOL2_PORT_REV = 6;
+        public static final int DSOL2_PORT_FWD = 3;
+        public static final int DSOL2_PORT_REV = 4;
         //Solenoid 3
         public static final int DSOL3_PORT_FWD = 5;
         public static final int DSOL3_PORT_REV = 6;
         //Solenoid 4
-        public static final int DSOL4_PORT_FWD = 5;
-        public static final int DSOL4_PORT_REV = 6;
+        public static final int DSOL4_PORT_FWD = 7;
+        public static final int DSOL4_PORT_REV = 0;
     }
     public static class SwerveConstants {
         public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt
@@ -93,18 +93,18 @@ public final class Constants {
     }
 
     public static class GripperConstants {
-        public static final int Top_MotorID = 14;
-        public static final int Bottom_MotorID = 15;
+        public static final int Top_MotorID = 9;
+        public static final int Bottom_MotorID = 10;
         public static final int MotorReverseSpeed = 100;
         public static final int MotorFowardSpeed = 100;
         public static final int MotorIntakeSpeed = 100;
-        public static final int CoralEnterSensorID = 1;
-        public static final int CoralExitSensorID = 2;
+        public static final int CoralEnterSensorID = 2;
+        public static final int CoralExitSensorID = 0;
     }
     public static class ElevatorConstants {
-        public static final int Elevator_MotorID = 14;
-        public static final int MaxHeightSensorID = 1;
-        public static final int StowPostiontSensorID = 2;
+        public static final int Elevator_MotorID = 11;
+        public static final int MaxHeightSensorID = 3;
+        public static final int StowPostiontSensorID = 4;
         public static final int MaxHeight = 10;
         public static final int StowPostion = 0;
         public static final int L2Height = 3;

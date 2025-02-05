@@ -10,7 +10,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RaiseElevatorToMax extends Command {
   /** Creates a new DropElevatorToStow. */
-  ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem;
   public RaiseElevatorToMax(ElevatorSubsystem elevatorSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.elevatorSubsystem = elevatorSubsystem;

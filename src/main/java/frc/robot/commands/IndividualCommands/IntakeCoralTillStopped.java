@@ -10,7 +10,7 @@ import frc.robot.subsystems.GripperSubsystem;
 
 public class IntakeCoralTillStopped extends Command {
   /** Creates a new IntakeCoralTillStopped. */
-  GripperSubsystem gripperSubsystem = new GripperSubsystem();
+  private final GripperSubsystem gripperSubsystem;  
 
   public IntakeCoralTillStopped(GripperSubsystem gripperSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.

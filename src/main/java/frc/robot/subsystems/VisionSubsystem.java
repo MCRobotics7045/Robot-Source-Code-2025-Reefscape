@@ -62,7 +62,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 //----------------------------------------------------------------------------------
 
-    postionCamera = new PhotonCamera("PLACEHOLDER");
+    postionCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
 //---------------------------------------------------------------------------------
     var result = postionCamera.getLatestResult();
     if (result.hasTargets()) {

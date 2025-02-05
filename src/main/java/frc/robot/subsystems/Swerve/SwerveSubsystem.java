@@ -50,6 +50,7 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    RobotConfig config;
     private final LegacySwerveRequest.ApplyChassisSpeeds m_pathApplyRobotSpeeds = new LegacySwerveRequest.ApplyChassisSpeeds();
     Field2d field = new Field2d();
     public Double SpeedMultipler = 1.0;
@@ -115,7 +116,12 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
 
     private void configurePathPlanner() {
         try {
-            var config = RobotConfig.fromGUISettings();
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+
             AutoBuilder.configure(
                 this::getPose,   // Supplier of current robot pose
                 this::seedFieldRelative,         // Consumer for seeding pose against auto
@@ -124,13 +130,14 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
                 (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)),
                 new PPHolonomicDriveController(
                     new PIDConstants(10, 0, 0),
-                    new PIDConstants(7, 0, 0)),
+                    new PIDConstants(7, 0, 0)
+                ),
                 config,
                 () -> RobotContainer.IsRed(),
-                this);
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
+                this
+                
+        );
+        
     }
 
     public Command getAutoPath(String pathName) {
