@@ -203,7 +203,7 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         // Logger.recordOutput("Measured States", states);
 
         Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
-        Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
+        // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
         
        
         // SmartDashboard.putString("pose", getPose().toString());

@@ -75,11 +75,13 @@ public class GripperSubsystem extends SubsystemBase {
   public void RollerOut() {
     TopMotor.set(MotorFowardSpeed);
     BottomMotor.set(MotorFowardSpeed);
+    System.out.println("Roller Out Called ");
   }
 
   public void RollerIn() {
     TopMotor.set(MotorReverseSpeed);
     BottomMotor.set(MotorReverseSpeed);
+    System.out.println("Roller In Called ");
   }
 
   public void SetSpeed(double speedSet) {
@@ -95,6 +97,7 @@ public class GripperSubsystem extends SubsystemBase {
   public void StopRoller(){
     TopMotor.stopMotor();
     BottomMotor.stopMotor();
+    System.out.println("Stop Motor Called ");
   }
 
   public boolean RollerEngaged() {

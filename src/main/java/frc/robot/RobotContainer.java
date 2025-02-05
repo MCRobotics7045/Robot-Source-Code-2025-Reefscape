@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -37,6 +38,7 @@ import static frc.robot.Constants.Constants.InputConstants.*;
 import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.TunePIDDrive;
+import frc.robot.commands.IndividualCommands.RollerOut;
 import frc.robot.commands.DriveCommands.AlignInFrontofTagCommand;
 
 
@@ -89,8 +91,7 @@ public class RobotContainer {
     dPadDown.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator
     // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
     dPadLeft.whileTrue(  //Spit Coral Out
-      new RunCommand(GRIPPER::RollerOut, GRIPPER)
-        .andThen(() -> GRIPPER.StopRoller())
+      new RollerOut(GRIPPER)
     );  
     dPadRight.whileTrue(  //Suck Coral In
       new RunCommand(GRIPPER::RollerIn, GRIPPER)
