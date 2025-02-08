@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
-
-
+import frc.robot.util.Elastic;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
@@ -38,6 +38,8 @@ import static frc.robot.Constants.Constants.InputConstants.*;
 import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.TunePIDDrive;
+import frc.robot.commands.IndividualCommands.DropElevatorToStow;
+import frc.robot.commands.IndividualCommands.RaiseElevatorToMax;
 import frc.robot.commands.IndividualCommands.RollerOut;
 import frc.robot.commands.DriveCommands.AlignInFrontofTagCommand;
 
@@ -63,13 +65,15 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
-
+    Elastic.Notification notification = new Elastic.Notification(NotificationLevel.ERROR, "Error Notification", "This is an example error notification.");
+    Elastic.sendNotification(notification);
     SWERVE.setDefaultCommand(new DefaultDrive(XBOX,SWERVE));
     configureBindings();
   }
 
 
   private void configureBindings() {
+    
     final POVButton dPadRight = new POVButton(XBOX, 90);
     final POVButton dPadLeft = new POVButton(XBOX, 270);
     final POVButton dPadUp = new POVButton(XBOX, 0);
@@ -87,8 +91,8 @@ public class RobotContainer {
     buttonA.whileTrue(new TunePIDDrive(SWERVE));
     buttonRB.whileTrue(new AlignInFrontofTagCommand(SWERVE, VISION, VISION.postionCamera, XBOX));
     buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
-    dPadUp.onTrue(new InstantCommand(ELEVATOR::RaiseMax));  //Raise Elevator
-    dPadDown.onTrue(new InstantCommand(ELEVATOR::LowerMax));  //Lower Elevator
+    dPadUp.onTrue(new RaiseElevatorToMax(ELEVATOR));  //Raise Elevator
+    dPadDown.onTrue(new DropElevatorToStow(ELEVATOR));  //Lower Elevator
     // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
     dPadLeft.whileTrue(  //Spit Coral Out
       new RollerOut(GRIPPER)

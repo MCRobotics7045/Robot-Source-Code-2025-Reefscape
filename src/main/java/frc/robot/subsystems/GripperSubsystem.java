@@ -64,9 +64,9 @@ public class GripperSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    Logger.recordOutput("Gripper roller Speed", TopMotor.get());
+    Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
     Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
-    SmartDashboard.putNumber("Gripper roller Speed", TopMotor.get());
+    SmartDashboard.putNumber("Gripper Encoder Speed", Top_Encoder.getVelocity());
 
 
   }

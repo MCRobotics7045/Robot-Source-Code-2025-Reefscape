@@ -32,10 +32,7 @@ public class DefaultDrive extends Command {
     this.SWERVE = SWERVE;
     this.XBOX = XBOX;
     addRequirements(SWERVE);
-    Shuffleboard.getTab("help").add("X", xVelocity);
-    Shuffleboard.getTab("help").add("Y", yVelocity);
-    Shuffleboard.getTab("help").add("Rotational", rotationalVelocity);
-
+    
   }
 
  

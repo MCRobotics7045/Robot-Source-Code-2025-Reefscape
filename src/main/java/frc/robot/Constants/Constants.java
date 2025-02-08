@@ -106,9 +106,15 @@ public final class Constants {
         public static final int MaxHeightSensorID = 3;
         public static final int StowPostiontSensorID = 4;
         public static final int MaxHeight = 10;
-        public static final int StowPostion = 0;
+        public static final int StowPostion = 2;
         public static final int L2Height = 3;
         public static final int L3Height = 5;
+
+        public static final double Stage1Height = Units.inchesToMeters(35);
+        public static final double Stage2Height = Units.inchesToMeters(35);
+        public static final double Stage3Height = Units.inchesToMeters(35);
+
+        public static final double ExtrustionThickness = 10; // Not Correct at all but it was too small so you get 10 
 
     }
 

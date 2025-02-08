@@ -6,7 +6,9 @@ package frc.robot.commands.IndividualCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ElevatorSubsystem;
-
+import frc.robot.util.Elastic;
+import frc.robot.util.Elastic.Notification;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DropElevatorToStow extends Command {
   /** Creates a new DropElevatorToStow. */
@@ -20,6 +22,8 @@ public class DropElevatorToStow extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    Elastic.Notification notification = new Notification(NotificationLevel.INFO, "DropElevatorToStow Command", "DropElevatorToStow Command has been Called");
+    Elastic.sendNotification(notification);
     elevatorSubsystem.LowerMax();
   }
 

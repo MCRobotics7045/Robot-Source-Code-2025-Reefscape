@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,6 +48,10 @@ import org.littletonrobotics.junction.Logger;
  * subsystem so it can be used in command-based projects easily.
  */
 public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem {
+    private double kP = 0.5; 
+    private double kI = 0.0;
+    private double kD = 0.0;
+    private double kV = 1.2;
     private static final LinearFilter speedSmoother = LinearFilter.movingAverage(5);
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
@@ -63,6 +69,10 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        SmartDashboard.putNumber("Drive kP", kP);
+        SmartDashboard.putNumber("Drive kI", kI);
+        SmartDashboard.putNumber("Drive kD", kD);
+        SmartDashboard.putNumber("Drive kV", kV);
     }
 
     public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, LegacySwerveModuleConstants... modules) {
@@ -73,12 +83,32 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         }
         SmartDashboard.putData("GameFeild", field);
         getState().Pose = new Pose2d();
+        SmartDashboard.putNumber("Drive kP", kP);
+        SmartDashboard.putNumber("Drive kI", kI);
+        SmartDashboard.putNumber("Drive kD", kD);
+        SmartDashboard.putNumber("Drive kV", kV);
     }
 
    
 
 
-   
+    public void updatePID() {
+        kP = SmartDashboard.getNumber("Drive kP", kP);
+        kI = SmartDashboard.getNumber("Drive kI", kI);
+        kD = SmartDashboard.getNumber("Drive kD", kD);
+        kV = SmartDashboard.getNumber("Drive kV", kV);
+    
+        for (int i = 0; i < 4; i++) { 
+            getModule(i).getDriveMotor().getConfigurator().apply(new Slot0Configs()
+                .withKP(kP)
+                .withKI(kI)
+                .withKD(kD)
+                .withKV(kV)
+            );
+        }
+    }
+    
+
 
     public Command applyRequest(Supplier<LegacySwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
@@ -182,6 +212,39 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         return new Pose2d(x, y, new edu.wpi.first.math.geometry.Rotation2d(rotation));
     }
 
+    private void GraphMotorData() {
+        for (int i = 0; i < 4; i++) {
+
+            //Drive
+            double DriveMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
+            double DriveMotorVoltage = getModule(i).getDriveMotor().getMotorVoltage().getValueAsDouble();
+            double DriveMotorVelocity = getModule(i).getDriveMotor().getVelocity().getValueAsDouble();
+            double DriveMotorStatorCurrent = getModule(i).getDriveMotor().getStatorCurrent().getValueAsDouble();
+            double DriveMotorTorqueCurrent = getModule(i).getDriveMotor().getTorqueCurrent().getValueAsDouble();
+            double DriveMotorSetSpeed = getModule(i).getTargetState().speedMetersPerSecond;
+            double error = DriveMotorSetSpeed - DriveMotorSpeed;
+            Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
+            Logger.recordOutput("Module" + i + "DriveMotorSetSpeed", DriveMotorSetSpeed);
+            Logger.recordOutput("Module" + i + "Speed Error", error);
+            Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
+            Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
+            Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
+            Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
+
+            //Steer
+            double SteerMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
+            double SteerMotorVoltage = getModule(i).getSteerMotor().getMotorVoltage().getValueAsDouble();
+            double SteerMotorVelocity = getModule(i).getSteerMotor().getVelocity().getValueAsDouble();
+            double SteerMotorStatorCurrent = getModule(i).getSteerMotor().getStatorCurrent().getValueAsDouble();
+            double SteerMotorTorqueCurrent = getModule(i).getSteerMotor().getTorqueCurrent().getValueAsDouble();
+            Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
+            Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
+            Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
+            Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
+            Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
+        }
+        
+    }
     @Override
     public void periodic() {
 
@@ -209,8 +272,8 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         // SmartDashboard.putString("pose", getPose().toString());
         
         UpdatePose();
-        
-       
+        GraphMotorData();
+        // updatePID(); 
         SmartDashboard.putData("GameFeild", field);
         //  if (Robot.isSimulation()) {
         //     SIMULATION_TELE.visionSim.update(getPose());

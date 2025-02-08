@@ -10,7 +10,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class TunePIDDrive extends Command {
   /** Creates a new TunePIDDrive. */
-  private static final double X_VELOCITY = 1.0; // Forward speed (m/s)
+  private static final double X_VELOCITY = 10.0; // Forward speed (m/s)
   private static final double Y_VELOCITY = 0.0; // Strafe speed (m/s)
   private static final double ROTATIONAL_VELOCITY = 0.0; // No rotation
   private final SwerveSubsystem Swerve;

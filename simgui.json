@@ -1,4 +1,18 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "SPARK MAX [11]": {
+        "header": {
+          "open": true
+        }
+      },
+      "SPARK MAX [11] RELATIVE ENCODER": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/AdvantageKit/RealOutputs/Alerts": "Alerts",
@@ -6,7 +20,9 @@
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/AprilTag Selection": "String Chooser",
       "/SmartDashboard/Auto Chooser": "String Chooser",
-      "/SmartDashboard/GameFeild": "Field2d"
+      "/SmartDashboard/Elevator Mech2d": "Mechanism2d",
+      "/SmartDashboard/GameFeild": "Field2d",
+      "/SmartDashboard/Mech2d": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Auto Chooser": {
@@ -14,13 +30,19 @@
           "visible": true
         }
       },
+      "/SmartDashboard/Elevator Mech2d": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/GameFeild": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
+        "bottom": 1638,
+        "builtin": "2025 Reefscape",
+        "height": 8.051901817321777,
+        "left": 534,
+        "right": 3466,
+        "top": 291,
+        "width": 17.54825210571289,
         "window": {
           "visible": true
         }
