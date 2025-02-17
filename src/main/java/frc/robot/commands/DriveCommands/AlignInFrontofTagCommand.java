@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Constants.SwerveConstants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-import static frc.robot.Constants.Constants.SwerveConstants.*;
+// import static frc.robot.Constants.Constants.SwerveConstants.*;
 import static frc.robot.Constants.Constants.InputConstants.*;
 
 public class AlignInFrontofTagCommand extends Command {
@@ -35,7 +35,7 @@ public class AlignInFrontofTagCommand extends Command {
       this.posCamera = posCamera;
       this.XBOX = XBOX;
   
-      int targetID = 0;
+      // int targetID = 0;
       rotationController = new PIDController(0, 0, 0); // I HATE PIDS BUT I HAVE TO USE THEM SO MY GOOD FRIEND CHAT GPT WILL 95% BE DOING THIS WHEN I HAVE TO CHANGE TO TUNE THEM CAUSE TUNING PIDS SUCK LIKE PID WHO NAMED THAT BRO
       rotationController.enableContinuousInput(-Math.PI, Math.PI);
       addRequirements(SWERVE, VISION);
