@@ -8,9 +8,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstantsFactory;
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+// import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+// import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+// import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants.SteerFeedbackType;
 import static frc.robot.Constants.Constants.*;
@@ -21,7 +21,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 
 public class TunerConstants {
-
+  
 
     //---------------------------------------------------PID CONTROL NO TOUCHY---------------------------------------------------------------------------
     //Notes -.withKP(100): Proportional gain. and .withKI(0): Integral gain. and .withKD(0.2): Derivative gain.
@@ -29,13 +29,13 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(0).withKI(0).withKD(0.2)
+        .withKP(100).withKI(0).withKD(0.2)
         .withKS(0).withKV(1.5).withKA(0);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.9).withKI(0).withKD(0.12)
-        .withKS(0.6).withKV(2.3).withKA(0.1);
+        .withKP(3).withKI(0).withKD(0)
+        .withKS(0).withKV(0).withKA(0);
     //--------------------------------------------------------------Motor Voltage Control------------------------------------------------------------------
     
     // The closed-loop output type to use for the steer motors;
@@ -54,11 +54,11 @@ public class TunerConstants {
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
     private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
-                new CurrentLimitsConfigs().withSupplyCurrentLimit(40).withSupplyCurrentLimitEnable(true)
+                new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
         );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
-                new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true)
+                new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration cancoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2 leave this null 
