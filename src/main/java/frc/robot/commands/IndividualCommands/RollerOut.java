@@ -21,12 +21,15 @@ public class RollerOut extends Command {
   @Override
   public void initialize() {
     Gripper.RollerOut();
+    // Gripper.TopMotor.set(1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Gripper.RollerOut();
+    // Gripper.RollerOut();
+    
+  
   }
 
   // Called once the command ends or is interrupted.

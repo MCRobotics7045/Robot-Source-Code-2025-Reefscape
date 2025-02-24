@@ -54,7 +54,7 @@ public class Robot extends LoggedRobot {
 
 
 
-    Logger.recordOutput("Pose/BotPose", RobotContainer.SWERVE.getPose());
+    // Logger.recordOutput("Pose/BotPose", RobotContainer.SWERVE.getPose());
 
 
 

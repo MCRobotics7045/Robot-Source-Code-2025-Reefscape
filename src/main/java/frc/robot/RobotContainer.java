@@ -27,21 +27,24 @@ import frc.robot.util.Elastic.Notification.NotificationLevel;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-import frc.robot.Simulation.SimulationTele;
+// import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeIntakeSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
+// import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GripperSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import static frc.robot.Constants.Constants.InputConstants.*;
 
 //Commands
-import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
+// import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.TunePIDDrive;
-import frc.robot.commands.IndividualCommands.DropElevatorToStow;
-import frc.robot.commands.IndividualCommands.RaiseElevatorToMax;
+// import frc.robot.commands.IndividualCommands.DropElevatorToStow;
+// import frc.robot.commands.IndividualCommands.RaiseElevatorToMax;
+import frc.robot.commands.IndividualCommands.RollerIn;
 import frc.robot.commands.IndividualCommands.RollerOut;
-import frc.robot.commands.DriveCommands.AlignInFrontofTagCommand;
+import frc.robot.commands.SequentialCommands.DelayRollerStart;
+import frc.robot.commands.AlignwithAprilTag;
+
 
 
 public class RobotContainer {
@@ -49,10 +52,10 @@ public class RobotContainer {
    private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
 
   public static final Pigon PIGEON = new Pigon();
-  public static final VisionSubsystem VISION  = new VisionSubsystem(); 
+  // public static final VisionSubsystem VISION  = new VisionSubsystem(); 
   // public static final SimulationTele SIMULATION_TELE = new SimulationTele();
   public static final GripperSubsystem GRIPPER = new GripperSubsystem();
-  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
+  // public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
 
   public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
   public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
@@ -87,20 +90,25 @@ public class RobotContainer {
     final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
-
+    
+    buttonX.onTrue(new RollerOut(GRIPPER));
     buttonA.whileTrue(new TunePIDDrive(SWERVE));
-    buttonRB.whileTrue(new AlignInFrontofTagCommand(SWERVE, VISION, VISION.postionCamera, XBOX));
-    buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
-    dPadUp.onTrue(new RaiseElevatorToMax(ELEVATOR));  //Raise Elevator
-    dPadDown.onTrue(new DropElevatorToStow(ELEVATOR));  //Lower Elevator
+
+    // buttonRB.whileTrue(new AlignwithAprilTag(VISION.postionCamera, SWERVE, 2));
+    // buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
+    // dPadUp.onTrue(new RaiseElevatorToMax(ELEVATOR));  //Raise Elevator
+    // dPadDown.onTrue(new DropElevatorToStow(ELEVATOR));  //Lower Elevator
     // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
-    dPadLeft.whileTrue(  //Spit Coral Out
-      new RollerOut(GRIPPER)
-    );  
-    dPadRight.whileTrue(  //Suck Coral In
-      new RunCommand(GRIPPER::RollerIn, GRIPPER)
-        .andThen(() -> GRIPPER.StopRoller())
-    );
+
+   
+
+    buttonB.onTrue(  //Suck Coral Out
+    new DelayRollerStart(GRIPPER)
+  );
+
+
+
+    
     
   }
 

@@ -6,7 +6,7 @@
     "GLOBAL": {
       "font": "Proggy Dotted",
       "fps": "120",
-      "height": "1057",
+      "height": "991",
       "maximized": "1",
       "style": "0",
       "userScale": "2",
@@ -19,7 +19,7 @@
     "###/SmartDashboard/Auto Chooser": {
       "Collapsed": "0",
       "Pos": "156,201",
-      "Size": "254,54"
+      "Size": "307,60"
     },
     "###/SmartDashboard/Elevator Mech2d": {
       "Collapsed": "0",
@@ -39,12 +39,12 @@
     "###FMS": {
       "Collapsed": "0",
       "Pos": "5,540",
-      "Size": "169,184"
+      "Size": "336,158"
     },
     "###Joysticks": {
       "Collapsed": "0",
       "Pos": "1103,630",
-      "Size": "796,240"
+      "Size": "976,82"
     },
     "###NetworkTables": {
       "Collapsed": "0",
@@ -53,7 +53,7 @@
     },
     "###NetworkTables Info": {
       "Collapsed": "0",
-      "Pos": "14,256",
+      "Pos": "418,176",
       "Size": "750,145"
     },
     "###Other Devices": {
@@ -64,12 +64,12 @@
     "###System Joysticks": {
       "Collapsed": "0",
       "Pos": "5,350",
-      "Size": "192,218"
+      "Size": "232,254"
     },
     "###Timing": {
       "Collapsed": "0",
       "Pos": "779,607",
-      "Size": "141,173"
+      "Size": "169,194"
     },
     "Debug##Default": {
       "Collapsed": "0",
@@ -79,7 +79,7 @@
     "Robot State": {
       "Collapsed": "0",
       "Pos": "109,33",
-      "Size": "99,116"
+      "Size": "118,134"
     }
   }
 }

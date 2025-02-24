@@ -38,10 +38,10 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 // import frc.robot.Constants.Constants;
 // import frc.robot.Constants.TunerConstants;
-import static frc.robot.RobotContainer.VISION;
+// import static frc.robot.RobotContainer.VISION;
 // import static frc.robot.RobotContainer.SIMULATION_TELE;
 // import static frc.robot.Constants.Constants.SwerveConstants.*;
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -182,28 +182,28 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
 
    
    
-    public void UpdatePose() {
-        Pose2d currentPose = getPose();
-        estimated = VISION.getEstimatedGlobalPose(getPose());
-        Pose2d pathPlannerPose = AutoBuilder.getCurrentPose(); 
+    // public void UpdatePose() {
+    //     Pose2d currentPose = getPose();
+    //     estimated = VISION.getEstimatedGlobalPose(getPose());
+    //     Pose2d pathPlannerPose = AutoBuilder.getCurrentPose(); 
 
-        if (estimated.isPresent()){
-            EstimatedRobotPose Given = estimated.get();
-            Pose2d visionPose = Given.estimatedPose.toPose2d();
+    //     if (estimated.isPresent()){
+    //         EstimatedRobotPose Given = estimated.get();
+    //         Pose2d visionPose = Given.estimatedPose.toPose2d();
 
-            Pose2d correctedPose = blendPoses(pathPlannerPose, visionPose, 0.8); 
-            seedFieldRelative(correctedPose);  
+    //         Pose2d correctedPose = blendPoses(pathPlannerPose, visionPose, 0.8); 
+    //         seedFieldRelative(correctedPose);  
 
-            addVisionMeasurement(visionPose, Given.timestampSeconds);
-            field.setRobotPose(correctedPose);
-            Logger.recordOutput("Updated Pose (PathPlanner + Vision)", correctedPose);
+    //         addVisionMeasurement(visionPose, Given.timestampSeconds);
+    //         field.setRobotPose(correctedPose);
+    //         Logger.recordOutput("Updated Pose (PathPlanner + Vision)", correctedPose);
 
-        } else {
-            seedFieldRelative(pathPlannerPose);
-            field.setRobotPose(pathPlannerPose);
-            Logger.recordOutput("Updated Pose (PathPlanner Only)", pathPlannerPose);
-        }
-    }
+    //     } else {
+    //         seedFieldRelative(pathPlannerPose);
+    //         field.setRobotPose(pathPlannerPose);
+    //         Logger.recordOutput("Updated Pose (PathPlanner Only)", pathPlannerPose);
+    //     }
+    // }
 
     private Pose2d blendPoses(Pose2d pathPose, Pose2d visionPose, double BLENDER) {
         double x = (1 - BLENDER) * pathPose.getX() + BLENDER * visionPose.getX();
@@ -223,13 +223,13 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             double DriveMotorTorqueCurrent = getModule(i).getDriveMotor().getTorqueCurrent().getValueAsDouble();
             double DriveMotorSetSpeed = getModule(i).getTargetState().speedMetersPerSecond;
             double error = DriveMotorSetSpeed - DriveMotorSpeed;
-            Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
-            Logger.recordOutput("Module" + i + "DriveMotorSetSpeed", DriveMotorSetSpeed);
-            Logger.recordOutput("Module" + i + "Speed Error", error);
-            Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
-            Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
-            Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
-            Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
+            // Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
+            // Logger.recordOutput("Module" + i + "DriveMotorSetSpeed", DriveMotorSetSpeed);
+            // Logger.recordOutput("Module" + i + "Speed Error", error);
+            // Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
+            // Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
+            // Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
+            // Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
 
             //Steer
             double SteerMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
@@ -237,11 +237,11 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             double SteerMotorVelocity = getModule(i).getSteerMotor().getVelocity().getValueAsDouble();
             double SteerMotorStatorCurrent = getModule(i).getSteerMotor().getStatorCurrent().getValueAsDouble();
             double SteerMotorTorqueCurrent = getModule(i).getSteerMotor().getTorqueCurrent().getValueAsDouble();
-            Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
-            Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
-            Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
-            Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
-            Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
+            // Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
+            // Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
+            // Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
+            // Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
+            // Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
         }
         
     }
@@ -258,20 +258,20 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
         for (int i = 0; i < 4; i++)
             states[i * 2] = getModule(i).getTargetState().angle.getRadians();
 
-        Logger.recordOutput("Bare Pose", getPose());
-        Logger.recordOutput("Target States", states);
+        // Logger.recordOutput("Bare Pose", getPose());
+        // Logger.recordOutput("Target States", states);
         // for (int i = 0; i < 4; i++) states[i * 2 + 1] = getModule(i).getCurrentState().speedMetersPerSecond;
         // for (int i = 0; i < 4; i++)
         //     states[i * 2] = getModule(i).getCurrentState().angle.getRadians();
         // Logger.recordOutput("Measured States", states);
 
-        Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
-        // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
+        // Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
+        // // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
         
        
         // SmartDashboard.putString("pose", getPose().toString());
         
-        UpdatePose();
+        // UpdatePose();
         GraphMotorData();
         // updatePID(); 
         SmartDashboard.putData("GameFeild", field);

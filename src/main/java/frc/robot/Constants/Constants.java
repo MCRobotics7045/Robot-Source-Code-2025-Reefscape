@@ -93,19 +93,20 @@ public final class Constants {
     }
 
     public static class GripperConstants {
-        public static final int Top_MotorID = 9;
-        public static final int Bottom_MotorID = 10;
-        public static final int MotorReverseSpeed = 100;
-        public static final int MotorFowardSpeed = 100;
+        public static final int Top_MotorID = 31;
+        public static final int Bottom_MotorID = 33;
+        public static final double MotorReverseSpeed = 1;
+        public static final double MotorFowardSpeed = -1;
         public static final int MotorIntakeSpeed = 100;
         public static final int CoralEnterSensorID = 2;
         public static final int CoralExitSensorID = 0;
     }
+
     public static class ElevatorConstants {
-        public static final int Elevator_MotorID = 11;
+        public static final int Elevator_MotorID = 32;
         public static final int MaxHeightSensorID = 3;
         public static final int StowPostiontSensorID = 4;
-        public static final int MaxHeight = 10;
+        public static final int MaxHeight = 20;
         public static final int StowPostion = 2;
         public static final int L2Height = 3;
         public static final int L3Height = 5;

@@ -14,12 +14,13 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import static frc.robot.Constants.Constants.GripperConstants.*;
-
-import org.littletonrobotics.junction.Logger;
+import frc.robot.RobotContainer;
+// import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.IndividualCommands.RollerIn;
 
 public class GripperSubsystem extends SubsystemBase {
   /** Creates a new GripperSubsystem. */
@@ -39,7 +40,7 @@ public class GripperSubsystem extends SubsystemBase {
     BottomMotor = new SparkMax(Bottom_MotorID, MotorType.kBrushless);
     config = new SparkMaxConfig();
     config
-      .smartCurrentLimit(60)
+      .smartCurrentLimit(40)
       .idleMode(IdleMode.kBrake)
       .openLoopRampRate(0.1)
       .inverted(true);
@@ -47,9 +48,9 @@ public class GripperSubsystem extends SubsystemBase {
     configClosedLoop = new SparkFlexConfig();
 
     configClosedLoop.closedLoop //I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS I HATE PIDS 
-      .p(0.1)
-      .i(0.1)
-      .d(0.1);
+      .p(1);
+      // .i(0.1)
+      // .d(0.1);
   
     TopMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     TopMotor.configure(configClosedLoop, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -59,28 +60,35 @@ public class GripperSubsystem extends SubsystemBase {
     Bottom_Encoder = BottomMotor.getEncoder();
     topMClosedLoopController = TopMotor.getClosedLoopController();
     bottomMClosedLoopController = BottomMotor.getClosedLoopController();
+    
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
-    Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
+    // Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
+    // Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
     SmartDashboard.putNumber("Gripper Encoder Speed", Top_Encoder.getVelocity());
+    SmartDashboard.putBoolean("Coral SWitch", CoralExitSensor.get());
 
+    
+
+  
+      
 
   }
 // i dont know what to call it. Spit out? Exhast? Get rid of? 
 
   public void RollerOut() {
     TopMotor.set(MotorFowardSpeed);
-    BottomMotor.set(MotorFowardSpeed);
+    BottomMotor.set(MotorReverseSpeed);
     System.out.println("Roller Out Called ");
   }
 
   public void RollerIn() {
     TopMotor.set(MotorReverseSpeed);
-    BottomMotor.set(MotorReverseSpeed);
+    BottomMotor.set(MotorFowardSpeed);
     System.out.println("Roller In Called ");
   }
 
@@ -110,17 +118,17 @@ public class GripperSubsystem extends SubsystemBase {
 
   public boolean CoralEnterSensorTriggered() {
     if (CoralEnterSensor.get()) {
-      return true;
+      return false; // Off
     } else {
-      return false;
+      return true;
     }
   }
 
   public boolean CoralExitSensorTriggered() {
     if (CoralExitSensor.get()) {
-      return true;
-    } else {
       return false;
+    } else {
+      return true;
     }
   }
 }
