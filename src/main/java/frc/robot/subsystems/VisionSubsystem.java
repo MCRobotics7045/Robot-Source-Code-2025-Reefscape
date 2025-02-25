@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.EstimatedRobotPose;
-import static frc.robot.Constants.Constants.Vision.*; 
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
@@ -38,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase {
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; 
   private boolean warningDisplayed = false; 
-  private Pose3d Pose;
+  // private Pose3d Pose;
   boolean done;
   double yaw;
  
@@ -120,7 +118,6 @@ public class VisionSubsystem extends SubsystemBase {
     if (tagPoseOpt.isPresent()) {
       return tagPoseOpt.get().toPose2d();
   } else {
-    System.out.print("April Tag Id invalid. Wow that was not a april tag number!!!!!!!!! ");
     return null;
   }
   }

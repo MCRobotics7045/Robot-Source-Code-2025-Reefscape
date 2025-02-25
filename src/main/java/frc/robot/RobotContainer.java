@@ -13,25 +13,18 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import edu.wpi.first.wpilibj2.command.button.POVButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.util.Elastic;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.Swerve.Pigon;
+// import frc.robot.subsystems.Swerve.Pigon;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 // import frc.robot.Simulation.SimulationTele;
-import frc.robot.subsystems.AlgeeIntakeSubsystem;
-// import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.GripperSubsystem;
-import frc.robot.subsystems.PneumaticSubsystem;
+// import frc.robot.subsystems.AlgeeIntakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem;
+// import frc.robot.subsystems.PneumaticSubsystem;
 import static frc.robot.Constants.Constants.InputConstants.*;
 
 //Commands
@@ -40,36 +33,31 @@ import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.TunePIDDrive;
 // import frc.robot.commands.IndividualCommands.DropElevatorToStow;
 // import frc.robot.commands.IndividualCommands.RaiseElevatorToMax;
-import frc.robot.commands.IndividualCommands.RollerIn;
-import frc.robot.commands.IndividualCommands.RollerOut;
-import frc.robot.commands.SequentialCommands.DelayRollerStart;
-import frc.robot.commands.AlignwithAprilTag;
+
+
+
 
 
 
 public class RobotContainer {
 
-   private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
-
-  public static final Pigon PIGEON = new Pigon();
-  // public static final VisionSubsystem VISION  = new VisionSubsystem(); 
+  private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
+  // public static final Pigon PIGEON = new Pigon();
+  public static final VisionSubsystem VISION  = new VisionSubsystem(); 
   // public static final SimulationTele SIMULATION_TELE = new SimulationTele();
-  public static final GripperSubsystem GRIPPER = new GripperSubsystem();
-  // public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
+  public final EndEffectorSubsystem ENDEFFECTOR;
+  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
 
-  public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
-  public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
+  // public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
+  // public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
   public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
   
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {
-    
-    System.out.println("Robot Container Started ");
+    ENDEFFECTOR = new EndEffectorSubsystem();
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
-    Elastic.Notification notification = new Elastic.Notification(NotificationLevel.ERROR, "Error Notification", "This is an example error notification.");
-    Elastic.sendNotification(notification);
     SWERVE.setDefaultCommand(new DefaultDrive(XBOX,SWERVE));
     configureBindings();
   }
@@ -77,21 +65,21 @@ public class RobotContainer {
 
   private void configureBindings() {
     
-    final POVButton dPadRight = new POVButton(XBOX, 90);
-    final POVButton dPadLeft = new POVButton(XBOX, 270);
-    final POVButton dPadUp = new POVButton(XBOX, 0);
-    final POVButton dPadDown = new POVButton(XBOX, 180);
+    // final POVButton dPadRight = new POVButton(XBOX, 90);
+    // final POVButton dPadLeft = new POVButton(XBOX, 270);
+    // final POVButton dPadUp = new POVButton(XBOX, 0);
+    // final POVButton dPadDown = new POVButton(XBOX, 180);
     final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
     final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
-    final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
+    // final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
     final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
   
-    final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
-    final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
+    // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
+    // final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
     // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
     // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
     
-    buttonX.onTrue(new RollerOut(GRIPPER));
+    
     buttonA.whileTrue(new TunePIDDrive(SWERVE));
 
     // buttonRB.whileTrue(new AlignwithAprilTag(VISION.postionCamera, SWERVE, 2));
@@ -99,12 +87,9 @@ public class RobotContainer {
     // dPadUp.onTrue(new RaiseElevatorToMax(ELEVATOR));  //Raise Elevator
     // dPadDown.onTrue(new DropElevatorToStow(ELEVATOR));  //Lower Elevator
     // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
-
-   
-
-    buttonB.onTrue(  //Suck Coral Out
-    new DelayRollerStart(GRIPPER)
-  );
+    buttonY.whileTrue(ENDEFFECTOR.rollerOutCommand());
+    buttonB.whileTrue(ENDEFFECTOR.rollerInCommand());
+    
 
 
 
