@@ -9,6 +9,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants.SwerveConstants;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
@@ -17,7 +18,7 @@ import static frc.robot.Constants.Constants.InputConstants.*;
 
 public class DefaultDrive extends Command {
 
-  private XboxController XBOX;
+  private CommandXboxController XBOX;
   private SwerveSubsystem SWERVE;
   private double xVelocity;
   private double yVelocity;
@@ -28,7 +29,7 @@ public class DefaultDrive extends Command {
   SlewRateLimiter xRotateFilter = new SlewRateLimiter(SlewRate);
 
 
-  public DefaultDrive(XboxController XBOX, SwerveSubsystem SWERVE) {
+  public DefaultDrive(CommandXboxController  XBOX, SwerveSubsystem SWERVE) {
     this.SWERVE = SWERVE;
     this.XBOX = XBOX;
     addRequirements(SWERVE);

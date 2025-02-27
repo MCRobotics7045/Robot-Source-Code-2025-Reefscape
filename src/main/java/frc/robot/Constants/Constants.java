@@ -86,15 +86,15 @@ public final class Constants {
 
 
         // USB Ports
-        public static final int XBOX_CONTROLLER_PORT = 0;
-
+        public static final int DRIVER_XBOX_CONTROLLER_PORT = 0;
+        public static final int OPERATOR_XBOX_CONTROLLER_PORT = 1;
 
 
     }
 
     public static class EndEffectorConstants {
-        public static final int Top_MotorID = 32; //32 At home
-        public static final int Bottom_MotorID = 30; //30 At home 
+        public static final int Top_MotorID = 30; //30 At home
+        public static final int Bottom_MotorID = 31; //31 At home 
         public static final double MotorReverseSpeed = 1;
         public static final double MotorFowardSpeed = -1;
         public static final int MotorIntakeSpeed = 100;
@@ -103,7 +103,7 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int Elev_MotorID = 31; // 31 At home
+        public static final int Elev_MotorID = 32; // 32 At home
         public static final int MaxHeightSensorID = 12;
         public static final int StowPostiontSensorID = 4;
         public static final int MaxHeight = 20;

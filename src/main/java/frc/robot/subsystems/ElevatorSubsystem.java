@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 import com.revrobotics.spark.SparkMax;
@@ -197,15 +199,27 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void RaiseMax() {
-    Elevator_Pos = MaxHeight;
-    Elev_Motor_controller.setReference(Elevator_Pos, SparkBase.ControlType.kMAXMotionPositionControl);
-    Elv_proccsesvarible = Elevator_encoder.getPosition();
+    // Elevator_Pos = MaxHeight;
+    // Elev_Motor_controller.setReference(Elevator_Pos, SparkBase.ControlType.kMAXMotionPositionControl);
+    // Elv_proccsesvarible = Elevator_encoder.getPosition();
+
+    Elev_Motor.set(1);
+  }
+
+  public Command RaiseUpcommand() {
+    return Commands.startEnd(()-> RaiseMax(), ()-> StopMotor(), this);
   }
 
   public void LowerMax() {
-    Elevator_Pos = StowPostion;
-    Elev_Motor_controller.setReference(Elevator_Pos, SparkBase.ControlType.kMAXMotionPositionControl);
-    Elv_proccsesvarible = Elevator_encoder.getPosition();
+    // Elevator_Pos = StowPostion;
+    // Elev_Motor_controller.setReference(Elevator_Pos, SparkBase.ControlType.kMAXMotionPositionControl);
+    // Elv_proccsesvarible = Elevator_encoder.getPosition();
+
+    Elev_Motor.set(-1);
+  }
+
+  public Command LowerDowncommand() {
+    return Commands.startEnd(()-> LowerMax(), ()-> StopMotor(), this);
   }
 
   public void setHeight(double SetPoint) {

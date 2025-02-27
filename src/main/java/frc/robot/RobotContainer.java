@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -41,60 +42,41 @@ import frc.robot.commands.DriveCommands.TunePIDDrive;
 
 public class RobotContainer {
 
-  private final XboxController XBOX = new XboxController(XBOX_CONTROLLER_PORT);
-  // public static final Pigon PIGEON = new Pigon();
-  public static final VisionSubsystem VISION  = new VisionSubsystem(); 
-  // public static final SimulationTele SIMULATION_TELE = new SimulationTele();
+  private final CommandXboxController  DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
+  private final CommandXboxController OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
+  public final SwerveSubsystem SWERVE;
+  public final ElevatorSubsystem ELEVATOR;
   public final EndEffectorSubsystem ENDEFFECTOR;
-  public static final ElevatorSubsystem ELEVATOR = new ElevatorSubsystem();
+  public final VisionSubsystem VISION; 
 
-  // public static final PneumaticSubsystem PNEUMATIC = new PneumaticSubsystem();
-  // public static final AlgeeIntakeSubsystem ALGEE_INTAKE = new AlgeeIntakeSubsystem();
-  public static final SwerveSubsystem SWERVE = TunerConstants.DriveTrain;
+  // public static final Pigon PIGEON = new Pigon();
   
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   public RobotContainer() {
+    SWERVE = TunerConstants.DriveTrain;
+    ELEVATOR = new ElevatorSubsystem();
     ENDEFFECTOR = new EndEffectorSubsystem();
+    VISION = new VisionSubsystem(); 
+
+    //**********************************************************************************
+      SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
+    //**********************************************************************************
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
-    SWERVE.setDefaultCommand(new DefaultDrive(XBOX,SWERVE));
+  
     configureBindings();
   }
 
 
   private void configureBindings() {
-    
-    // final POVButton dPadRight = new POVButton(XBOX, 90);
-    // final POVButton dPadLeft = new POVButton(XBOX, 270);
-    // final POVButton dPadUp = new POVButton(XBOX, 0);
-    // final POVButton dPadDown = new POVButton(XBOX, 180);
-    final JoystickButton buttonY = new JoystickButton(XBOX, xboxYellowButton);
-    final JoystickButton buttonA = new JoystickButton(XBOX, xboxGreenButton);   
-    // final JoystickButton buttonX = new JoystickButton(XBOX, xboxBlueButton);
-    final JoystickButton buttonB = new JoystickButton(XBOX, xboxRedButton);
+  //DRIVER CONTROLS
   
-    // final JoystickButton buttonRB = new JoystickButton(XBOX, xboxRBButton);
-    // final JoystickButton buttonLB = new JoystickButton(XBOX, xboxLBButton);
-    // final JoystickButton buttonStart = new JoystickButton(XBOX, xboxStartButton);
-    // final JoystickButton buttonMENU = new JoystickButton(XBOX, xboxMenuButton);
-    
-    
-    buttonA.whileTrue(new TunePIDDrive(SWERVE));
-
-    // buttonRB.whileTrue(new AlignwithAprilTag(VISION.postionCamera, SWERVE, 2));
-    // buttonLB.onTrue(new IntakeCoralFromFeedStation(ELEVATOR, GRIPPER));
-    // dPadUp.onTrue(new RaiseElevatorToMax(ELEVATOR));  //Raise Elevator
-    // dPadDown.onTrue(new DropElevatorToStow(ELEVATOR));  //Lower Elevator
-    // buttonY.onTrue(new InstantCommand(ELEVATOR::StopMotor)); 
-    buttonY.whileTrue(ENDEFFECTOR.rollerOutCommand());
-    buttonB.whileTrue(ENDEFFECTOR.rollerInCommand());
-    
-
-
-
-    
-    
+  //OPERATOR CONTROLS
+    OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.RaiseUpcommand());
+    OPERATOR_XBOX.leftBumper().onTrue(ELEVATOR.LowerDowncommand());
+    OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
+    OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
   }
 
 
