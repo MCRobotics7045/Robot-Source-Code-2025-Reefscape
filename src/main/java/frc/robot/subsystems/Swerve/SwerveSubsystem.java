@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 // import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -62,7 +63,7 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
     public Double SpeedMultipler = 1.0;
     private Optional<EstimatedRobotPose> estimated;
     double[] states = new double[8];
-    
+    public double Swerve_Speed;
     public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, LegacySwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         configurePathPlanner();
@@ -244,6 +245,24 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             // Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
         }
         
+    }
+
+    public void SlowSpeed() {
+        Swerve_Speed = 0.5;
+    }
+
+    public void NominalSpeed() {
+        Swerve_Speed = 1.0;
+    }
+    public Command SlowSpeedCommand() {
+        return Commands.startEnd(()-> SlowSpeed(),()-> NominalSpeed(),this);
+    }
+    public void SuperSlowSpeed() {
+        Swerve_Speed = 0.2;
+    }
+
+    public Command superSlowSpeedCommand() {
+        return Commands.startEnd(()-> SuperSlowSpeed(),()-> NominalSpeed(),this);
     }
     @Override
     public void periodic() {

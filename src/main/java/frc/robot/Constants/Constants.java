@@ -60,7 +60,7 @@ public final class Constants {
         public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt
         public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
-        public static final double SlewRate = 1;
+        public static final double SlewRate = 10;
     } 
 
     public static class LEDConstants {
@@ -81,7 +81,7 @@ public final class Constants {
         public static final int xboxLStickButton = 9;
         public static final int xboxRStickButton = 10;
 
-        public static final double xboxLeftStickDeadband = 0.1;  
+        public static final double xboxLeftStickDeadband = 0.15;  
         public static final double xboxRightStickDeadband = 0.15;  
 
 
@@ -92,9 +92,24 @@ public final class Constants {
 
     }
 
+    public static class AlgeeManipulatorConstants {
+        public static final int Algee_Motor_ID = 34;
+        public static final int CoralReefSetpoint = 0;
+        public static final int StowPostionSetpoint = 0;
+        public static final int ProccsesorSetpoint = 0;
+        public static final int HoldFromReefSetpoint = 0;
+        public static final int HoldFromGroundSetpoint = 0;
+
+        //Remebr this is NOT the Eleavtor Height This is the angle of attack on the Algee Manipulator 
+        public static final double L1Setpoint = 0;
+        public static final double L2Setpoint = 0; 
+        public static final double L3Setpoint = 0;
+        public static final double L4Setpoint = 0;
+        
+    }
     public static class EndEffectorConstants {
-        public static final int Top_MotorID = 30; //30 At home
-        public static final int Bottom_MotorID = 31; //31 At home 
+        public static final int Top_MotorID = 33; //33 
+        public static final int Bottom_MotorID = 31; 
         public static final double MotorReverseSpeed = 1;
         public static final double MotorFowardSpeed = -1;
         public static final int MotorIntakeSpeed = 100;
@@ -103,18 +118,33 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int Elev_MotorID = 32; // 32 At home
-        public static final int MaxHeightSensorID = 12;
+        public static final int Elevator_MotorID = 35; //32 
+        public static final int MaxHeightSensorID = 3;
         public static final int StowPostiontSensorID = 4;
-        public static final int MaxHeight = 20;
-        public static final int StowPostion = 2;
-        public static final int L2Height = 3;
-        public static final int L3Height = 5;
+        //All encoder values
+        public static final double L1SetpointC = 0;
+        public static final double L2SetpointC = -23; 
+        public static final double L3SetpointC = 0;
+        public static final double L4SetpointC = -280;
+         
+        public static final double GEARBOX_RATIO = 75.0;  
+        public static final double SPOOL_DIAMETER_METERS = 0.05;
+        //Encoder Height For ALGEEE NOT FOR CORAL
+        public static final double L1SetpointA = 0;
+        public static final double L2SetpointA = -23; 
+        public static final double L3SetpointA = 0;
+        public static final double L4SetpointA = -280;
+ 
 
+        //stupid not important things
+
+        public static final double MAX_HEIGHT_METERS = 1.0;
+        public static final double STOW_POSITION_METERS = 0.0;
+        public static final double L2_HEIGHT_METERS = 0.3;
+        public static final double L3_HEIGHT_METERS = 0.6;
         public static final double Stage1Height = Units.inchesToMeters(35);
         public static final double Stage2Height = Units.inchesToMeters(35);
         public static final double Stage3Height = Units.inchesToMeters(35);
-
         public static final double ExtrustionThickness = 10; // Not Correct at all but it was too small so you get 10 
 
     }

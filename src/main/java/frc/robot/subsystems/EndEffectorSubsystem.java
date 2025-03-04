@@ -14,6 +14,9 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import static frc.robot.Constants.Constants.EndEffectorConstants.*;
+
+import java.util.function.BooleanSupplier;
+
 import frc.robot.RobotContainer;
 // import org.littletonrobotics.junction.Logger;
 
@@ -72,7 +75,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     // Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
     // Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
     SmartDashboard.putNumber("End Effector Encoder Speed", Top_Encoder.getVelocity());
-    SmartDashboard.putBoolean("Coral SWitch", CoralExitSensor.get());
+    SmartDashboard.putBoolean("Coral SWitch", CoralEnterSensor.get());
 
 
   
@@ -102,6 +105,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return Commands.startEnd(() -> RollerIn(),() -> StopRoller(), this);
   } 
 
+  //COMMAND FOR SLOW SPEED FOR L1
+
   public void SetSpeed(double speedSet) {
     TopMotor.set(speedSet);
     BottomMotor.set(speedSet);
@@ -115,7 +120,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void StopRoller(){
     TopMotor.stopMotor();
     BottomMotor.stopMotor();
-    System.out.println("Stop Motor Called ");
+  }
+
+  public Command rollerStopCommand() {
+    return Commands.startEnd(()-> StopRoller(), ()-> StopRoller(), this);
   }
 
   public boolean RollerEngaged() {
@@ -126,12 +134,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean CoralEnterSensorTriggered() {
-    if (CoralEnterSensor.get()) {
-      return false; // Off
-    } else {
-      return true;
-    }
+  public BooleanSupplier CoralEnterSensorTriggered() {
+    return () -> !CoralEnterSensor.get();
   }
 
   public boolean CoralExitSensorTriggered() {
