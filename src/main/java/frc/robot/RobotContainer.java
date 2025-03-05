@@ -51,7 +51,7 @@ public class RobotContainer {
   public final ElevatorSubsystem ELEVATOR;
   public final EndEffectorSubsystem ENDEFFECTOR;
   public final VisionSubsystem VISION; 
-  public final AlgeeManipulatorSubsystem ALGEE;
+  // public final AlgeeManipulatorSubsystem ALGEE;
   // public static final Pigon PIGEON = new Pigon();
   public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
   
@@ -63,7 +63,7 @@ public class RobotContainer {
     ELEVATOR = new ElevatorSubsystem();
     ENDEFFECTOR = new EndEffectorSubsystem();
     VISION = new VisionSubsystem(); 
-    ALGEE = new AlgeeManipulatorSubsystem();
+    // ALGEE = new AlgeeManipulatorSubsystem();
 
     //**********************************************************************************
       SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
@@ -121,7 +121,11 @@ public class RobotContainer {
     OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
     
     OPERATOR_XBOX.povDown().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
-    OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
+    OPERATOR_XBOX.povLeft().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
+    OPERATOR_XBOX.povRight().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+    OPERATOR_XBOX.povUp().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
+
+    OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
     //Intake from Source
     OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
       new PrintCommand("Commands called"),

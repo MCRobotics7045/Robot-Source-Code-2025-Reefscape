@@ -122,10 +122,10 @@ public final class Constants {
         public static final int MaxHeightSensorID = 3;
         public static final int StowPostiontSensorID = 4;
         //All encoder values
-        public static final double L1SetpointC = 0;
-        public static final double L2SetpointC = -23; 
-        public static final double L3SetpointC = 0;
-        public static final double L4SetpointC = -280;
+        public static final double L1SetpointC = -20; //Pov Down
+        public static final double L2SetpointC = -70;  // Pov Left
+        public static final double L3SetpointC = -130; //Pov Right 
+        public static final double L4SetpointC = -220; //Pov Up
          
         public static final double GEARBOX_RATIO = 75.0;  
         public static final double SPOOL_DIAMETER_METERS = 0.05;
