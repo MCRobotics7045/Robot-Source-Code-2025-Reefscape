@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.741500000000001,
+        "y": 0.8172499999999991
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.971489282841808,
+        "y": 2.9716092545433535
+      },
+      "isLocked": false,
+      "linkedName": "Driver Rightside Start"
+    },
+    {
+      "anchor": {
+        "x": 6.2010000000000005,
+        "y": 4.931749999999999
+      },
+      "prevControl": {
+        "x": 6.400023199022233,
+        "y": 4.780456357532919
+      },
+      "nextControl": {
+        "x": 6.001976800977768,
+        "y": 5.0830436424670795
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.343,
+        "y": 5.4875
+      },
+      "prevControl": {
+        "x": 5.568698227563491,
+        "y": 5.379981117589986
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Coral IJ"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -117.59729586864366
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

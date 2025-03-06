@@ -14,6 +14,7 @@ import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstantsFactory;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants.SteerFeedbackType;
 import static frc.robot.Constants.Constants.*;
+import static frc.robot.Constants.Constants.SensorIOConstants.*;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 

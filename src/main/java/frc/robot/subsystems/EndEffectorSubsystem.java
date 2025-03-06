@@ -37,9 +37,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public RelativeEncoder Bottom_Encoder;
   public SparkMaxConfig config;
   SparkFlexConfig configClosedLoop ;
-  DigitalInput CoralEnterSensor = new DigitalInput(CoralEnterSensorID);
-  DigitalInput CoralExitSensor = new DigitalInput(CoralExitSensorID);
+
   
+  public double SpeedLimiterEndEffector = 1.0; // 1 is full 0 is none
+
+
   public EndEffectorSubsystem() {
     TopMotor = new SparkMax(Top_MotorID, MotorType.kBrushless);
     BottomMotor = new SparkMax(Bottom_MotorID, MotorType.kBrushless);
@@ -75,7 +77,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     // Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
     // Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
     SmartDashboard.putNumber("End Effector Encoder Speed", Top_Encoder.getVelocity());
-    SmartDashboard.putBoolean("Coral SWitch", CoralEnterSensor.get());
+    
 
 
   
@@ -85,26 +87,30 @@ public class EndEffectorSubsystem extends SubsystemBase {
 // i dont know what to call it. Spit out? Exhast? Get rid of? 
 
   public void RollerOut() {
-    TopMotor.set(MotorFowardSpeed);
-    BottomMotor.set(MotorReverseSpeed);
+    TopMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
+    BottomMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
     System.out.println("Roller Out Called ");
   }
 
   public Command rollerOutCommand() {
-    return Commands.startEnd(() -> RollerOut(),() -> StopRoller(), this);
+    return Commands.run(() -> RollerOut(), this);
   } 
 
   public void RollerIn() {
-    TopMotor.set(MotorReverseSpeed);
-    BottomMotor.set(MotorFowardSpeed);
+    TopMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
+    BottomMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
     System.out.println("Roller In Called ");
 
   }
 
   public Command rollerInCommand() {
-    return Commands.startEnd(() -> RollerIn(),() -> StopRoller(), this);
+    return Commands.run(() -> RollerIn(), this);
   } 
 
+
+  public Command ChangeEndEffectorRollerSpeed(double setspeed) {
+    return Commands.runOnce(()-> SpeedLimiterEndEffector = setspeed, this);
+  }
   //COMMAND FOR SLOW SPEED FOR L1
 
   public void SetSpeed(double speedSet) {
@@ -123,7 +129,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public Command rollerStopCommand() {
-    return Commands.startEnd(()-> StopRoller(), ()-> StopRoller(), this);
+    return Commands.run(()-> StopRoller(), this);
   }
 
   public boolean RollerEngaged() {
@@ -134,15 +140,6 @@ public class EndEffectorSubsystem extends SubsystemBase {
     }
   }
 
-  public BooleanSupplier CoralEnterSensorTriggered() {
-    return () -> !CoralEnterSensor.get();
-  }
 
-  public boolean CoralExitSensorTriggered() {
-    if (CoralExitSensor.get()) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+
 }

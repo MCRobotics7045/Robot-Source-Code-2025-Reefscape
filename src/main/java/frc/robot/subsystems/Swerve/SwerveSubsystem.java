@@ -42,7 +42,7 @@ import frc.robot.RobotContainer;
 // import static frc.robot.RobotContainer.VISION;
 // import static frc.robot.RobotContainer.SIMULATION_TELE;
 // import static frc.robot.Constants.Constants.SwerveConstants.*;
-// import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -116,7 +116,10 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
     }
 
     public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
-
+        xVelocity = xVelocity*Swerve_Speed;
+        yVelocity = yVelocity*Swerve_Speed;
+        rotationalVelocity = rotationalVelocity*Swerve_Speed;
+        
         final LegacySwerveRequest.FieldCentric driveRequest = new LegacySwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withVelocityX(xVelocity)
@@ -224,13 +227,13 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             double DriveMotorTorqueCurrent = getModule(i).getDriveMotor().getTorqueCurrent().getValueAsDouble();
             double DriveMotorSetSpeed = getModule(i).getTargetState().speedMetersPerSecond;
             double error = DriveMotorSetSpeed - DriveMotorSpeed;
-            // Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
-            // Logger.recordOutput("Module" + i + "DriveMotorSetSpeed", DriveMotorSetSpeed);
-            // Logger.recordOutput("Module" + i + "Speed Error", error);
-            // Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
-            // Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
-            // Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
-            // Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
+            Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
+            Logger.recordOutput("Module" + i + "DriveMotorSetSpeed", DriveMotorSetSpeed);
+            Logger.recordOutput("Module" + i + "Speed Error", error);
+            Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
+            Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
+            Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
+            Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
 
             //Steer
             double SteerMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
@@ -238,11 +241,11 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             double SteerMotorVelocity = getModule(i).getSteerMotor().getVelocity().getValueAsDouble();
             double SteerMotorStatorCurrent = getModule(i).getSteerMotor().getStatorCurrent().getValueAsDouble();
             double SteerMotorTorqueCurrent = getModule(i).getSteerMotor().getTorqueCurrent().getValueAsDouble();
-            // Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
-            // Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
-            // Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
-            // Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
-            // Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
+            Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
+            Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
+            Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
+            Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
+            Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
         }
         
     }

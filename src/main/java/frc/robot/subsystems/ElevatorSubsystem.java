@@ -4,36 +4,24 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Constants.ElevatorConstants;
+import static frc.robot.Constants.Constants.ElevatorConstants.Elevator_MotorID;
+import static frc.robot.RobotContainer.SENSORS;
 
-import static frc.robot.Constants.Constants.ElevatorConstants.*;
-
-import java.util.function.BooleanSupplier;
-
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import org.littletonrobotics.junction.Logger;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -42,8 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   RelativeEncoder Elevator_encoder;
   SparkMaxConfig config;
   double Elevator_Pos, Elv_proccsesvarible;
-  DigitalInput MaxHeightSensor = new DigitalInput(MaxHeightSensorID);
-  DigitalInput StowPostiontSensor = new DigitalInput(StowPostiontSensorID);
+
   int cylce = 0;
   private boolean StowPostionSensorBoolean = true;
   public ElevatorSubsystem() {
@@ -87,14 +74,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Elevator Encoder Height", Elevator_encoder.getPosition());
-    SmartDashboard.putBoolean("Elevator Stowed", StowPostiontSensor.get());
+    
     SmartDashboard.putBoolean("Elevator Engaged", StowPostionSensorBoolean);
     
-    // if (!StowPostiontSensor.get()) { 
-    //   StopMotor();
-    //   Elevator_encoder.setPosition(0);
-    //   System.out.println("Stow sensor triggered: Elevator stopped and encoder reset.");
-    // }
   }
 
   public double calculateEncoderSetpoint(double desiredTravelMeters) {
@@ -114,10 +96,15 @@ public class ElevatorSubsystem extends SubsystemBase {
   // }
 
 
-  // public Command LowerDowncommand() {
-  //     return Commands.startEnd(()-> LowerElevator(), ()-> StopMotor(), this);
+  public Command UnspoolCommand() {
+       return Commands.startEnd(()-> Elev_Motor.set(.2), ()-> StopMotor(), this);
 
-  // }
+  }
+
+  public Command SpoolCommand() {
+    return Commands.startEnd(()-> Elev_Motor.set(-.2), ()-> StopMotor(), this);
+
+}
 
   // public void RaiseEleavtor() {
   //   if (Elevator_encoder.getPosition() <= -365) {
@@ -143,12 +130,26 @@ public class ElevatorSubsystem extends SubsystemBase {
     return Commands.run(()->Elevator_encoder.setPosition(0), this);
   }
   
-  public BooleanSupplier getStowPositionSupplier() {
-    return () -> StowPostiontSensor.get();
+  public void ZeroEncoder () {
+    Elevator_encoder.setPosition(0);
   }
 
   public Command ReefSetpointPositionCommand(double SetPoint) {
-    return Commands.startEnd(()-> Elev_Motor_controller.setReference(SetPoint, SparkBase.ControlType.kMAXMotionPositionControl),()->StopMotor(),this).until(()-> false);
+    return Commands.startEnd(
+      ()-> Elev_Motor_controller.setReference(SetPoint, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()->StopMotor(),
+      this )
+      .until(()-> { 
+        if (SENSORS.ElevatorStowPostiontSensor.get()) { // No Switch
+          return false;
+        } else { //Yes Switch 
+          if (Elevator_encoder.getPosition() > -1) { // If Its moving or if the encoder is just WAYYYY Offf
+            ZeroEncoder();
+            return true;
+          }
+          return false;
+        }
+        });
   }
   
 }

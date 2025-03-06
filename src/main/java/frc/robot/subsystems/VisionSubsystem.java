@@ -132,6 +132,14 @@ public class VisionSubsystem extends SubsystemBase {
     return result.getBestTarget(); 
   }
 
+
+  public Pose2d getBestReefAprilTagPose() {
+    return null;
+  }
+
+  public double getBestTagYaw() {
+    return 1;
+  }
   public double FindPitch() {
     var result = postionCamera.getLatestResult();
     if (result.hasTargets()) {

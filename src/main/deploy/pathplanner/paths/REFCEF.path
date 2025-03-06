@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.1675,
+        "y": 2.8744999999999994
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.3209851533787305,
+        "y": 2.6771619456559175
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.382000000000001,
+        "y": 2.5332499999999993
+      },
+      "prevControl": {
+        "x": 5.17725,
+        "y": 2.9232499999999995
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Coral EF"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 119.99999999999999
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 119.1676133795778
+  },
+  "useDefaultConstraints": true
+}

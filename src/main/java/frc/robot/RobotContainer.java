@@ -11,6 +11,7 @@ import static frc.robot.Constants.Constants.InputConstants.DRIVER_XBOX_CONTROLLE
 import static frc.robot.Constants.Constants.InputConstants.OPERATOR_XBOX_CONTROLLER_PORT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -35,7 +37,7 @@ import frc.robot.subsystems.AlgeeManipulatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-// import frc.robot.subsystems.Swerve.Pigon;
+import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
 
@@ -52,26 +54,30 @@ public class RobotContainer {
   public final EndEffectorSubsystem ENDEFFECTOR;
   public final VisionSubsystem VISION; 
   // public final AlgeeManipulatorSubsystem ALGEE;
-  // public static final Pigon PIGEON = new Pigon();
+  public static SensorsIO SENSORS;
   public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
-  
-  SendableChooser<Command> autoChooser = new SendableChooser<>();
-  public RobotContainer() {
-    DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
-    OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
-    SWERVE = TunerConstants.DriveTrain;
-    ELEVATOR = new ElevatorSubsystem();
-    ENDEFFECTOR = new EndEffectorSubsystem();
-    VISION = new VisionSubsystem(); 
-    // ALGEE = new AlgeeManipulatorSubsystem();
-
+    
+    SendableChooser<Command> autoChooser = new SendableChooser<>();
+    public RobotContainer() {
+      DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
+      OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
+      SWERVE = TunerConstants.DriveTrain;
+      ELEVATOR = new ElevatorSubsystem();
+      ENDEFFECTOR = new EndEffectorSubsystem();
+      VISION = new VisionSubsystem(); 
+      // ALGEE = new AlgeeManipulatorSubsystem();
+      SENSORS = new SensorsIO();
     //**********************************************************************************
       SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
     //**********************************************************************************
+    NamedCommands.registerCommand("CoralL3Set", ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+    NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
+    NamedCommands.registerCommand("CoralL2Set", ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
+    NamedCommands.registerCommand("", getAutonomousCommand());
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
-  
+    
     configureBindings();
 
   }
@@ -80,62 +86,74 @@ public class RobotContainer {
   private void configureBindings() {
   //DRIVER CONTROLS -- David  
   
-  DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
-  DRIVER_XBOX.y().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
-  DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+
+  //Normal Coral Setpoints
+  DRIVER_XBOX.x().onTrue(Commands.runOnce(() -> {
+    if (AlgeeCoralToggle) { //Coral
+      ELEVATOR.ReefSetpointPositionCommand(L1SetpointC);
+    } else { //Algee
+      ELEVATOR.ReefSetpointPositionCommand(L1SetpointA);
+    }}));
+
+  DRIVER_XBOX.y().onTrue(Commands.runOnce(() -> {
+    if (AlgeeCoralToggle) {
+      ELEVATOR.ReefSetpointPositionCommand(L2SetpointC);
+    } else {
+      ELEVATOR.ReefSetpointPositionCommand(L2SetpointA);
+    }}));
+
+  DRIVER_XBOX.a().onTrue(Commands.runOnce(() -> {
+    if (AlgeeCoralToggle) {
+      ELEVATOR.ReefSetpointPositionCommand(L3SetpointC);
+    } else {
+      ELEVATOR.ReefSetpointPositionCommand(L3SetpointA);
+    }}));
+    
   DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
+  
+    
+  DRIVER_XBOX.start().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
   DRIVER_XBOX.rightBumper().onTrue(ENDEFFECTOR.rollerOutCommand());
   DRIVER_XBOX.leftBumper().onTrue(new SequentialCommandGroup(
-      new PrintCommand("Commands called"),
-      new ParallelDeadlineGroup(
-        new WaitUntilCommand(ENDEFFECTOR.CoralEnterSensorTriggered()),
-        ENDEFFECTOR.rollerOutCommand()
-      ),
-      new PrintCommand("Commands ending"),
-      createRumbleCommand(OPERATOR_XBOX,1, 2),
-      new PrintCommand("Commands rumble")
-    ));
-  DRIVER_XBOX.rightTrigger().onTrue(SWERVE.SlowSpeedCommand());
+    new PrintCommand("Intake Command called"),
+    ENDEFFECTOR.rollerOutCommand(),
+    new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+    new WaitCommand(0.4),
+    ENDEFFECTOR.rollerStopCommand(),
+    createRumbleCommand(OPERATOR_XBOX,1, 0.8)
+  ));
+  DRIVER_XBOX.rightTrigger().whileTrue(SWERVE.SlowSpeedCommand());
   
 
-  if (AlgeeCoralToggle) {
-    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
-    DRIVER_XBOX.y().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
-    DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
-    DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
-  } else {
-    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointA));
-    DRIVER_XBOX.y().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointA));
-    DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointA));
-    DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointA));
-  }
   //OPERATOR CONTROLS -- Jack/Backup
 
     
 
   //Test Controls
-    
+    OPERATOR_XBOX.leftTrigger().whileTrue(ELEVATOR.UnspoolCommand());
+    OPERATOR_XBOX.leftBumper().whileTrue(ELEVATOR.SpoolCommand());
     OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
     OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
     OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
     OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
-    
+    OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
     OPERATOR_XBOX.povDown().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
     OPERATOR_XBOX.povLeft().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
     OPERATOR_XBOX.povRight().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
     OPERATOR_XBOX.povUp().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
-
+    OPERATOR_XBOX.rightTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(0.3));
+    OPERATOR_XBOX.rightTrigger().onFalse(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1.0));
     OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
+
+
     //Intake from Source
     OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
-      new PrintCommand("Commands called"),
-      new ParallelDeadlineGroup(
-        new WaitUntilCommand(ENDEFFECTOR.CoralEnterSensorTriggered()),
-        ENDEFFECTOR.rollerOutCommand()
-      ),
-      new PrintCommand("Commands ending"),
-      createRumbleCommand(OPERATOR_XBOX,1, 2),
-      new PrintCommand("Commands rumble")
+      new PrintCommand("Intake Command called"),
+      ENDEFFECTOR.rollerOutCommand(),
+      new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+      new WaitCommand(0.4),
+      ENDEFFECTOR.rollerStopCommand(),
+      createRumbleCommand(OPERATOR_XBOX,1, 2)
     ));
 
     

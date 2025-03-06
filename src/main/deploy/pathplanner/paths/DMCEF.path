@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.819500000000001,
+        "y": 4.03475
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.249758976965591,
+        "y": 4.257139529540839
+      },
+      "isLocked": false,
+      "linkedName": "Driver Middle Start"
+    },
+    {
+      "anchor": {
+        "x": 5.382000000000001,
+        "y": 2.5332499999999993
+      },
+      "prevControl": {
+        "x": 5.146412776125113,
+        "y": 2.390273601763066
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Coral EF"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 119.99999999999999
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

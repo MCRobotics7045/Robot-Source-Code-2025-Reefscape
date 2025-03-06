@@ -4,33 +4,55 @@
 
 package frc.robot.subsystems.Swerve;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.Constants.SensorIOConstants.CoralEnterSensorID;
+import static frc.robot.Constants.Constants.SensorIOConstants.CoralExitSensorID;
+import static frc.robot.Constants.Constants.SensorIOConstants.Pigeon2Iid;
+import static frc.robot.Constants.Constants.SensorIOConstants.StowPostiontSensorID;
+
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
-import static frc.robot.Constants.Constants.*;
-public class Pigon extends SubsystemBase {
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+public class SensorsIO extends SubsystemBase {
   
-  public Pigeon2 PIGON;
+  public Pigeon2 PigeonIMU;
+  public DigitalInput ElevatorStowPostiontSensor;
+  public DigitalInput CoralRampEnterSensor;
+  public DigitalInput CoralEndEffectorEnterSensor;
 
-  public Pigon() {
-    PIGON = new Pigeon2(Pigeon2Iid);
+  public SensorsIO() {
+    PigeonIMU = new Pigeon2(Pigeon2Iid);
+    ElevatorStowPostiontSensor = new DigitalInput(StowPostiontSensorID);
+    CoralEndEffectorEnterSensor = new DigitalInput(CoralExitSensorID);
+    CoralRampEnterSensor = new DigitalInput(CoralEnterSensorID);
+
   }
 
-  // public Rotation2d getYawAsRotation2d() {
-	// 	return Rotation2d.fromDegrees(PIGON.getYaw().getValue());
-	// }
+  @Override
+  public void periodic() {
+      SmartDashboard.putBoolean("Elevator Stowed", ElevatorStowPostiontSensor.get());
+      SmartDashboard.putBoolean("Coral Ramp", CoralRampEnterSensor.get());
+      SmartDashboard.putBoolean("Coral End Effector", CoralEndEffectorEnterSensor.get());
 
-  // public double getYawFromPigeon() {
-  //   // return PIGON.getYaw().getValue();
-  // }
-
-  public void zeroPigeon() {
-    PIGON.setYaw(0);
   }
+   public BooleanSupplier getStowPositionSupplier() {
+      return () -> ElevatorStowPostiontSensor.get();
+   }
 
-  public void overridePigeon(double NewAngle) {
-    PIGON.setYaw(NewAngle);
-  }
+   public BooleanSupplier CoralRampEnterSensorTriggered() {
+    return () -> !CoralRampEnterSensor.get();
+   }
 
-  
+   public BooleanSupplier CoralEndEffectorEnterSensorTriggered() {
+    return () -> !CoralEndEffectorEnterSensor.get();
+   }
+
+   public Command ZeroPigeonIMU() {
+    return Commands.runOnce(()-> PigeonIMU.setYaw(0));
+   }
 }

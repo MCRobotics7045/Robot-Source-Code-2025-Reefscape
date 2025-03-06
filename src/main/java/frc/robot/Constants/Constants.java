@@ -37,10 +37,17 @@ public final class Constants {
     public static final boolean kDebug = true;
 
     //Can IDS
-    public static final int Pigeon2Iid = 54;
+    
 
     // XBOX Buttons
     
+    public static class SensorIOConstants {
+        public static final int Pigeon2Iid = 54;
+        public static final int CoralEnterSensorID = 2;
+        public static final int CoralExitSensorID = 0;
+        public static final int MaxHeightSensorID = 3;
+        public static final int StowPostiontSensorID = 4;
+    }
 
     public static class PneumaticConstatns {
         //Solenoid 1
@@ -113,14 +120,12 @@ public final class Constants {
         public static final double MotorReverseSpeed = 1;
         public static final double MotorFowardSpeed = -1;
         public static final int MotorIntakeSpeed = 100;
-        public static final int CoralEnterSensorID = 2;
-        public static final int CoralExitSensorID = 0;
+        
     }
 
     public static class ElevatorConstants {
         public static final int Elevator_MotorID = 35; //32 
-        public static final int MaxHeightSensorID = 3;
-        public static final int StowPostiontSensorID = 4;
+        
         //All encoder values
         public static final double L1SetpointC = -20; //Pov Down
         public static final double L2SetpointC = -70;  // Pov Left

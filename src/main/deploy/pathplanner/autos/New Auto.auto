@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "Test Foward"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New New Path"
+            "name": "CoralL3Set"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire Coral"
           }
         }
       ]

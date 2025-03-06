@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.819500000000001,
+        "y": 4.03475
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.132203550732052,
+        "y": 4.375839050557862
+      },
+      "isLocked": false,
+      "linkedName": "Driver Middle Start"
+    },
+    {
+      "anchor": {
+        "x": 4.57275,
+        "y": 2.0554999999999994
+      },
+      "prevControl": {
+        "x": 5.490421275505074,
+        "y": 2.089015628969926
+      },
+      "nextControl": {
+        "x": 4.024847418917451,
+        "y": 2.035489240036829
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.0907500000000003,
+        "y": 2.80625
+      },
+      "prevControl": {
+        "x": 3.2569491258884877,
+        "y": 2.6194938741194744
+      },
+      "nextControl": {
+        "x": 2.924550874111513,
+        "y": 2.9930061258805254
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.83725,
+        "y": 4.03475
+      },
+      "prevControl": {
+        "x": 2.9075693269826477,
+        "y": 3.768187174699635
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Coral AB"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}
