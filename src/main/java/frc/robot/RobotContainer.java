@@ -33,6 +33,7 @@ import static frc.robot.Constants.Constants.ElevatorConstants.*;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
+import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
 // import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeManipulatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -49,24 +50,26 @@ public class RobotContainer {
 
   public static  CommandXboxController  DRIVER_XBOX;
     public static CommandXboxController OPERATOR_XBOX;
-    public final SwerveSubsystem SWERVE;
+
     public final ElevatorSubsystem ELEVATOR;
     public final EndEffectorSubsystem ENDEFFECTOR;
-    public final VisionSubsystem VISION; 
-    // public final PneumaticSubsytem PNEUMATICS;
-    // public final AlgeeManipulatorSubsystem ALGEE;
-    public static SensorsIO SENSORS;
-    public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
-      
-      SendableChooser<Command> autoChooser = new SendableChooser<>();
-      public RobotContainer() {
+    public static VisionSubsystem VISION; 
+    public final PneumaticSubsytem PNEUMATICS;
+    public final SwerveSubsystem SWERVE;
+        // public final AlgeeManipulatorSubsystem ALGEE;
+        public static SensorsIO SENSORS;
+        public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
+          
+        SendableChooser<Command> autoChooser = new SendableChooser<>();
+    public RobotContainer() {
         DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
         OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
-        SWERVE = TunerConstants.createDrivetrain();
+
         ELEVATOR = new ElevatorSubsystem();
         ENDEFFECTOR = new EndEffectorSubsystem();
         VISION = new VisionSubsystem(); 
-        // PNEUMATICS = new PneumaticSubsytem();
+        SWERVE = TunerConstants.createDrivetrain();
+        PNEUMATICS = new PneumaticSubsytem();
         // ALGEE = new AlgeeManipulatorSubsystem();
         SENSORS = new SensorsIO();
         
@@ -116,19 +119,24 @@ public class RobotContainer {
     
       
     DRIVER_XBOX.start().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
-    DRIVER_XBOX.rightBumper().onTrue(ENDEFFECTOR.rollerOutCommand());
+    DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
   
-    DRIVER_XBOX.leftBumper().onTrue(new SequentialCommandGroup(
-      new PrintCommand("Intake Command called"),
-      ENDEFFECTOR.rollerOutCommand(),
-      new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
-      new WaitCommand(0.4),
-      ENDEFFECTOR.rollerStopCommand(),
-      createRumbleCommand(2,1, 0.8)
+    DRIVER_XBOX.x().onTrue(new SequentialCommandGroup(
+      new PrintCommand("Intake Run called"),
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
+        ENDEFFECTOR.rollerOutCommand()
+      ),
+      new PrintCommand("Coral Grabbed Ready To Move"),
+      createRumbleCommand(2,1, 1),
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      )
     ));
   
     
-    
+    DRIVER_XBOX.leftTrigger().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, true));
   
     //OPERATOR CONTROLS -- Jack/Backup
   
@@ -136,7 +144,7 @@ public class RobotContainer {
   
     //Test Controls
       OPERATOR_XBOX.leftTrigger().whileTrue(ELEVATOR.UnspoolCommand());
-      OPERATOR_XBOX.leftBumper().whileTrue(ELEVATOR.SpoolCommand());
+      OPERATOR_XBOX.leftBumper().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, AlgeeCoralToggle));
       OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
       OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
       // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
@@ -158,21 +166,22 @@ public class RobotContainer {
       OPERATOR_XBOX.start().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
 
+      OPERATOR_XBOX.a().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Extend());
 
+      
       //Intake from Source
       OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
         new PrintCommand("Intake Run called"),
         new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitCommand(SmartDashboard.getNumber("Threashold", Threashold))),
+          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
           ENDEFFECTOR.rollerOutCommand()
         ),
         new PrintCommand("Coral Grabbed Ready To Move"),
-        createRumbleCommand(2,1, 2),
+        createRumbleCommand(2,1, 1),
         new ParallelDeadlineGroup(
           new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
-          ENDEFFECTOR.SetRollerSpeed(-0.3)
+          ENDEFFECTOR.SetRollerSpeed(0.5)
         )
-
       ));
   
       

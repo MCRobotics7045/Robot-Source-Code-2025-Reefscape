@@ -29,7 +29,6 @@ public class SensorsIO extends SubsystemBase {
   public static AnalogInput frontRightUltrasonic;
   public static AnalogInput rearLeftUltrasonic;
   public static AnalogInput rearRightUltrasonic;
-  public final SparkLimitSwitch beamBreakSensor;
 
 
   public SensorsIO() {
@@ -40,8 +39,6 @@ public class SensorsIO extends SubsystemBase {
     frontLeftUltrasonic = new AnalogInput(FrontLeft);
     frontRightUltrasonic = new AnalogInput(FrontRight);
     rearLeftUltrasonic = new AnalogInput(RearLeft);
-    rearRightUltrasonic = new AnalogInput(RearRight);
-    beamBreakSensor = EndEffectorSubsystem.TopMotor.getForwardLimitSwitch();
     
     
   }
@@ -64,6 +61,11 @@ public class SensorsIO extends SubsystemBase {
    public BooleanSupplier CoralRampEnterSensorTriggered() {
     return () -> !CoralRampEnterSensor.get();
    }
+
+   public BooleanSupplier OppCoralRampEnterSensorTriggered() {
+    return () -> CoralRampEnterSensor.get();
+   }
+
 
    public BooleanSupplier CoralEndEffectorEnterSensorTriggered() {
     return () -> !CoralEndEffectorEnterSensor.get();

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -56,6 +57,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final SysIdRoutine m_sysIdRoutineRotation;
     private SysIdRoutine m_sysIdRoutineToApply;
     private Field2d field = new Field2d();
+    private VisionSubsystem VISION;
 
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
@@ -63,11 +65,13 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        VISION = RobotContainer.VISION;
         m_sysIdRoutineTranslation = createTranslationSysIdRoutine();
         m_sysIdRoutineSteer = createSteerSysIdRoutine();
         m_sysIdRoutineRotation = createRotationSysIdRoutine();
         m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
         configurePathPlanner();
+        SmartDashboard.putData(field);
     }
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency, SwerveModuleConstants<?, ?, ?>... modules) {
@@ -215,13 +219,23 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         }
 
 
-        Pose2d currentPose = getState().Pose;
+        
+        
+        GraphMotorData();
+        
+      
+
+        Pose2d currentPose = getPose();
         if (currentPose != null) {
             field.setRobotPose(currentPose);
         }
 
-        GraphMotorData();
     }
+
+    public void addVisionMeasurement(Pose2d visionRobotPose, double timestamp) {
+        super.addVisionMeasurement(visionRobotPose, Utils.fpgaToCurrentTime(timestamp));
+    }
+    
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.quasistatic(direction);

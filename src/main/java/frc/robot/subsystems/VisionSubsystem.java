@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 // import org.littletonrobotics.junction.Logger;
 
@@ -33,7 +35,7 @@ public class VisionSubsystem extends SubsystemBase {
   int SelectedID;
   int Cycle = 0;
   AprilTagFieldLayout fieldLayout;
-  PhotonPoseEstimator photonPoseEstimator;
+  private final PhotonPoseEstimator photonPoseEstimator;
   public Transform3d camPose;
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; 
@@ -42,7 +44,9 @@ public class VisionSubsystem extends SubsystemBase {
   boolean done;
   double yaw;
  
- 
+  
+  private Optional<EstimatedRobotPose> latestEstimatedPose = Optional.empty();
+
 
   public VisionSubsystem() {
     super();
@@ -74,14 +78,23 @@ public class VisionSubsystem extends SubsystemBase {
     } else {
       System.out.println("Warning No Tag Found");
     }
-//------------------------------------------------------------------------------------
+//--------------------------EST POSE---------------------------------------------------
 
 
 		fieldLayout =  AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 	
     camPose = new Transform3d(
-      new Translation3d(0,0,Units.inchesToMeters(5)), //dont know correct
-      new Rotation3d(0,Units.degreesToRadians(15), 0));
+    new Translation3d(
+        Units.inchesToMeters(9.875), // convert inches to meters
+        Units.inchesToMeters(11.875),
+        Units.inchesToMeters(9.5)),
+    new Rotation3d(
+        0,
+        Units.degreesToRadians(65),
+        Units.degreesToRadians(25)
+    )
+);
+
       
     photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camPose);
 
@@ -93,26 +106,28 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    // GetResults(2);
-
-  //   if (Cycle >= 50) {
-  //     Cycle = 0;
-  //     SmartDashboard.putBoolean("Found Tag?", CheckTagID(SelectedID));
-  //     PhotonTrackedTarget bestTarget = selectBestTarget();
-  //     if (bestTarget != null) {
-  //       BestFoundTag = bestTarget.getFiducialId();
-  //       yaw = bestTarget.getYaw();
-  //     }
-  //   }
-  //   Cycle = Cycle + 1;
+    PhotonPipelineResult result = postionCamera.getLatestResult();
+    if (!result.hasTargets()) {
+      latestEstimatedPose = Optional.empty();
+      return;
+    }
     
-    SelectedID = AprilTagSelector.getSelected();
-    // SmartDashboard.putNumber("Best Tag Seen", BestFoundTag);
-    // SmartDashboard.putNumber("Yaw Of AprilTag", yaw);
+    Optional<EstimatedRobotPose> poseOPT = photonPoseEstimator.update(result);
+
+    if (poseOPT.isPresent()) {
+      latestEstimatedPose = poseOPT;
+      EstimatedRobotPose estPose = poseOPT.get();
+
+    } else {
+      latestEstimatedPose = Optional.empty();
+    }
 
   }
 
+  public Optional<EstimatedRobotPose> getLatestPose() {
+    return latestEstimatedPose;
+  }
+  
 
   public static List<Integer> getAllSeenTags() {
     var result = postionCamera.getLatestResult();
