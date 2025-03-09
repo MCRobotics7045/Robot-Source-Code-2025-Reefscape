@@ -9,6 +9,8 @@ import static frc.robot.Constants.Constants.SensorIOConstants.*;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.EndEffectorSubsystem;
 public class SensorsIO extends SubsystemBase {
   
   public static Pigeon2 PigeonIMU;
@@ -26,6 +29,7 @@ public class SensorsIO extends SubsystemBase {
   public static AnalogInput frontRightUltrasonic;
   public static AnalogInput rearLeftUltrasonic;
   public static AnalogInput rearRightUltrasonic;
+  public final SparkLimitSwitch beamBreakSensor;
 
 
   public SensorsIO() {
@@ -37,7 +41,9 @@ public class SensorsIO extends SubsystemBase {
     frontRightUltrasonic = new AnalogInput(FrontRight);
     rearLeftUltrasonic = new AnalogInput(RearLeft);
     rearRightUltrasonic = new AnalogInput(RearRight);
-
+    beamBreakSensor = EndEffectorSubsystem.TopMotor.getForwardLimitSwitch();
+    
+    
   }
 
   @Override

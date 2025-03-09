@@ -19,7 +19,7 @@ public class PneumaticSubsytem extends SubsystemBase {
   public boolean startDown = true;
   public boolean PostionClimber = false; 
   // DoubleSolenoid climberSolenoid2 = new DoubleSolenoid(PneumaticsModuleType.REVPH, 1, 2); 
-  // private final Compressor climber_Compressor; //fuck the comrpessor
+  // private final Compressor climber_Compressor; 
   public PneumaticSubsytem() {
     climberSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 4);
     // climber_Compressor = new Compressor(PneumaticsModuleType.CTREPCM);

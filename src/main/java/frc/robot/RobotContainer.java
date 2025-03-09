@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
@@ -41,7 +42,7 @@ import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.subsystems.PneumaticSubsytem;
 
-import frc.robot.Constants.*;
+import static frc.robot.Constants.Constants.SensorIOConstants.*;
 
 
 public class RobotContainer {
@@ -77,7 +78,7 @@ public class RobotContainer {
       NamedCommands.registerCommand("CoralL2Set", ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);
-
+      SmartDashboard.putNumber("Threashold", Threashold);
       // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
       
       configureBindings();
@@ -149,18 +150,29 @@ public class RobotContainer {
       OPERATOR_XBOX.rightTrigger().onFalse(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1.0));
       OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
 
-  
-  
+      
+      //Sys ID
+      OPERATOR_XBOX.back().and(OPERATOR_XBOX.y()).whileTrue(SWERVE.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      OPERATOR_XBOX.back().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      OPERATOR_XBOX.start().and(OPERATOR_XBOX.y()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      OPERATOR_XBOX.start().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+
+
       //Intake from Source
       OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
         new PrintCommand("Intake Run called"),
         new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitCommand(0.2)),
+          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitCommand(SmartDashboard.getNumber("Threashold", Threashold))),
           ENDEFFECTOR.rollerOutCommand()
         ),
+        new PrintCommand("Coral Grabbed Ready To Move"),
+        createRumbleCommand(2,1, 2),
+        new ParallelDeadlineGroup(
+          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+          ENDEFFECTOR.SetRollerSpeed(-0.3)
+        )
 
-        new PrintCommand("Roller Stop Ended"),
-        createRumbleCommand(2,1, 2)
       ));
   
       

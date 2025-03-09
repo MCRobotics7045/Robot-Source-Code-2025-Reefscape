@@ -29,13 +29,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EndEffectorSubsystem extends SubsystemBase {
   /** Creates a new End Effector. */
-  public SparkMax TopMotor;
-  public SparkMax BottomMotor;
+  public static SparkMax TopMotor;
+  public static SparkMax BottomMotor;
   public SparkClosedLoopController topMClosedLoopController;
   public SparkClosedLoopController bottomMClosedLoopController;
   public RelativeEncoder Top_Encoder;
   public RelativeEncoder Bottom_Encoder;
   public SparkMaxConfig config;
+  public SparkMaxConfig Invertconfig;
   SparkFlexConfig configClosedLoop ;
 
   
@@ -49,8 +50,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
     config
       .smartCurrentLimit(40)
       .idleMode(IdleMode.kBrake)
-      .openLoopRampRate(0.1)
-      .inverted(true);
+      .openLoopRampRate(0.1);
+      
 
 
     configClosedLoop = new SparkFlexConfig();
@@ -64,6 +65,15 @@ public class EndEffectorSubsystem extends SubsystemBase {
     TopMotor.configure(configClosedLoop, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     BottomMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     BottomMotor.configure(configClosedLoop, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
+    //Invert Bottom Motor:
+
+    Invertconfig = new SparkMaxConfig();
+    Invertconfig.inverted(true);
+    BottomMotor.configure(Invertconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
     Top_Encoder = TopMotor.getEncoder();
     Bottom_Encoder = BottomMotor.getEncoder();
     topMClosedLoopController = TopMotor.getClosedLoopController();
@@ -88,7 +98,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void RollerOut() {
     TopMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
-    BottomMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
+    BottomMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
   }
 
   public Command rollerOutCommand() {
@@ -103,7 +113,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void RollerIn() {
     TopMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
-    BottomMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
+    BottomMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
     System.out.println("Roller In Called ");
 
   }
@@ -122,6 +132,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
     TopMotor.set(speedSet);
     BottomMotor.set(speedSet);
   }
+
+  public Command SetRollerSpeed(double speedSet) {
+    return Commands.startEnd(()-> SetSpeed(speedSet), ()-> StopRoller(), this);
+  }
+
 
   public void RollerIntakeCoral() {
     TopMotor.set(MotorIntakeSpeed);
