@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants.AlgeeManipulatorConstants;
 
 import com.revrobotics.RelativeEncoder;
@@ -60,7 +61,6 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command L2SetpointPositionCommand() {
-    
     return Commands.startEnd(
       ()-> closedLoopController.setReference(L2Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),

@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Constants.ElevatorConstants.Elevator_MotorID;
 import static frc.robot.RobotContainer.SENSORS;
 
+import javax.imageio.plugins.tiff.TIFFDirectory;
+
+import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -21,10 +24,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
+
+ 
   SparkMax Elev_Motor;
   SparkClosedLoopController Elev_Motor_controller;
   RelativeEncoder Elevator_encoder;
@@ -34,6 +42,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   int cylce = 0;
   private boolean StowPostionSensorBoolean = true;
   public ElevatorSubsystem() {
+
+    
 //Setup Motor
     Elev_Motor = new SparkMax(Elevator_MotorID, MotorType.kBrushless);
     config = new SparkMaxConfig();
@@ -135,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command ReefSetpointPositionCommand(double SetPoint) {
-    return Commands.startEnd(
+    Command ElevatorCommand = Commands.startEnd(
       ()-> Elev_Motor_controller.setReference(SetPoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this )
@@ -150,6 +160,9 @@ public class ElevatorSubsystem extends SubsystemBase {
           return false;
         }
         });
+
+
+      return ElevatorCommand.andThen(RobotContainer.createRumbleCommand(1,1,0.7));
   }
   
 }

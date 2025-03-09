@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.EstimatedRobotPose;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -24,7 +26,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
-  public PhotonCamera postionCamera; 
+  public static PhotonCamera postionCamera; 
 
 
   int FoundID; 
@@ -112,6 +114,18 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
 
+  public static List<Integer> getAllSeenTags() {
+    var result = postionCamera.getLatestResult();
+
+    if (!result.hasTargets()) {
+        return List.of(); // No tags detected, return empty list
+    }
+
+    return result.getTargets().stream()
+            .map(PhotonTrackedTarget::getFiducialId)
+            .collect(Collectors.toList()); 
+}
+
 
   public Pose2d getAprilTagPose2d(int TagId) {
     Optional<Pose3d> tagPoseOpt = fieldLayout.getTagPose(TagId);
@@ -182,7 +196,23 @@ public class VisionSubsystem extends SubsystemBase {
     return false; 
   }
 
-  
+  public boolean CheckVisionHealth() {
+    var result = postionCamera.getLatestResult();
+    int HealthScore = 0;
+    if (result.getTimestampSeconds() > 0) {
+      HealthScore += 0.1;
+    } else if (result.hasTargets()) {
+      HealthScore += 0.1;
+    }
+    if (HealthScore >= 1) {
+      //PASS
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   // public double FindTagIDyaw(int TagId) {
   //   var result = poseCam.getLatestResult();
   //   double targetYaw = 0.0;

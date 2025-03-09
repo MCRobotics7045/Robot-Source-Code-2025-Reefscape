@@ -44,9 +44,21 @@ public final class Constants {
     public static class SensorIOConstants {
         public static final int Pigeon2Iid = 54;
         public static final int CoralEnterSensorID = 2;
-        public static final int CoralExitSensorID = 0;
+        public static final int CoralExitSensorID = 9;
         public static final int MaxHeightSensorID = 3;
         public static final int StowPostiontSensorID = 4;
+
+        public static final int FrontRight = 0;
+        public static final int FrontLeft = 1;
+        public static final int RearLeft = 2;
+        public static final int RearRight = 3;
+        public static final int LeftSide = 4;
+        public static final int RightSide = 5;
+
+        public static final double HoldingTime = 0.0;
+        //UltraSonic Threashold 
+
+        public static final double Threashold = 10;
     }
 
     public static class PneumaticConstatns {
@@ -64,7 +76,7 @@ public final class Constants {
         public static final int DSOL4_PORT_REV = 0;
     }
     public static class SwerveConstants {
-        public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt
+        public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt // 20.1 nominal 
         public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
         public static final double SlewRate = 10;

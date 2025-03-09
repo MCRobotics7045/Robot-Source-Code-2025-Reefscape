@@ -89,10 +89,15 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void RollerOut() {
     TopMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
     BottomMotor.set(MotorReverseSpeed * SpeedLimiterEndEffector);
-    System.out.println("Roller Out Called ");
   }
 
   public Command rollerOutCommand() {
+    return Commands.startEnd(() -> RollerOut(),() -> StopRoller(), this);
+  } 
+
+
+  
+  public Command rollerRunCommand() {
     return Commands.run(() -> RollerOut(), this);
   } 
 
@@ -104,7 +109,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public Command rollerInCommand() {
-    return Commands.run(() -> RollerIn(), this);
+    return Commands.startEnd(() -> RollerIn(),() -> StopRoller(), this);
   } 
 
 

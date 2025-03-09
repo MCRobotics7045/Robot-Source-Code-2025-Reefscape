@@ -1,230 +1,158 @@
 package frc.robot.subsystems.Swerve;
 
-import java.util.Optional;
+import static edu.wpi.first.units.Units.*;
+
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrain;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
-// import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.ApplyChassisSpeeds;
-// import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveRotation;
+import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveSteerGains;
+import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
+
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import frc.robot.subsystems.Swerve.SensorsIO;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.RobotContainer;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-// import org.photonvision.EstimatedRobotPose;
 
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-// import frc.robot.Robot;
-import frc.robot.RobotContainer;
-// import frc.robot.Constants.Constants;
-// import frc.robot.Constants.TunerConstants;
-// import static frc.robot.RobotContainer.VISION;
-// import static frc.robot.RobotContainer.SIMULATION_TELE;
-// import static frc.robot.Constants.Constants.SwerveConstants.*;
-import org.littletonrobotics.junction.Logger;
-
-/**
- * Class that extends the Phoenix SwerveDrivetrain class and implements
- * subsystem so it can be used in command-based projects easily.
- */
-public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem {
-    private double kP = 0.5; 
-    private double kI = 0.0;
-    private double kD = 0.0;
-    private double kV = 1.2;
-    private static final LinearFilter speedSmoother = LinearFilter.movingAverage(5);
-    private static final double kSimLoopPeriod = 0.005; // 5 ms
+public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
+    private static final double kSimLoopPeriod = 0.005;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    RobotConfig config;
-    private final LegacySwerveRequest.ApplyChassisSpeeds m_pathApplyRobotSpeeds = new LegacySwerveRequest.ApplyChassisSpeeds();
-    Field2d field = new Field2d();
-    public Double SpeedMultipler = 1.0;
-    private Optional<EstimatedRobotPose> estimated;
-    double[] states = new double[8];
-    public double Swerve_Speed;
-    public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, LegacySwerveModuleConstants... modules) {
-        super(driveTrainConstants, OdometryUpdateFrequency, modules);
-        configurePathPlanner();
+    private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.k180deg;
+    private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.kZero;
+    private boolean m_hasAppliedOperatorPerspective = false;
+    private final SysIdSwerveTranslation m_translationCharacterization = new SysIdSwerveTranslation();
+    private final SysIdSwerveSteerGains m_steerCharacterization = new SysIdSwerveSteerGains();
+    private final SysIdSwerveRotation m_rotationCharacterization = new SysIdSwerveRotation();
+    private final SysIdRoutine m_sysIdRoutineTranslation;
+    private final SysIdRoutine m_sysIdRoutineSteer;
+    private final SysIdRoutine m_sysIdRoutineRotation;
+    private SysIdRoutine m_sysIdRoutineToApply;
+    private Field2d field = new Field2d();
+
+
+    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
+        super(dtConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        SmartDashboard.putNumber("Drive kP", kP);
-        SmartDashboard.putNumber("Drive kI", kI);
-        SmartDashboard.putNumber("Drive kD", kD);
-        SmartDashboard.putNumber("Drive kV", kV);
+        m_sysIdRoutineTranslation = createTranslationSysIdRoutine();
+        m_sysIdRoutineSteer = createSteerSysIdRoutine();
+        m_sysIdRoutineRotation = createRotationSysIdRoutine();
+        m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+        configurePathPlanner();
     }
 
-    public SwerveSubsystem(LegacySwerveDrivetrainConstants driveTrainConstants, LegacySwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
-        configurePathPlanner();
+    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency, SwerveModuleConstants<?, ?, ?>... modules) {
+        super(dtConstants, odometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        SmartDashboard.putData("GameFeild", field);
-        getState().Pose = new Pose2d();
-        SmartDashboard.putNumber("Drive kP", kP);
-        SmartDashboard.putNumber("Drive kI", kI);
-        SmartDashboard.putNumber("Drive kD", kD);
-        SmartDashboard.putNumber("Drive kV", kV);
+        m_sysIdRoutineTranslation = createTranslationSysIdRoutine();
+        m_sysIdRoutineSteer = createSteerSysIdRoutine();
+        m_sysIdRoutineRotation = createRotationSysIdRoutine();
+        m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+        configurePathPlanner();
     }
 
-   
-
-
-    public void updatePID() {
-        kP = SmartDashboard.getNumber("Drive kP", kP);
-        kI = SmartDashboard.getNumber("Drive kI", kI);
-        kD = SmartDashboard.getNumber("Drive kD", kD);
-        kV = SmartDashboard.getNumber("Drive kV", kV);
-    
-        for (int i = 0; i < 4; i++) { 
-            getModule(i).getDriveMotor().getConfigurator().apply(new Slot0Configs()
-                .withKP(kP)
-                .withKI(kI)
-                .withKD(kD)
-                .withKV(kV)
-            );
+    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency, Matrix<N3, N1> odometryStdDev, Matrix<N3, N1> visionStdDev, SwerveModuleConstants<?, ?, ?>... modules) {
+        super(dtConstants, odometryUpdateFrequency, odometryStdDev, visionStdDev, modules);
+        if (Utils.isSimulation()) {
+            startSimThread();
         }
+        m_sysIdRoutineTranslation = createTranslationSysIdRoutine();
+        m_sysIdRoutineSteer = createSteerSysIdRoutine();
+        m_sysIdRoutineRotation = createRotationSysIdRoutine();
+        m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+        configurePathPlanner();
     }
-    
 
-
-    public Command applyRequest(Supplier<LegacySwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+        return run(() -> setControl(requestSupplier.get()));
     }
 
     public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
-        xVelocity = xVelocity*Swerve_Speed;
-        yVelocity = yVelocity*Swerve_Speed;
-        rotationalVelocity = rotationalVelocity*Swerve_Speed;
-        
-        final LegacySwerveRequest.FieldCentric driveRequest = new LegacySwerveRequest.FieldCentric()
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                .withVelocityX(xVelocity)
-                .withVelocityY(yVelocity)
-                .withRotationalRate(rotationalVelocity);
-
-        this.setControl(driveRequest);
-    }
-    
-    private void startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
+        SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+            .withVelocityX(xVelocity)
+            .withVelocityY(yVelocity)
+            .withRotationalRate(rotationalVelocity);
+        setControl(driveRequest);
     }
 
-     public Pose2d getPose() {
+    public boolean ObstcaleDetection(String IgnoredSide,int ShownTag) {
+        double ObstcaleScore = 0;
+        String obstaclePosition = SensorsIO.getObstaclePosition();
+        if (obstaclePosition.equals("None") || obstaclePosition.equals(IgnoredSide)) {
+            ObstcaleScore += 0.25;
+        } else {
+            ObstcaleScore -= 0.25;
+        }
+        if (VisionSubsystem.getAllSeenTags().contains(ShownTag)) {
+            ObstcaleScore += 0.25;
+        } else {
+            ObstcaleScore -= 0.25;
+        }
+        double gyroRate = SensorsIO.PigeonIMU.getRate();
+        if (Math.abs(gyroRate) < 5.0) {
+            ObstcaleScore += 0.25;
+        } else {
+            ObstcaleScore -= 0.25;
+        }
+        Pose2d currentPose = getState().Pose;
+        boolean isMoving = currentPose.getTranslation().getNorm() > 0.1;
+        if (isMoving) {
+            ObstcaleScore += 0.25;
+        } else {
+            ObstcaleScore -= 0.25;
+        }
+        return ObstcaleScore >= 0;
+    }
+
+
+    public Pose2d getPose() {
         return getState().Pose;
     }
 
-    private void configurePathPlanner() {
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
-
-            AutoBuilder.configure(
-                this::getPose,   // Supplier of current robot pose
-                this::seedFieldRelative,         // Consumer for seeding pose against auto
-                this::getCurrentRobotChassisSpeeds, // Supplier of current robot speeds
-                // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)),
-                new PPHolonomicDriveController(
-                    new PIDConstants(10, 0, 0),
-                    new PIDConstants(7, 0, 0)
-                ),
-                config,
-                () -> RobotContainer.IsRed(),
-                this
-                
-        );
-        
-    }
-
-    public Command getAutoPath(String pathName) {
-        return new PathPlannerAuto(pathName);
-    }
-
-    
-    
-    public ChassisSpeeds getCurrentRobotChassisSpeeds() {
-        return m_kinematics.toChassisSpeeds(getState().ModuleStates);
-    }
-
-   
-   
-    // public void UpdatePose() {
-    //     Pose2d currentPose = getPose();
-    //     estimated = VISION.getEstimatedGlobalPose(getPose());
-    //     Pose2d pathPlannerPose = AutoBuilder.getCurrentPose(); 
-
-    //     if (estimated.isPresent()){
-    //         EstimatedRobotPose Given = estimated.get();
-    //         Pose2d visionPose = Given.estimatedPose.toPose2d();
-
-    //         Pose2d correctedPose = blendPoses(pathPlannerPose, visionPose, 0.8); 
-    //         seedFieldRelative(correctedPose);  
-
-    //         addVisionMeasurement(visionPose, Given.timestampSeconds);
-    //         field.setRobotPose(correctedPose);
-    //         Logger.recordOutput("Updated Pose (PathPlanner + Vision)", correctedPose);
-
-    //     } else {
-    //         seedFieldRelative(pathPlannerPose);
-    //         field.setRobotPose(pathPlannerPose);
-    //         Logger.recordOutput("Updated Pose (PathPlanner Only)", pathPlannerPose);
-    //     }
-    // }
 
     private Pose2d blendPoses(Pose2d pathPose, Pose2d visionPose, double BLENDER) {
         double x = (1 - BLENDER) * pathPose.getX() + BLENDER * visionPose.getX();
         double y = (1 - BLENDER) * pathPose.getY() + BLENDER * visionPose.getY();
         double rotation = (1 - BLENDER) * pathPose.getRotation().getRadians() + BLENDER * visionPose.getRotation().getRadians();
-        return new Pose2d(x, y, new edu.wpi.first.math.geometry.Rotation2d(rotation));
+        return new Pose2d(x, y, new Rotation2d(rotation));
     }
 
     private void GraphMotorData() {
         for (int i = 0; i < 4; i++) {
-
-            //Drive
             double DriveMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
             double DriveMotorVoltage = getModule(i).getDriveMotor().getMotorVoltage().getValueAsDouble();
             double DriveMotorVelocity = getModule(i).getDriveMotor().getVelocity().getValueAsDouble();
-            double DriveMotorStatorCurrent = getModule(i).getDriveMotor().getStatorCurrent().getValueAsDouble();
-            double DriveMotorTorqueCurrent = getModule(i).getDriveMotor().getTorqueCurrent().getValueAsDouble();
             double DriveMotorSetSpeed = getModule(i).getTargetState().speedMetersPerSecond;
             double error = DriveMotorSetSpeed - DriveMotorSpeed;
             Logger.recordOutput("Module:" + i + " DriveMotorSpeed", DriveMotorSpeed);
@@ -232,77 +160,136 @@ public class SwerveSubsystem extends LegacySwerveDrivetrain implements Subsystem
             Logger.recordOutput("Module" + i + "Speed Error", error);
             Logger.recordOutput("Module:" + i + " DriveMotorVoltage", DriveMotorVoltage);
             Logger.recordOutput("Module:" + i + " DriveMotorVelocity", DriveMotorVelocity);
-            Logger.recordOutput("Module:" + i + " DriveMotorStatorCurrent", DriveMotorStatorCurrent);
-            Logger.recordOutput("Module:" + i + " DriveMotorTorqueCurrent", DriveMotorTorqueCurrent);
 
-            //Steer
-            double SteerMotorSpeed = getModule(i).getCurrentState().speedMetersPerSecond;
+            double SteerMotorTurnAngle = getModule(i).getSteerMotor().getPosition().getValueAsDouble();
             double SteerMotorVoltage = getModule(i).getSteerMotor().getMotorVoltage().getValueAsDouble();
             double SteerMotorVelocity = getModule(i).getSteerMotor().getVelocity().getValueAsDouble();
-            double SteerMotorStatorCurrent = getModule(i).getSteerMotor().getStatorCurrent().getValueAsDouble();
-            double SteerMotorTorqueCurrent = getModule(i).getSteerMotor().getTorqueCurrent().getValueAsDouble();
-            Logger.recordOutput("Module:" + i + " SteerMotorSpeed", SteerMotorSpeed);
+            Logger.recordOutput("Module:" + i + " SteerMotorPos", SteerMotorTurnAngle);
             Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
             Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
-            Logger.recordOutput("Module:" + i + " SteerMotorStatorCurrent", SteerMotorStatorCurrent);
-            Logger.recordOutput("Module:" + i + " SteerMotorTorqueCurrent", SteerMotorTorqueCurrent);
         }
-        
     }
 
-    public void SlowSpeed() {
-        Swerve_Speed = 0.5;
+    public Command getAutoPath(String pathName) {
+        return new PathPlannerAuto(pathName);
     }
 
-    public void NominalSpeed() {
-        Swerve_Speed = 1.0;
-    }
-    public Command SlowSpeedCommand() {
-        return Commands.startEnd(()-> SlowSpeed(),()-> NominalSpeed(),this);
-    }
-    public void SuperSlowSpeed() {
-        Swerve_Speed = 0.2;
+
+    private void configurePathPlanner() {
+        try {
+            RobotConfig config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                () -> getState().Pose,
+                this::resetPose,
+                () -> getState().Speeds,
+                (speeds, feedforwards) -> setControl(
+                    new SwerveRequest.ApplyRobotSpeeds()
+                        .withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+                new PPHolonomicDriveController(
+                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(7, 0, 0)
+                ),
+                config,
+                () -> RobotContainer.IsRed(),
+                this
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
     }
 
-    public Command superSlowSpeedCommand() {
-        return Commands.startEnd(()-> SuperSlowSpeed(),()-> NominalSpeed(),this);
-    }
     @Override
     public void periodic() {
-
-        //Assigns Pose to null if neded 
-         if (getState().Pose != null) {
-            field.setRobotPose(getState().Pose);
-        } else {
-            System.out.println("Warning Pose Not Detected");
+        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+            DriverStation.getAlliance().ifPresent(allianceColor -> {
+                setOperatorPerspectiveForward(
+                    allianceColor == Alliance.Red
+                        ? kRedAlliancePerspectiveRotation
+                        : kBlueAlliancePerspectiveRotation
+                );
+                m_hasAppliedOperatorPerspective = true;
+            });
         }
 
-        for (int i = 0; i < 4; i++)
-            states[i * 2] = getModule(i).getTargetState().angle.getRadians();
 
-        // Logger.recordOutput("Bare Pose", getPose());
-        // Logger.recordOutput("Target States", states);
-        // for (int i = 0; i < 4; i++) states[i * 2 + 1] = getModule(i).getCurrentState().speedMetersPerSecond;
-        // for (int i = 0; i < 4; i++)
-        //     states[i * 2] = getModule(i).getCurrentState().angle.getRadians();
-        // Logger.recordOutput("Measured States", states);
+        Pose2d currentPose = getState().Pose;
+        if (currentPose != null) {
+            field.setRobotPose(currentPose);
+        }
 
-        // Logger.recordOutput("Rotation/Rotational", getPose().getRotation());
-        // // Logger.recordOutput("Speeds/Chassisspeeds", getCurrentRobotChassisSpeeds());
-        
-       
-        // SmartDashboard.putString("pose", getPose().toString());
-        
-        // UpdatePose();
         GraphMotorData();
-        // updatePID(); 
-        SmartDashboard.putData("GameFeild", field);
-        //  if (Robot.isSimulation()) {
-        //     SIMULATION_TELE.visionSim.update(getPose());
-        //     SIMULATION_TELE.visionSim.getDebugField();
-        // }
-           
-          
-        
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineToApply.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineToApply.dynamic(direction);
+    }
+
+    private SysIdRoutine createTranslationSysIdRoutine() {
+        return new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                Volts.of(4),
+                null,
+                state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                output -> setControl(m_translationCharacterization.withVolts(output)),
+                null,
+                this
+            )
+        );
+    }
+
+    private SysIdRoutine createSteerSysIdRoutine() {
+        return new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                Volts.of(7),
+                null,
+                state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                volts -> setControl(m_steerCharacterization.withVolts(volts)),
+                null,
+                this
+            )
+        );
+    }
+
+    private SysIdRoutine createRotationSysIdRoutine() {
+        return new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(Math.PI / 6).per(Second),
+                Volts.of(Math.PI),
+                null,
+                state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                output -> {
+                    setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                    SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+                },
+                null,
+                this
+            )
+        );
+    }
+
+    private void startSimThread() {
+        m_lastSimTime = Utils.getCurrentTimeSeconds();
+        m_simNotifier = new Notifier(() -> {
+            double currentTime = Utils.getCurrentTimeSeconds();
+            double deltaTime = currentTime - m_lastSimTime;
+            m_lastSimTime = currentTime;
+            updateSimState(deltaTime, RobotController.getBatteryVoltage());
+        });
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 }
