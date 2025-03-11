@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -12,8 +13,13 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.Swerve.SwerveSubsystem;
+
 import org.photonvision.EstimatedRobotPose;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,10 +27,14 @@ import java.util.stream.Collectors;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 // import org.littletonrobotics.junction.Logger;
 
+import static frc.robot.Constants.Constants.Vision.*;
 
 public class VisionSubsystem extends SubsystemBase {
   /** Creates a new VisionSubsystem. */
@@ -44,10 +54,17 @@ public class VisionSubsystem extends SubsystemBase {
   boolean done;
   double yaw;
  
-  
+  VisionSystemSim visionSim;
+  SimCameraProperties cameraProp;
   private Optional<EstimatedRobotPose> latestEstimatedPose = Optional.empty();
 
 
+  List<Integer> RedreefTagIDs = List.of(6, 7, 8, 9, 10, 11);
+  List<Integer> BluereefTagIDs = List.of(17, 18, 19, 20, 21,22);
+  List<Integer> BlueFeedStationIDs = List.of(12,13);
+  List<Integer> RedFeedStationIDs = List.of(1,2);
+  int BlueAlgeeProcs = 16;
+  int RedAlgeeProcs = 3;
   public VisionSubsystem() {
     super();
 
@@ -78,6 +95,42 @@ public class VisionSubsystem extends SubsystemBase {
     } else {
       System.out.println("Warning No Tag Found");
     }
+
+
+//Simulaton 
+
+
+        if (Robot.isSimulation()) {
+          
+            visionSim = new VisionSystemSim("main");
+            visionSim.addAprilTags(getTagLayout());
+            cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+            cameraProp.setCalibError(0.25, 0.08);
+            cameraProp.setFPS(32);
+            cameraProp.setAvgLatencyMs(35);
+            cameraProp.setLatencyStdDevMs(5);
+            System.out.println("Cam Set Up Comp");
+            PhotonCameraSim cameraSim = new PhotonCameraSim(postionCamera, cameraProp);
+            // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
+            Translation3d robotToCameraTrl = new Translation3d(
+              Units.inchesToMeters(9.875), // convert inches to meters
+              Units.inchesToMeters(-11.875),
+              Units.inchesToMeters(9.5));
+            // 15 Degrees up
+            Rotation3d robotToCameraRot = new Rotation3d(
+              0,
+              Units.degreesToRadians(-25), // pitch about Y (radians)
+              Units.degreesToRadians(25.0)  
+            );
+            Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
+            visionSim.addCamera(cameraSim, robotToCamera);
+          
+            cameraSim.enableRawStream(true);
+            cameraSim.enableProcessedStream(true);
+            cameraSim.enableDrawWireframe(true);
+        }
+
 //--------------------------EST POSE---------------------------------------------------
 
 
@@ -85,14 +138,17 @@ public class VisionSubsystem extends SubsystemBase {
 	
     camPose = new Transform3d(
     new Translation3d(
-        Units.inchesToMeters(9.875), // convert inches to meters
-        Units.inchesToMeters(11.875),
+        Units.inchesToMeters(9.875), // convert inches to meters  
+        Units.inchesToMeters(-11.875),
         Units.inchesToMeters(9.5)),
     new Rotation3d(
         0,
-        Units.degreesToRadians(65),
+        Units.degreesToRadians(-90),
         Units.degreesToRadians(25)
+
     )
+
+   
 );
 
       
@@ -101,17 +157,59 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   
+  public void simulationPeriodic(Pose2d groundTruthRobotPose) {
+    visionSim.update(groundTruthRobotPose);
+}
 
+  public Pose2d CheckForAlignCommand(boolean isFeedStation) {
+    List<Integer> reefTagIDs = new ArrayList<>();
 
+    if (RobotContainer.IsRed()) { //red
+      if (isFeedStation) { //Target Red feed
+        reefTagIDs = RedFeedStationIDs;
+      } else { //red Procsesor 
+        reefTagIDs.add(RedAlgeeProcs);
+      }
+    } else { //blue
+      if (isFeedStation) { //Target blue feed
+        reefTagIDs = BlueFeedStationIDs;
+      } else { //blue Procsesor 
+        reefTagIDs.add(BlueAlgeeProcs);
+      }
+    }
+    var Results = postionCamera.getLatestResult();
+
+    if (!Results.hasTargets()) {
+      return null;
+    }
+    Pose2d bestpose = null;
+    for (var target : Results.getTargets()) { 
+      int targetID = target.getFiducialId();
+
+      if (reefTagIDs.contains(targetID)) {
+        bestpose = fieldLayout.getTagPose(targetID).get().toPose2d();
+      } else {
+        System.out.print("No Good Tag. Check For Align Has tag but incorrect.");
+      }
+
+      
+    }
+
+    return bestpose;
+  }
 
   @Override
   public void periodic() {
+
+    
+    
     PhotonPipelineResult result = postionCamera.getLatestResult();
     if (!result.hasTargets()) {
       latestEstimatedPose = Optional.empty();
       return;
     }
     
+    SmartDashboard.putNumber("Tag Seen", result.getBestTarget().getFiducialId());
     Optional<EstimatedRobotPose> poseOPT = photonPoseEstimator.update(result);
 
     if (poseOPT.isPresent()) {
@@ -122,12 +220,13 @@ public class VisionSubsystem extends SubsystemBase {
       latestEstimatedPose = Optional.empty();
     }
 
+    
   }
 
   public Optional<EstimatedRobotPose> getLatestPose() {
     return latestEstimatedPose;
   }
-  
+
 
   public static List<Integer> getAllSeenTags() {
     var result = postionCamera.getLatestResult();
@@ -163,11 +262,51 @@ public class VisionSubsystem extends SubsystemBase {
 
 
   public Pose2d getBestReefAprilTagPose() {
-    return null;
+    List<Integer> reefTagIDs;
+    
+    if (RobotContainer.IsRed()) { // We are on Red Allinace
+      reefTagIDs = RedreefTagIDs;
+    } else {
+      reefTagIDs = BluereefTagIDs;
+    }
+
+    var result = postionCamera.getLatestResult();
+
+    if (!result.hasTargets()) {
+      return null;
+    }
+
+    Pose2d bestpose = null;
+    for (var target : result.getTargets()) {
+
+      int targetID = target.getFiducialId();
+      if(reefTagIDs.contains(targetID)) {
+        Pose2d tagPose2d = fieldLayout.getTagPose(targetID).get().toPose2d();
+        bestpose = tagPose2d;
+        System.out.print(targetID);
+      }
+      
+      
+    }
+    
+    
+
+    return bestpose;
   }
 
   public double getBestTagYaw() {
-    return 1;
+    var results = postionCamera.getLatestResult();
+    double Yaw = 0;
+    if (results.hasTargets()) {
+      PhotonTrackedTarget Tag = results.getBestTarget();
+      Yaw = Tag.getYaw();
+    } 
+
+    if (yaw == 0) {
+      System.out.print("Warning getBestTagYaw() was called but results doesnt have Target");
+    }
+    
+    return yaw;
   }
   public double FindPitch() {
     var result = postionCamera.getLatestResult();

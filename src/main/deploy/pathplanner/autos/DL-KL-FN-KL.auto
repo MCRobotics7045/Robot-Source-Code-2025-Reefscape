@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DLCKL"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignAprilTag"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RKLCKL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RKLCFN"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeFeed"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

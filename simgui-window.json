@@ -12,7 +12,7 @@
       "userScale": "2",
       "width": "1920",
       "xpos": "0",
-      "ypos": "23"
+      "ypos": "29"
     }
   },
   "Window": {
@@ -23,18 +23,28 @@
     },
     "###/SmartDashboard/Elevator Mech2d": {
       "Collapsed": "0",
-      "Pos": "1281,39",
+      "Pos": "939,95",
       "Size": "543,674"
+    },
+    "###/SmartDashboard/Field": {
+      "Collapsed": "0",
+      "Pos": "939,116",
+      "Size": "707,422"
     },
     "###/SmartDashboard/GameFeild": {
       "Collapsed": "0",
-      "Pos": "311,293",
+      "Pos": "107,358",
       "Size": "956,422"
     },
     "###/SmartDashboard/Mech2d": {
       "Collapsed": "0",
       "Pos": "1436,42",
       "Size": "209,563"
+    },
+    "###/SmartDashboard/VisionSystemSim-main/Sim Field": {
+      "Collapsed": "0",
+      "Pos": "17,142",
+      "Size": "1913,740"
     },
     "###FMS": {
       "Collapsed": "0",
@@ -43,12 +53,12 @@
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "1103,630",
-      "Size": "976,82"
+      "Pos": "899,900",
+      "Size": "976,278"
     },
     "###NetworkTables": {
       "Collapsed": "0",
-      "Pos": "366,792",
+      "Pos": "304,100",
       "Size": "750,320"
     },
     "###NetworkTables Info": {

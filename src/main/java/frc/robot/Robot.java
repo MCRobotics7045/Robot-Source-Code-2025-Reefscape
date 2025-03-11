@@ -8,6 +8,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-  // private VisionSubsystem vision = new VisionSubsystem();
+  private VisionSubsystem vision = new VisionSubsystem();
   private RobotContainer m_robotContainer;
   Optional<Alliance> ally;
 
@@ -124,6 +125,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void simulationPeriodic() {
-    // vision.simulationPeriodic();
+    // vision..s();
   }
 }

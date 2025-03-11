@@ -48,10 +48,10 @@ public class SensorsIO extends SubsystemBase {
       SmartDashboard.putBoolean("Elevator Stowed", ElevatorStowPostiontSensor.get());
       SmartDashboard.putBoolean("Coral Ramp", CoralRampEnterSensor.get());
       SmartDashboard.putBoolean("Coral End Effector", CoralEndEffectorEnterSensor.get());
-      SmartDashboard.putNumber("Front Right Ultra", ReadSensorinCM(frontRightUltrasonic));
-      SmartDashboard.putNumber("Front Left Ultra", ReadSensorinCM(frontLeftUltrasonic));
-      SmartDashboard.putNumber("Rear Left Ultra", ReadSensorinCM(rearLeftUltrasonic));
-      SmartDashboard.putNumber("Rear Right Ultra", ReadSensorinCM(rearRightUltrasonic));
+      // SmartDashboard.putNumber("Front Right Ultra", ReadSensorinCM(frontRightUltrasonic));
+      // SmartDashboard.putNumber("Front Left Ultra", ReadSensorinCM(frontLeftUltrasonic));
+      // SmartDashboard.putNumber("Rear Left Ultra", ReadSensorinCM(rearLeftUltrasonic));
+      // SmartDashboard.putNumber("Rear Right Ultra", ReadSensorinCM(rearRightUltrasonic));
       SmartDashboard.putNumber("Pigeon 2 Yaw", PigeonIMU.getAngle());
   }
    public BooleanSupplier getStowPositionSupplier() {
@@ -76,29 +76,29 @@ public class SensorsIO extends SubsystemBase {
    }
 
 
-   public static double ReadSensorinCM(AnalogInput Sensor) {
-    double Voltage = Sensor.getVoltage();
-    return Voltage * 100; //CM
-   }
+//    public static double ReadSensorinCM(AnalogInput Sensor) {
+//     double Voltage = Sensor.getVoltage();
+//     return Voltage * 100; //CM
+//    }
 
-   public static boolean InRangeOfSensor(AnalogInput Sensor, double Distance) {
-    double CMREAD = ReadSensorinCM(Sensor);
-    return CMREAD < Distance;
-   }
+//    public static boolean InRangeOfSensor(AnalogInput Sensor, double Distance) {
+//     double CMREAD = ReadSensorinCM(Sensor);
+//     return CMREAD < Distance;
+//    }
 
-   public static String getObstaclePosition() {
-    boolean frontLeft = ReadSensorinCM(frontLeftUltrasonic) < Threashold;
-    boolean frontRight = ReadSensorinCM(frontRightUltrasonic) < Threashold;
-    boolean backLeft = ReadSensorinCM(rearLeftUltrasonic) < Threashold;
-    boolean backRight = ReadSensorinCM(rearRightUltrasonic) < Threashold;
+//    public static String getObstaclePosition() {
+//     boolean frontLeft = ReadSensorinCM(frontLeftUltrasonic) < Threashold;
+//     boolean frontRight = ReadSensorinCM(frontRightUltrasonic) < Threashold;
+//     boolean backLeft = ReadSensorinCM(rearLeftUltrasonic) < Threashold;
+//     boolean backRight = ReadSensorinCM(rearRightUltrasonic) < Threashold;
 
-    if (frontLeft && frontRight) return "Front";
-    if (backLeft && backRight) return "Back";
-    if (frontLeft) return "Left Front";
-    if (frontRight) return "Right Front";
-    if (backLeft) return "Left Back";
-    if (backRight) return "Right Back";
+//     if (frontLeft && frontRight) return "Front";
+//     if (backLeft && backRight) return "Back";
+//     if (frontLeft) return "Left Front";
+//     if (frontRight) return "Right Front";
+//     if (backLeft) return "Left Back";
+//     if (backRight) return "Right Back";
     
-    return "None"; 
-}
+//     return "None"; 
+// }
 }

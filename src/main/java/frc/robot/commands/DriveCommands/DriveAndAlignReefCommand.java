@@ -2,17 +2,16 @@ package frc.robot.commands.DriveCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.wpilibj2.command.Command;
+
 
 public class DriveAndAlignReefCommand extends Command {
-//JAMES THIS IS TOTTALY MY CODE AND NOT TEAM 7414 RETROROBOTICS CODE THAT MAY OR MAY NOT WORK 
-//I GAVE UP HALF WAY THROUGH MAKING IT SO I RESORTED TO BECOMEING A GITHUB PIRATE  
-//THIS ISNT JUST A STRAIGHT COPY BUT JUST A ADAPTATION OF IT
+
 
     private final SwerveSubsystem swerve;
     private final VisionSubsystem vision;
@@ -40,6 +39,7 @@ public class DriveAndAlignReefCommand extends Command {
     @Override
     public void initialize() {
         currentState = State.FIND_TAG;
+   
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DriveAndAlignReefCommand extends Command {
                 Pose2d approachPose = computeApproachPose(bestTagPose, approachLeft);
                 pathCommand = AutoBuilder.pathfindToPose(
                     approachPose,
-                    new PathConstraints(3.0, 3.0, Math.toRadians(360), Math.toRadians(720))
+                    new PathConstraints(3.0, 3.0, Math.toRadians(180), Math.toRadians(360))
                 );
                 if (pathCommand != null) {
                     pathCommand.initialize();
@@ -111,7 +111,7 @@ public class DriveAndAlignReefCommand extends Command {
     }
 
     private Pose2d computeApproachPose(Pose2d bestTagPose, boolean approachLeftSide) {
-        double forwardOffset = -0.5;
+        double forwardOffset = 0.5;
         double sideOffset = approachLeftSide ? 0.3 : -0.3;
         return offsetPose(bestTagPose, bestTagPose.getRotation().getDegrees(), forwardOffset, sideOffset);
     }
@@ -123,6 +123,9 @@ public class DriveAndAlignReefCommand extends Command {
         double yLateral = lateral * Math.sin(Math.toRadians(baseDegrees + 90));
         double newX = origin.getX() + xForward + xLateral;
         double newY = origin.getY() + yForward + yLateral;
-        return new Pose2d(newX, newY, origin.getRotation());
+        Rotation2d reversedRot = origin.getRotation().plus(Rotation2d.fromDegrees(180));
+
+
+        return new Pose2d(newX, newY, reversedRot);
     }
 }

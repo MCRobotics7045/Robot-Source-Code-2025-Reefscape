@@ -3,7 +3,7 @@
     "type": "java",
     "name": "frcJava",
     "port": 8349,
-    "target": "172.22.11.2",
+    "target": "10.70.45.2",
     "project": "Robot-Source-Code-2025-Reefscape"
   }
 ]

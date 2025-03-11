@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -59,7 +60,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
 
-
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, modules);
         if (Utils.isSimulation()) {
@@ -74,7 +74,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         SmartDashboard.putData(field);
     }
 
-    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency, SwerveModuleConstants<?, ?, ?>... modules) {
+    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency,
+            SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, odometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -86,7 +87,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         configurePathPlanner();
     }
 
-    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency, Matrix<N3, N1> odometryStdDev, Matrix<N3, N1> visionStdDev, SwerveModuleConstants<?, ?, ?>... modules) {
+    public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency,
+            Matrix<N3, N1> odometryStdDev, Matrix<N3, N1> visionStdDev, SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, odometryUpdateFrequency, odometryStdDev, visionStdDev, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -104,51 +106,50 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
         SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
-            .withVelocityX(xVelocity)
-            .withVelocityY(yVelocity)
-            .withRotationalRate(rotationalVelocity);
+                .withVelocityX(xVelocity)
+                .withVelocityY(yVelocity)
+                .withRotationalRate(rotationalVelocity);
         setControl(driveRequest);
     }
 
-    public boolean ObstcaleDetection(String IgnoredSide,int ShownTag) {
-        double ObstcaleScore = 0;
-        String obstaclePosition = SensorsIO.getObstaclePosition();
-        if (obstaclePosition.equals("None") || obstaclePosition.equals(IgnoredSide)) {
-            ObstcaleScore += 0.25;
-        } else {
-            ObstcaleScore -= 0.25;
-        }
-        if (VisionSubsystem.getAllSeenTags().contains(ShownTag)) {
-            ObstcaleScore += 0.25;
-        } else {
-            ObstcaleScore -= 0.25;
-        }
-        double gyroRate = SensorsIO.PigeonIMU.getRate();
-        if (Math.abs(gyroRate) < 5.0) {
-            ObstcaleScore += 0.25;
-        } else {
-            ObstcaleScore -= 0.25;
-        }
-        Pose2d currentPose = getState().Pose;
-        boolean isMoving = currentPose.getTranslation().getNorm() > 0.1;
-        if (isMoving) {
-            ObstcaleScore += 0.25;
-        } else {
-            ObstcaleScore -= 0.25;
-        }
-        return ObstcaleScore >= 0;
-    }
-
+    // public boolean ObstcaleDetection(String IgnoredSide, int ShownTag) {
+    //     double ObstcaleScore = 0;
+    //     String obstaclePosition = SensorsIO.getObstaclePosition();
+    //     if (obstaclePosition.equals("None") || obstaclePosition.equals(IgnoredSide)) {
+    //         ObstcaleScore += 0.25;
+    //     } else {
+    //         ObstcaleScore -= 0.25;
+    //     }
+    //     if (VisionSubsystem.getAllSeenTags().contains(ShownTag)) {
+    //         ObstcaleScore += 0.25;
+    //     } else {
+    //         ObstcaleScore -= 0.25;
+    //     }
+    //     double gyroRate = SensorsIO.PigeonIMU.getRate();
+    //     if (Math.abs(gyroRate) < 5.0) {
+    //         ObstcaleScore += 0.25;
+    //     } else {
+    //         ObstcaleScore -= 0.25;
+    //     }
+    //     Pose2d currentPose = getState().Pose;
+    //     boolean isMoving = currentPose.getTranslation().getNorm() > 0.1;
+    //     if (isMoving) {
+    //         ObstcaleScore += 0.25;
+    //     } else {
+    //         ObstcaleScore -= 0.25;
+    //     }
+    //     return ObstcaleScore >= 0;
+    // }
 
     public Pose2d getPose() {
         return getState().Pose;
     }
 
-
     private Pose2d blendPoses(Pose2d pathPose, Pose2d visionPose, double BLENDER) {
         double x = (1 - BLENDER) * pathPose.getX() + BLENDER * visionPose.getX();
         double y = (1 - BLENDER) * pathPose.getY() + BLENDER * visionPose.getY();
-        double rotation = (1 - BLENDER) * pathPose.getRotation().getRadians() + BLENDER * visionPose.getRotation().getRadians();
+        double rotation = (1 - BLENDER) * pathPose.getRotation().getRadians()
+                + BLENDER * visionPose.getRotation().getRadians();
         return new Pose2d(x, y, new Rotation2d(rotation));
     }
 
@@ -178,30 +179,27 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         return new PathPlannerAuto(pathName);
     }
 
-
     private void configurePathPlanner() {
         try {
             RobotConfig config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-                () -> getState().Pose,
-                this::resetPose,
-                () -> getState().Speeds,
-                (speeds, feedforwards) -> setControl(
-                    new SwerveRequest.ApplyRobotSpeeds()
-                        .withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-                new PPHolonomicDriveController(
-                    new PIDConstants(10, 0, 0),
-                    new PIDConstants(7, 0, 0)
-                ),
-                config,
-                () -> RobotContainer.IsRed(),
-                this
-            );
+                    () -> getState().Pose,
+                    this::resetPose,
+                    () -> getState().Speeds,
+                    (speeds, feedforwards) -> setControl(
+                            new SwerveRequest.ApplyRobotSpeeds()
+                                    .withSpeeds(speeds)
+                                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
+                    new PPHolonomicDriveController(
+                            new PIDConstants(10, 0, 0),
+                            new PIDConstants(7, 0, 0)),
+                    config,
+                    () -> RobotContainer.IsRed(),
+                    this);
         } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder",
+                    ex.getStackTrace());
         }
     }
 
@@ -210,21 +208,18 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
-                        ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation
-                );
+                        allianceColor == Alliance.Red
+                                ? kRedAlliancePerspectiveRotation
+                                : kBlueAlliancePerspectiveRotation);
                 m_hasAppliedOperatorPerspective = true;
             });
         }
 
-
-        
-        
         GraphMotorData();
-        
-      
 
+        if (Robot.isSimulation()) {
+            VISION.simulationPeriodic(getPose());
+        }
         Pose2d currentPose = getPose();
         if (currentPose != null) {
             field.setRobotPose(currentPose);
@@ -235,7 +230,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public void addVisionMeasurement(Pose2d visionRobotPose, double timestamp) {
         super.addVisionMeasurement(visionRobotPose, Utils.fpgaToCurrentTime(timestamp));
     }
-    
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.quasistatic(direction);
@@ -247,53 +241,44 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     private SysIdRoutine createTranslationSysIdRoutine() {
         return new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                Volts.of(4),
-                null,
-                state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
-            ),
-            new SysIdRoutine.Mechanism(
-                output -> setControl(m_translationCharacterization.withVolts(output)),
-                null,
-                this
-            )
-        );
+                new SysIdRoutine.Config(
+                        null,
+                        Volts.of(4),
+                        null,
+                        state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())),
+                new SysIdRoutine.Mechanism(
+                        output -> setControl(m_translationCharacterization.withVolts(output)),
+                        null,
+                        this));
     }
 
     private SysIdRoutine createSteerSysIdRoutine() {
         return new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                Volts.of(7),
-                null,
-                state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
-            ),
-            new SysIdRoutine.Mechanism(
-                volts -> setControl(m_steerCharacterization.withVolts(volts)),
-                null,
-                this
-            )
-        );
+                new SysIdRoutine.Config(
+                        null,
+                        Volts.of(7),
+                        null,
+                        state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
+                new SysIdRoutine.Mechanism(
+                        volts -> setControl(m_steerCharacterization.withVolts(volts)),
+                        null,
+                        this));
     }
 
     private SysIdRoutine createRotationSysIdRoutine() {
         return new SysIdRoutine(
-            new SysIdRoutine.Config(
-                Volts.of(Math.PI / 6).per(Second),
-                Volts.of(Math.PI),
-                null,
-                state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
-            ),
-            new SysIdRoutine.Mechanism(
-                output -> {
-                    setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
-                    SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
-                },
-                null,
-                this
-            )
-        );
+                new SysIdRoutine.Config(
+                        Volts.of(Math.PI / 6).per(Second),
+                        Volts.of(Math.PI),
+                        null,
+                        state -> SignalLogger.writeString("SysIdRotation_State", state.toString())),
+                new SysIdRoutine.Mechanism(
+                        output -> {
+                            setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                            SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+                        },
+                        null,
+                        this));
     }
 
     private void startSimThread() {
