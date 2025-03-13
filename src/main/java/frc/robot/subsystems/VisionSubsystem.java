@@ -8,15 +8,22 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import static edu.wpi.first.units.Units.Meters;
+import org.opencv.features2d.Features2d;
 import org.photonvision.EstimatedRobotPose;
 
 import java.util.ArrayList;
@@ -35,232 +42,367 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 // import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Constants.Vision.*;
-
+import static frc.robot.RobotContainer.SWERVE;
 public class VisionSubsystem extends SubsystemBase {
+
+  AprilTagFieldLayout fieldLayout;
   /** Creates a new VisionSubsystem. */
-  public static PhotonCamera postionCamera; 
+  public static PhotonCamera FRpostionCamera; 
+  public Transform3d FRcamPose;
+  
+  public Field2d fRposField2d = new Field2d();
+  public static PhotonCamera FLpostionCamera;
+  public Transform3d FLcamPose;
+  
+  public Field2d fLposField2d = new Field2d();
+  public static PhotonCamera BRpostionCamera; 
+  public Transform3d BRcamPose;
+  
+  public Field2d bRposField2d = new Field2d();
+  public static PhotonCamera BLpostionCamera; 
+  public Transform3d BLcamPose;
+   
+  public Field2d bLposField2d = new Field2d();
 
 
   int FoundID; 
   int SelectedID;
   int Cycle = 0;
-  AprilTagFieldLayout fieldLayout;
-  private final PhotonPoseEstimator photonPoseEstimator;
-  public Transform3d camPose;
+
+
+  
   public static SendableChooser<Integer> AprilTagSelector;
   private int lastCheckedTagId = -1; 
   private boolean warningDisplayed = false; 
   // private Pose3d Pose;
   boolean done;
   double yaw;
- 
+  public boolean upadate = false;
   VisionSystemSim visionSim;
   SimCameraProperties cameraProp;
-  private Optional<EstimatedRobotPose> latestEstimatedPose = Optional.empty();
+  private static Optional<EstimatedRobotPose> latestEstimatedPose = Optional.empty();
+  
+  
+    List<Integer> RedreefTagIDs = List.of(6, 7, 8, 9, 10, 11);
+    List<Integer> BluereefTagIDs = List.of(17, 18, 19, 20, 21,22);
+    List<Integer> BlueFeedStationIDs = List.of(12,13);
+    List<Integer> RedFeedStationIDs = List.of(1,2);
+    int BlueAlgeeProcs = 16;
+    int RedAlgeeProcs = 3;
 
+    private final AddVisionMeasurement poseConsumer;
 
-  List<Integer> RedreefTagIDs = List.of(6, 7, 8, 9, 10, 11);
-  List<Integer> BluereefTagIDs = List.of(17, 18, 19, 20, 21,22);
-  List<Integer> BlueFeedStationIDs = List.of(12,13);
-  List<Integer> RedFeedStationIDs = List.of(1,2);
-  int BlueAlgeeProcs = 16;
-  int RedAlgeeProcs = 3;
-  public VisionSubsystem() {
-    super();
+    private final PhotonPoseEstimator FRphotonPoseEstimator;
+    
+      // private final PhotonPoseEstimator  FLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FLcamPose);
+      // FLphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
+      // private final PhotonPoseEstimator  BRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, BRcamPose);
+      // BRphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-//------------------------------------------------------------------------------------
-   AprilTagSelector = new SendableChooser<Integer>();
+      // private final PhotonPoseEstimator  BLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, BLcamPose);
+      // BLphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    public VisionSubsystem( AddVisionMeasurement poseConsumer) {
+      super();
+      this.poseConsumer = poseConsumer;
 
-   for (int i = 1; i <= 22; i++) {
-    if (i == 1) {
-        AprilTagSelector.setDefaultOption("Tag " + i, i); 
-    } else {
-        AprilTagSelector.addOption("Tag " + i, i);
+  
+  //------------------------------------------------------------------------------------
+     AprilTagSelector = new SendableChooser<Integer>();
+  
+     for (int i = 1; i <= 22; i++) {
+      if (i == 1) {
+          AprilTagSelector.setDefaultOption("Tag " + i, i); 
+      } else {
+          AprilTagSelector.addOption("Tag " + i, i);
+      }
     }
-  }
-  SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
+    SmartDashboard.putData("AprilTag Selection", AprilTagSelector);
+  
+  //----------------------------------------------------------------------------------
+  
+      FRpostionCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+  //---------------------------------------------------------------------------------
+      
+  //Simulaton 
+  
+  
+          if (Robot.isSimulation()) {
+            
+              visionSim = new VisionSystemSim("main");
+              visionSim.addAprilTags(getTagLayout());
+              cameraProp = new SimCameraProperties();
+              cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+              cameraProp.setCalibError(0.25, 0.08);
+              cameraProp.setFPS(32);
+              cameraProp.setAvgLatencyMs(35);
+              cameraProp.setLatencyStdDevMs(5);
+              System.out.println("Cam Set Up Comp");
+              PhotonCameraSim cameraSim = new PhotonCameraSim(FRpostionCamera, cameraProp);
+              // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
+              Translation3d robotToCameraTrl = new Translation3d(
+                Units.inchesToMeters(9.875), // convert inches to meters
+                Units.inchesToMeters(-11.875),
+                Units.inchesToMeters(9.5));
+              // 15 Degrees up
+              Rotation3d robotToCameraRot = new Rotation3d(
+                0,
+                Units.degreesToRadians(-25), // pitch about Y (radians)
+                Units.degreesToRadians(25.0)  
+              );
+              Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
+              visionSim.addCamera(cameraSim, robotToCamera);
+            
+              cameraSim.enableRawStream(true);
+              cameraSim.enableProcessedStream(true);
+              cameraSim.enableDrawWireframe(true);
+              visionSim.getDebugField();
+          }
+  
+  //--------------------------EST POSE---------------------------------------------------
+  
+  
+      fieldLayout =  AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    
+      FRcamPose = new Transform3d(
+      new Translation3d(
+          Units.inchesToMeters(9.875), // convert inches to meters  
+          Units.inchesToMeters(-11.875),
+          Units.inchesToMeters(9.5)),
+      new Rotation3d(
+          0,
+          Units.degreesToRadians(-90),
+          Units.degreesToRadians(30
+          )
+  
+      )
+  );
+       FLcamPose = new Transform3d(
+      new Translation3d(
+          Units.inchesToMeters(9.875), // convert inches to meters  
+          Units.inchesToMeters(11.875),
+          Units.inchesToMeters(9.5)),
+      new Rotation3d(
+          0,
+          Units.degreesToRadians(-90),
+          Units.degreesToRadians(-25)
+  
+      )
+  );
 
-//----------------------------------------------------------------------------------
-
-    postionCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
-//---------------------------------------------------------------------------------
-    var result = postionCamera.getLatestResult();
-    if (result.hasTargets()) {
-      PhotonTrackedTarget target = result.getBestTarget();
-      int StartupTargetID = target.getFiducialId();
-      System.out.print("Target Found:");
-      System.out.println(StartupTargetID);
-      SmartDashboard.putNumber("April Tag Found", StartupTargetID);
-    } else {
-      System.out.println("Warning No Tag Found");
-    }
+        BLcamPose = new Transform3d(
+      new Translation3d(
+          Units.inchesToMeters(-9.875), // convert inches to meters  
+          Units.inchesToMeters(11.875),
+          Units.inchesToMeters(9.5)),
+      new Rotation3d(
+          0,
+          Units.degreesToRadians(-90),
+          Units.degreesToRadians(95)
+  
+      )
+  );
 
 
-//Simulaton 
-
-
-        if (Robot.isSimulation()) {
-          
-            visionSim = new VisionSystemSim("main");
-            visionSim.addAprilTags(getTagLayout());
-            cameraProp = new SimCameraProperties();
-            cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
-            cameraProp.setCalibError(0.25, 0.08);
-            cameraProp.setFPS(32);
-            cameraProp.setAvgLatencyMs(35);
-            cameraProp.setLatencyStdDevMs(5);
-            System.out.println("Cam Set Up Comp");
-            PhotonCameraSim cameraSim = new PhotonCameraSim(postionCamera, cameraProp);
-            // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
-            Translation3d robotToCameraTrl = new Translation3d(
-              Units.inchesToMeters(9.875), // convert inches to meters
-              Units.inchesToMeters(-11.875),
-              Units.inchesToMeters(9.5));
-            // 15 Degrees up
-            Rotation3d robotToCameraRot = new Rotation3d(
-              0,
-              Units.degreesToRadians(-25), // pitch about Y (radians)
-              Units.degreesToRadians(25.0)  
-            );
-            Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
-            visionSim.addCamera(cameraSim, robotToCamera);
-          
-            cameraSim.enableRawStream(true);
-            cameraSim.enableProcessedStream(true);
-            cameraSim.enableDrawWireframe(true);
-        }
-
-//--------------------------EST POSE---------------------------------------------------
-
-
-		fieldLayout =  AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-	
-    camPose = new Transform3d(
+  BRcamPose = new Transform3d(
     new Translation3d(
-        Units.inchesToMeters(9.875), // convert inches to meters  
+        Units.inchesToMeters(-9.875), // convert inches to meters  
         Units.inchesToMeters(-11.875),
         Units.inchesToMeters(9.5)),
     new Rotation3d(
         0,
         Units.degreesToRadians(-90),
-        Units.degreesToRadians(25)
+        Units.degreesToRadians(-95)
 
     )
-
-   
 );
-
-      
-    photonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camPose);
-
-  }
-
   
-  public void simulationPeriodic(Pose2d groundTruthRobotPose) {
-    visionSim.update(groundTruthRobotPose);
-}
-
-  public Pose2d CheckForAlignCommand(boolean isFeedStation) {
-    List<Integer> reefTagIDs = new ArrayList<>();
-
-    if (RobotContainer.IsRed()) { //red
-      if (isFeedStation) { //Target Red feed
-        reefTagIDs = RedFeedStationIDs;
-      } else { //red Procsesor 
-        reefTagIDs.add(RedAlgeeProcs);
-      }
-    } else { //blue
-      if (isFeedStation) { //Target blue feed
-        reefTagIDs = BlueFeedStationIDs;
-      } else { //blue Procsesor 
-        reefTagIDs.add(BlueAlgeeProcs);
-      }
-    }
-    var Results = postionCamera.getLatestResult();
-
-    if (!Results.hasTargets()) {
-      return null;
-    }
-    Pose2d bestpose = null;
-    for (var target : Results.getTargets()) { 
-      int targetID = target.getFiducialId();
-
-      if (reefTagIDs.contains(targetID)) {
-        bestpose = fieldLayout.getTagPose(targetID).get().toPose2d();
-      } else {
-        System.out.print("No Good Tag. Check For Align Has tag but incorrect.");
-      }
-
+  
+        
       
-    }
 
-    return bestpose;
+FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
+
+    }
+  
+    
+    
+    public void simulationPeriodic(Pose2d groundTruthRobotPose) {
+      visionSim.update(groundTruthRobotPose);
   }
-
-  @Override
-  public void periodic() {
-
-    
-    
-    PhotonPipelineResult result = postionCamera.getLatestResult();
-    if (!result.hasTargets()) {
-      latestEstimatedPose = Optional.empty();
-      return;
+  
+    public Pose2d CheckForAlignCommand(boolean isFeedStation) {
+      List<Integer> reefTagIDs = new ArrayList<>();
+  
+      if (RobotContainer.IsRed()) { //red
+        if (isFeedStation) { //Target Red feed
+          reefTagIDs = RedFeedStationIDs;
+        } else { //red Procsesor 
+          reefTagIDs.add(RedAlgeeProcs);
+        }
+      } else { //blue
+        if (isFeedStation) { //Target blue feed
+          reefTagIDs = BlueFeedStationIDs;
+        } else { //blue Procsesor 
+          reefTagIDs.add(BlueAlgeeProcs);
+        }
+      }
+      var Results = FRpostionCamera.getLatestResult();
+  
+      if (!Results.hasTargets()) {
+        return null;
+      }
+      Pose2d bestpose = null;
+      for (var target : Results.getTargets()) { 
+        int targetID = target.getFiducialId();
+  
+        if (reefTagIDs.contains(targetID)) {
+          bestpose = fieldLayout.getTagPose(targetID).get().toPose2d();
+        } else {
+          System.out.print("No Good Tag. Check For Align Has tag but incorrect.");
+        }
+  
+        
+      }
+  
+      return bestpose;
     }
+  
+    @Override
+    public void periodic() {
+      SmartDashboard.putData("FR" ,fRposField2d);
+      SmartDashboard.putData("FL" ,fLposField2d);
+      SmartDashboard.putData("BR" , bRposField2d);
+      SmartDashboard.putData("BL",bLposField2d);
+      SmartDashboard.putNumber("bestTargetID", bestTargetID());
+      if (Robot.isSimulation()) {
+        visionSim.update(SWERVE.getState().Pose);
+      }
+    }
+  
+   
+  public void useCamera() {
+    // integrateCamera(UseFL,FLpostionCamera,FLphotonPoseEstimator,fLposField2d,maxDistance);
+    // integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
+    // integrateCamera(UseBL,BLpostionCamera,BLphotonPoseEstimator,bLposField2d,maxDistance);
+    // integrateCamera(UseBR,BRpostionCamera,BRphotonPoseEstimator,bRposField2d,maxDistance);
+  }
     
-    SmartDashboard.putNumber("Tag Seen", result.getBestTarget().getFiducialId());
-    Optional<EstimatedRobotPose> poseOPT = photonPoseEstimator.update(result);
 
-    if (poseOPT.isPresent()) {
-      latestEstimatedPose = poseOPT;
-      EstimatedRobotPose estPose = poseOPT.get();
+private static Matrix<N3, N1> getEstimationStdDevs(
+      Pose2d estimatedPose,
+      List<PhotonTrackedTarget> targets,
+      AprilTagFieldLayout fieldLayout) {
 
+    var estStdDevs = SINGLE_TAG_STD_DEVS;
+    int numTags = 0;
+    double avgDist = 0;
+    for (var tgt : targets) {
+      var tagPose = fieldLayout.getTagPose(tgt.getFiducialId());
+      if (tagPose.isEmpty())
+        continue;
+      numTags++;
+      avgDist += tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
+    }
+
+    if (numTags == 0) {
+      return estStdDevs;
+    }
+    avgDist /= numTags;
+
+    // Decrease std devs if multiple targets are visible
+    if (numTags > 1) {
+      estStdDevs = MULTI_TAG_STD_DEVS;
+    }
+
+    // Increase std devs based on (average) distance
+    if (numTags == 1 && avgDist > SINGLE_TAG_DISTANCE_THRESHOLD.in(Meters)) {
+      estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     } else {
-      latestEstimatedPose = Optional.empty();
+      estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+    }
+    return estStdDevs;
+  }
+
+
+  public void integrateCamera(
+    boolean useCamera, 
+    PhotonCamera camera, 
+    PhotonPoseEstimator estimator,
+    Field2d photonField, 
+    double maxDistance,
+    AprilTagFieldLayout fieldLayout
+) {
+   
+    List<PhotonPipelineResult> cameraPipeline = camera.getAllUnreadResults();
+    for (int i = 0; i < cameraPipeline.size(); i++) {
+
+        Optional<EstimatedRobotPose> photonPose = estimator.update(cameraPipeline.get(i));
+        if (photonPose.isPresent()) {
+            photonField.setRobotPose(photonPose.get().estimatedPose.toPose2d());
+            double tag0Dist = cameraPipeline.get(i).getBestTarget()
+                .bestCameraToTarget.getTranslation().getNorm();
+            double poseAmbiguity = cameraPipeline.get(i).getBestTarget().getPoseAmbiguity();
+            var stdDevs = getEstimationStdDevs(
+                    photonPose.get().estimatedPose.toPose2d(),
+                    cameraPipeline.get(i).getTargets(),
+                    fieldLayout);
+
+            Pose2d newPose = new Pose2d(
+              new Translation2d(
+                photonPose.get().estimatedPose.toPose2d().getX(),
+                photonPose.get().estimatedPose.toPose2d().getY()
+              ),
+              new Rotation2d(
+                photonPose.get().estimatedPose.toPose2d().getRotation().getDegrees() 
+              )
+            );
+            if (useCamera && tag0Dist < maxDistance && poseAmbiguity < 0.05) { 
+                poseConsumer.addVisionMeasurement(
+                        photonPose.get().estimatedPose.toPose2d(),
+                        photonPose.get().timestampSeconds,
+                        stdDevs
+                    );
+
+               
+                }
+            }
+        }
     }
 
+
+  public boolean seesTagID(int TargetID) {
+    var result = FRpostionCamera.getLatestResult();
+    if (!result.hasTargets()) {
+      return false;
+    } else {
+      if (result.getBestTarget().getFiducialId() == TargetID) {
+        return true;
+      }
+      return false;
+    }
+  }
+  public double getBestTagYaw(int TargetID) {
+    var result = FRpostionCamera.getLatestResult();
+    if (!result.hasTargets()) {
+      return 0;
+    } else {
+      if (result.getBestTarget().getFiducialId() == TargetID) {
+        return result.getBestTarget().getYaw();
+      }
+      return 0;
+    }
+  }
+
+  public int bestTargetID() {
+    var result = FRpostionCamera.getLatestResult();
+    if (!result.hasTargets()) {
+      return 0;
+    } else {
+      return result.getBestTarget().getFiducialId();
+    }
     
   }
-
-  public Optional<EstimatedRobotPose> getLatestPose() {
-    return latestEstimatedPose;
-  }
-
-
-  public static List<Integer> getAllSeenTags() {
-    var result = postionCamera.getLatestResult();
-
-    if (!result.hasTargets()) {
-        return List.of(); // No tags detected, return empty list
-    }
-
-    return result.getTargets().stream()
-            .map(PhotonTrackedTarget::getFiducialId)
-            .collect(Collectors.toList()); 
-}
-
-
-  public Pose2d getAprilTagPose2d(int TagId) {
-    Optional<Pose3d> tagPoseOpt = fieldLayout.getTagPose(TagId);
-    if (tagPoseOpt.isPresent()) {
-      return tagPoseOpt.get().toPose2d();
-  } else {
-    return null;
-  }
-  }
-
-  // Declare these as class-level variables to persist across function calls
-
-  private PhotonTrackedTarget selectBestTarget() {
-    var result = postionCamera.getLatestResult();
-    if (!result.hasTargets()) {
-        return null; 
-    }
-    return result.getBestTarget(); 
-  }
-
-
   public Pose2d getBestReefAprilTagPose() {
     List<Integer> reefTagIDs;
     
@@ -270,7 +412,7 @@ public class VisionSubsystem extends SubsystemBase {
       reefTagIDs = BluereefTagIDs;
     }
 
-    var result = postionCamera.getLatestResult();
+    var result = FRpostionCamera.getLatestResult();
 
     if (!result.hasTargets()) {
       return null;
@@ -286,110 +428,19 @@ public class VisionSubsystem extends SubsystemBase {
         System.out.print(targetID);
       }
       
-      
     }
-    
-    
-
     return bestpose;
   }
 
-  public double getBestTagYaw() {
-    var results = postionCamera.getLatestResult();
-    double Yaw = 0;
-    if (results.hasTargets()) {
-      PhotonTrackedTarget Tag = results.getBestTarget();
-      Yaw = Tag.getYaw();
-    } 
+  @FunctionalInterface
+  public interface AddVisionMeasurement {
+    void addVisionMeasurement(
+        Pose2d visionRobotPoseMeters,
+        double timestampSeconds,
+        Matrix<N3, N1> visionMeasurementStdDevs);
+  }
 
-    if (yaw == 0) {
-      System.out.print("Warning getBestTagYaw() was called but results doesnt have Target");
-    }
+}  
     
-    return yaw;
-  }
-  public double FindPitch() {
-    var result = postionCamera.getLatestResult();
-    if (result.hasTargets()) {
-        PhotonTrackedTarget target = result.getBestTarget();
-        double Pitch = target.getPitch();  
-        double correctedPitch = Pitch + 10;
-        return Pitch;
-    }
-    return 0.0;  // Or some other default value if no target is found
-}
-  
-  public boolean CheckTagID(int TagId) {
-    var result = postionCamera.getLatestResult();
-    int FoundID = -1; 
-    int CurrentID;
-    
-    if (result.hasTargets()) {
-        PhotonTrackedTarget target = result.getBestTarget();
-        FoundID = target.getFiducialId(); 
-        CurrentID = FoundID;
-        if (FoundID == TagId) {
-            lastCheckedTagId = TagId; 
-            warningDisplayed = false;
-            return true; 
-        }
-    }
-    if (FoundID != TagId) {
-        if (lastCheckedTagId != TagId) {
-            lastCheckedTagId = TagId;
-            warningDisplayed = false; 
-        }
-        if (!warningDisplayed) {
-            System.out.print("Warning April Tag: ");
-            System.out.print(TagId);
-            System.out.println(" Not found");
-            warningDisplayed = true; 
-        }
-        return false; 
-    }
-    return false; 
-  }
 
-  public boolean CheckVisionHealth() {
-    var result = postionCamera.getLatestResult();
-    int HealthScore = 0;
-    if (result.getTimestampSeconds() > 0) {
-      HealthScore += 0.1;
-    } else if (result.hasTargets()) {
-      HealthScore += 0.1;
-    }
-    if (HealthScore >= 1) {
-      //PASS
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
-  // public double FindTagIDyaw(int TagId) {
-  //   var result = poseCam.getLatestResult();
-  //   double targetYaw = 0.0;
-
-  //   if (result.hasTargets()) {
-  //     for (var target : result.getTargets()) {
-  //         if (target.getFiducialId() == TagId) {
-  //             targetYaw = target.getYaw();
-              
-  //         }
-  //     }
-  //   } else {
-  //     targetYaw = 0.0;
-  //   }
-  //   return targetYaw;
-
-  // } 
-
- 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-        var result = postionCamera.getLatestResult();
-        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-        return photonPoseEstimator.update(result);
-  }
-}
 

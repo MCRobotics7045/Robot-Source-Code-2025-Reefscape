@@ -31,11 +31,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
-import frc.robot.commands.DriveCommands.AlignCommand;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
+// import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
 // import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeManipulatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -52,13 +52,14 @@ public class RobotContainer {
 
   public static  CommandXboxController  DRIVER_XBOX;
     public static CommandXboxController OPERATOR_XBOX;
-
+    public static SwerveSubsystem SWERVE;
     public final ElevatorSubsystem ELEVATOR;
     public final EndEffectorSubsystem ENDEFFECTOR;
     public static VisionSubsystem VISION; 
+   
     public final PneumaticSubsytem PNEUMATICS;
-    public final SwerveSubsystem SWERVE;
-        // public final AlgeeManipulatorSubsystem ALGEE;
+  
+        public final AlgeeManipulatorSubsystem ALGEE;
         public static SensorsIO SENSORS;
         public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
           
@@ -69,19 +70,20 @@ public class RobotContainer {
 
         ELEVATOR = new ElevatorSubsystem();
         ENDEFFECTOR = new EndEffectorSubsystem();
-        VISION = new VisionSubsystem(); 
+       
         SWERVE = TunerConstants.createDrivetrain();
+        VISION = new VisionSubsystem(SWERVE::addVisionMeasurement); 
         PNEUMATICS = new PneumaticSubsytem();
-        // ALGEE = new AlgeeManipulatorSubsystem();
+        ALGEE = new AlgeeManipulatorSubsystem();
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
-        SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
+        SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
       //**********************************************************************************
       NamedCommands.registerCommand("CoralL3Set", ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
       NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
       NamedCommands.registerCommand("CoralL2Set", ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
-      NamedCommands.registerCommand("AlignAprilTag", ENDEFFECTOR.rollerInCommand());
+      // NamedCommands.registerCommand("AlignAprilTag", new DriveAndAlignReefCommand(SWERVE, VISION, true));
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);
       SmartDashboard.putNumber("Threashold", Threashold);
@@ -97,47 +99,33 @@ public class RobotContainer {
     
   
     // //Normal Coral Setpoints
-    // DRIVER_XBOX.x().onTrue(Commands.runOnce(() -> {
-    //   if (AlgeeCoralToggle) { //Coral
-    //     ELEVATOR.ReefSetpointPositionCommand(L1SetpointC);
-    //   } else { //Algee
-    //     ELEVATOR.ReefSetpointPositionCommand(L1SetpointA);
-    //   }}));
+    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
   
-    // DRIVER_XBOX.y().onTrue(Commands.runOnce(() -> {
-    //   if (AlgeeCoralToggle) {
-    //     ELEVATOR.ReefSetpointPositionCommand(L2SetpointC);
-    //   } else {
-    //     ELEVATOR.ReefSetpointPositionCommand(L2SetpointA);
-    //   }}));
+    DRIVER_XBOX.y().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
   
-    // DRIVER_XBOX.a().onTrue(Commands.runOnce(() -> {
-    //   if (AlgeeCoralToggle) {
-    //     ELEVATOR.ReefSetpointPositionCommand(L3SetpointC);
-    //   } else {
-    //     ELEVATOR.ReefSetpointPositionCommand(L3SetpointA);
-    //   }}));
+    DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
       
-    // DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
+    DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
     
-      
-    // DRIVER_XBOX.start().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
-    // DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
+    DRIVER_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
+    DRIVER_XBOX.start().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
+    DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
+    DRIVER_XBOX.rightTrigger().onTrue(ELEVATOR.resetElevatorCommand());
+    DRIVER_XBOX.leftBumper().onTrue(new SequentialCommandGroup(
+      new PrintCommand("Intake Run called"),
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
+        ENDEFFECTOR.rollerOutCommand()
+      ),
+      new PrintCommand("Coral Grabbed Ready To Move"),
+      createRumbleCommand(2,1, 1),
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      )
+    ));
   
-    // DRIVER_XBOX.x().onTrue(new SequentialCommandGroup(
-    //   new PrintCommand("Intake Run called"),
-    //   new ParallelDeadlineGroup(
-    //     new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
-    //     ENDEFFECTOR.rollerOutCommand()
-    //   ),
-    //   new PrintCommand("Coral Grabbed Ready To Move"),
-    //   createRumbleCommand(2,1, 1),
-    //   new ParallelDeadlineGroup(
-    //     new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
-    //     ENDEFFECTOR.SetRollerSpeed(0.5)
-    //   )
-    // ));
-  
+    
     
     // DRIVER_XBOX.leftTrigger().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, true));
   
@@ -146,8 +134,9 @@ public class RobotContainer {
       
   
     //Test Controls
-      OPERATOR_XBOX.leftTrigger().whileTrue(ELEVATOR.UnspoolCommand());
-      OPERATOR_XBOX.leftBumper().onTrue(new AlignCommand(SWERVE, VISION, true, true));
+      OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
+
+      OPERATOR_XBOX.leftBumper().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION,true));
       OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
       OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
       // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
@@ -170,7 +159,7 @@ public class RobotContainer {
 
 
       OPERATOR_XBOX.a().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Extend());
-
+      OPERATOR_XBOX.x().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Retract());
       
       //Intake from Source
       OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(

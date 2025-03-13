@@ -9,8 +9,15 @@ package frc.robot.Constants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.units.measure.Unit;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.Meters;
+
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -120,10 +127,10 @@ public final class Constants {
         public static final int HoldFromGroundSetpoint = 0;
 
         //Remebr this is NOT the Eleavtor Height This is the angle of attack on the Algee Manipulator 
-        public static final double L1Setpoint = 0;
-        public static final double L2Setpoint = 0; 
-        public static final double L3Setpoint = 0;
-        public static final double L4Setpoint = 0;
+        public static final double L1Setpoint = 8;
+        public static final double L2Setpoint = 8; 
+        public static final double L3Setpoint = 8;
+        public static final double L4Setpoint = 8;
         
     }
     public static class EndEffectorConstants {
@@ -177,6 +184,18 @@ public final class Constants {
                 return kTagLayout;
             }
         
+        public static boolean UseFR = true;
+        public static boolean UseFL = false;
+        public static boolean UseBR = false;
+        public static boolean UseBL = false;
+        
+        
+        public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(2, 2, 8);
+        public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
+        public static final Distance SINGLE_TAG_DISTANCE_THRESHOLD = Meters.of(4.5);
+
+
+        public static double maxDistance = 10;
         public static final double kMaxAngularSpeed = Units.rotationsToRadians(2);
         public static final double ErrorMarginPostive = 2.0;
         public static final double ErrorMarginNegative = -2.0;

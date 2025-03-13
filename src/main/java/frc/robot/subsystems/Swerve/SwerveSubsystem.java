@@ -2,6 +2,7 @@ package frc.robot.subsystems.Swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -60,6 +61,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
 
+
+
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, modules);
         if (Utils.isSimulation()) {
@@ -71,7 +74,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         m_sysIdRoutineRotation = createRotationSysIdRoutine();
         m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
         configurePathPlanner();
-        SmartDashboard.putData(field);
+        SmartDashboard.putData("Swerve" ,field);
     }
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency,
@@ -141,17 +144,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     //     return ObstcaleScore >= 0;
     // }
 
-    public Pose2d getPose() {
-        return getState().Pose;
-    }
+   
 
-    private Pose2d blendPoses(Pose2d pathPose, Pose2d visionPose, double BLENDER) {
-        double x = (1 - BLENDER) * pathPose.getX() + BLENDER * visionPose.getX();
-        double y = (1 - BLENDER) * pathPose.getY() + BLENDER * visionPose.getY();
-        double rotation = (1 - BLENDER) * pathPose.getRotation().getRadians()
-                + BLENDER * visionPose.getRotation().getRadians();
-        return new Pose2d(x, y, new Rotation2d(rotation));
-    }
 
     private void GraphMotorData() {
         for (int i = 0; i < 4; i++) {
@@ -178,6 +172,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public Command getAutoPath(String pathName) {
         return new PathPlannerAuto(pathName);
     }
+
+
+
 
     private void configurePathPlanner() {
         try {
@@ -217,19 +214,13 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
         GraphMotorData();
 
-        if (Robot.isSimulation()) {
-            VISION.simulationPeriodic(getPose());
+        if (getState().Pose != null) {
+            field.setRobotPose(getState().Pose);
         }
-        Pose2d currentPose = getPose();
-        if (currentPose != null) {
-            field.setRobotPose(currentPose);
-        }
-
+        
     }
 
-    public void addVisionMeasurement(Pose2d visionRobotPose, double timestamp) {
-        super.addVisionMeasurement(visionRobotPose, Utils.fpgaToCurrentTime(timestamp));
-    }
+    
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.quasistatic(direction);
@@ -291,4 +282,22 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
+
+
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
+        super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
+    }
+
+
+    public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    super.addVisionMeasurement(
+        visionRobotPoseMeters,
+          Utils.fpgaToCurrentTime(timestampSeconds),
+          visionMeasurementStdDevs);
+    }
+
+
 }

@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-  private VisionSubsystem vision = new VisionSubsystem();
+  private VisionSubsystem vision ;
   private RobotContainer m_robotContainer;
   Optional<Alliance> ally;
 
@@ -31,6 +31,9 @@ public class Robot extends LoggedRobot {
     //Has To stay on Top
     m_robotContainer = new RobotContainer();
     //Has To stay on Top
+
+    vision = RobotContainer.VISION;
+
     SmartDashboard.putString("Event Name", DriverStation.getEventName());
     SmartDashboard.putString("Alliance", "Cant Find");
     Logger.recordMetadata("ProjectName", "MyProject");
@@ -59,18 +62,9 @@ public class Robot extends LoggedRobot {
 
 
 
-    ally =  DriverStation.getAlliance();
-    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-    SmartDashboard.putNumber("Match Round", DriverStation.getMatchNumber());
-    if (ally.isPresent()) {
-      if (ally.get() == Alliance.Red) {
-          SmartDashboard.putString("Alliance", "Red");
-      }
-      if (ally.get() == Alliance.Blue) {
-          SmartDashboard.putString("Alliance", "Blue");
-      }
-    } else {
-      SmartDashboard.putString("Alliance", "Cant Find");
+    if (Robot.isReal()) {
+      vision.useCamera();
+      System.out.print("Use Cam Called");
     }
   
   }

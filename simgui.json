@@ -32,11 +32,6 @@
           "visible": true
         }
       },
-      "/SmartDashboard/Elevator Mech2d": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/Field": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -77,6 +72,9 @@
   "NetworkTables": {
     "transitory": {
       "Shuffleboard": {
+        "open": true
+      },
+      "SmartDashboard": {
         "open": true
       }
     }
