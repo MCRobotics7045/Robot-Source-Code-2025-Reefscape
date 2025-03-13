@@ -11,12 +11,16 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.units.measure.Unit;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
+
+import java.util.List;
 
 
 /**
@@ -45,7 +49,31 @@ public final class Constants {
 
     //Can IDS
     
+    // public final class ReefSidePoses {
+    //     public static AprilTagFieldLayout APRILTAG_FieldLayout = null;
+                
+    //     public static AprilTagFieldLayout getTagLayout() {
+    //        if (APRILTAG_FieldLayout == null) {
+    //         APRILTAG_FieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+    //        }
+    //            return APRILTAG_FieldLayout;
+    //        }
+    // public static final Pose2d Reef_B_A = new Pose2d(
+    //     APRILTAG_FieldLayout.getTagPose(18).get().toPose2d().getX() +,
+    //     APRILTAG_FieldLayout.getTagPose(18).get().toPose2d().getY(),
+    //     APRILTAG_FieldLayout.getTagPose(18).get().toPose2d().getRotation()
+    //     );
+    // public static final Pose2d Reef_B_B = new Pose2d(5.0, 3.4, Rotation2d.fromDegrees(180));
+    // public static final Pose2d Reef_B_C = new Pose2d(5.0, 4.6, Rotation2d.fromDegrees(180));
+    // public static final Pose2d Reef_B_D = new Pose2d(5.0, 5.8, Rotation2d.fromDegrees(180));
+    // public static final Pose2d Reef_B_E = new Pose2d(5.0, 7.0, Rotation2d.fromDegrees(180));
+    // public static final Pose2d Reef_B_F = new Pose2d(5.0, 8.2, Rotation2d.fromDegrees(180));
 
+    // public static final List<Pose2d> ALL_SIDES = List.of(
+    //     REEF_SIDE_1, REEF_SIDE_2, REEF_SIDE_3,
+    //     REEF_SIDE_4, REEF_SIDE_5, REEF_SIDE_6
+    // );
+    // }
     // XBOX Buttons
     
     public static class SensorIOConstants {

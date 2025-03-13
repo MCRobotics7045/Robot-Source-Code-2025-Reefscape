@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
+import frc.robot.commands.AutoAlign;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
@@ -46,7 +47,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.subsystems.PneumaticSubsytem;
 
 import static frc.robot.Constants.Constants.SensorIOConstants.*;
-
+import static frc.robot.Constants.Constants.Vision.*;
 
 public class RobotContainer {
 
@@ -78,7 +79,7 @@ public class RobotContainer {
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
-        SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
+        SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
       //**********************************************************************************
       NamedCommands.registerCommand("CoralL3Set", ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
       NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
@@ -136,7 +137,7 @@ public class RobotContainer {
     //Test Controls
       OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
 
-      OPERATOR_XBOX.leftBumper().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION,true));
+      OPERATOR_XBOX.leftBumper().onTrue(new AutoAlign(SWERVE, true, SENSORS, kTagLayout));
       OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
       OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
       // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());

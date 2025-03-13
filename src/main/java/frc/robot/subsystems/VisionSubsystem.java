@@ -42,6 +42,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 // import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.Constants.Constants.Vision.*;
+import static frc.robot.RobotContainer.SENSORS;
 import static frc.robot.RobotContainer.SWERVE;
 public class VisionSubsystem extends SubsystemBase {
 
@@ -141,14 +142,14 @@ public class VisionSubsystem extends SubsystemBase {
               PhotonCameraSim cameraSim = new PhotonCameraSim(FRpostionCamera, cameraProp);
               // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
               Translation3d robotToCameraTrl = new Translation3d(
-                Units.inchesToMeters(9.875), // convert inches to meters
+                Units.inchesToMeters(0), // convert inches to meters
                 Units.inchesToMeters(-11.875),
                 Units.inchesToMeters(9.5));
               // 15 Degrees up
               Rotation3d robotToCameraRot = new Rotation3d(
                 0,
                 Units.degreesToRadians(-25), // pitch about Y (radians)
-                Units.degreesToRadians(25.0)  
+                Units.degreesToRadians(-75)  
               );
               Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
               visionSim.addCamera(cameraSim, robotToCamera);
@@ -166,14 +167,13 @@ public class VisionSubsystem extends SubsystemBase {
     
       FRcamPose = new Transform3d(
       new Translation3d(
-          Units.inchesToMeters(9.875), // convert inches to meters  
+          Units.inchesToMeters(0), // convert inches to meters  
           Units.inchesToMeters(-11.875),
           Units.inchesToMeters(9.5)),
       new Rotation3d(
           0,
           Units.degreesToRadians(-90),
-          Units.degreesToRadians(30
-          )
+          Units.degreesToRadians(-75)
   
       )
   );
@@ -283,7 +283,7 @@ FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_
    
   public void useCamera() {
     // integrateCamera(UseFL,FLpostionCamera,FLphotonPoseEstimator,fLposField2d,maxDistance);
-    // integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
+    integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
     // integrateCamera(UseBL,BLpostionCamera,BLphotonPoseEstimator,bLposField2d,maxDistance);
     // integrateCamera(UseBR,BRpostionCamera,BRphotonPoseEstimator,bRposField2d,maxDistance);
   }
@@ -354,7 +354,7 @@ private static Matrix<N3, N1> getEstimationStdDevs(
                 photonPose.get().estimatedPose.toPose2d().getY()
               ),
               new Rotation2d(
-                photonPose.get().estimatedPose.toPose2d().getRotation().getDegrees() 
+                SENSORS.PigeonIMU.getAngle()
               )
             );
             if (useCamera && tag0Dist < maxDistance && poseAmbiguity < 0.05) { 

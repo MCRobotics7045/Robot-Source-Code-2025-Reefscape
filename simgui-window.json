@@ -26,6 +26,11 @@
       "Pos": "939,95",
       "Size": "543,674"
     },
+    "###/SmartDashboard/FR": {
+      "Collapsed": "0",
+      "Pos": "905,471",
+      "Size": "1326,434"
+    },
     "###/SmartDashboard/Field": {
       "Collapsed": "0",
       "Pos": "1181,245",
@@ -43,7 +48,7 @@
     },
     "###/SmartDashboard/VisionSystemSim-main/Sim Field": {
       "Collapsed": "0",
-      "Pos": "85,277",
+      "Pos": "253,215",
       "Size": "1913,740"
     },
     "###FMS": {
@@ -53,8 +58,8 @@
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "899,900",
-      "Size": "976,82"
+      "Pos": "346,972",
+      "Size": "976,278"
     },
     "###NetworkTables": {
       "Collapsed": "0",
