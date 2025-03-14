@@ -143,13 +143,13 @@ public class VisionSubsystem extends SubsystemBase {
               // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
               Translation3d robotToCameraTrl = new Translation3d(
                 Units.inchesToMeters(0), // convert inches to meters
-                Units.inchesToMeters(-11.875),
+                Units.inchesToMeters(0),
                 Units.inchesToMeters(9.5));
               // 15 Degrees up
               Rotation3d robotToCameraRot = new Rotation3d(
                 0,
-                Units.degreesToRadians(-25), // pitch about Y (radians)
-                Units.degreesToRadians(-75)  
+                Units.degreesToRadians(0), // pitch about Y (radians)
+                Units.degreesToRadians(0)  
               );
               Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
               visionSim.addCamera(cameraSim, robotToCamera);
@@ -172,8 +172,8 @@ public class VisionSubsystem extends SubsystemBase {
           Units.inchesToMeters(9.5)),
       new Rotation3d(
           0,
-          Units.degreesToRadians(-90),
-          Units.degreesToRadians(-75)
+          0,
+          0
   
       )
   );
@@ -190,38 +190,14 @@ public class VisionSubsystem extends SubsystemBase {
       )
   );
 
-        BLcamPose = new Transform3d(
-      new Translation3d(
-          Units.inchesToMeters(-9.875), // convert inches to meters  
-          Units.inchesToMeters(11.875),
-          Units.inchesToMeters(9.5)),
-      new Rotation3d(
-          0,
-          Units.degreesToRadians(-90),
-          Units.degreesToRadians(95)
-  
-      )
-  );
+ 
 
-
-  BRcamPose = new Transform3d(
-    new Translation3d(
-        Units.inchesToMeters(-9.875), // convert inches to meters  
-        Units.inchesToMeters(-11.875),
-        Units.inchesToMeters(9.5)),
-    new Rotation3d(
-        0,
-        Units.degreesToRadians(-90),
-        Units.degreesToRadians(-95)
-
-    )
-);
   
   
         
       
 
-FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
+    FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
 
     }
   

@@ -1,6 +1,8 @@
 package frc.robot.subsystems.Swerve;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.Constants.SwerveConstants.MaxSpeed;
+import static frc.robot.RobotContainer.SWERVE;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -10,7 +12,8 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -23,6 +26,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -32,7 +36,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
@@ -61,7 +69,30 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
 
-
+    private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
+        new Mechanism2d(1, 1),
+        new Mechanism2d(1, 1),
+        new Mechanism2d(1, 1),
+        new Mechanism2d(1, 1),
+    };
+   /* A direction and length changing ligament for speed representation */
+    private final MechanismLigament2d[] m_moduleSpeeds = new MechanismLigament2d[] {
+        m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+        m_moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+        m_moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+        m_moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+    };
+    /* A direction changing and length constant ligament for module direction */
+    private final MechanismLigament2d[] m_moduleDirections = new MechanismLigament2d[] {
+        m_moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
+            .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
+        m_moduleMechanisms[1].getRoot("RootDirection", 0.5, 0.5)
+            .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
+        m_moduleMechanisms[2].getRoot("RootDirection", 0.5, 0.5)
+            .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
+        m_moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
+            .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
+    };
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, modules);
@@ -107,12 +138,48 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         return run(() -> setControl(requestSupplier.get()));
     }
 
-    public void drive(double xVelocity, double yVelocity, double rotationalVelocity) {
-        SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+    public void lookAtYaw(Double xV, Double yV, Double TargetDirection) {
+
+        SwerveRequest.RobotCentricFacingAngle drivRequest = new SwerveRequest.RobotCentricFacingAngle()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withSteerRequestType(SteerRequestType.Position);          
+        setControl(drivRequest
+            .withTargetDirection(new Rotation2d(
+                // Units.degreesToRadians(TargetDirection)
+                234
+            ))
+            .withVelocityX(xV)
+            .withVelocityY(yV)
+        );
+    }
+    public void drive(double xVelocity, double yVelocity, double rotationalVelocity, boolean FeildCentric) {
+
+        if (FeildCentric) {
+                SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+                    .withDriveRequestType(DriveRequestType.Velocity)
+                    .withSteerRequestType(SteerRequestType.Position);
+            
+            
+            setControl(
+                driveRequest
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
-                .withRotationalRate(rotationalVelocity);
-        setControl(driveRequest);
+                .withRotationalRate(rotationalVelocity)
+            );
+        } else {
+            SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
+                    .withDriveRequestType(DriveRequestType.Velocity)
+                    .withSteerRequestType(SteerRequestType.Position);
+            
+            
+            setControl(
+                driveRequest
+                .withVelocityX(xVelocity)
+                .withVelocityY(yVelocity)
+                .withRotationalRate(rotationalVelocity)
+            );
+        }
+        
     }
 
     // public boolean ObstcaleDetection(String IgnoredSide, int ShownTag) {
@@ -217,6 +284,17 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         if (getState().Pose != null) {
             field.setRobotPose(getState().Pose);
         }
+
+
+        if (Robot.isSimulation()) {
+             for (int i = 0; i < 4; ++i) {
+             m_moduleSpeeds[i].setAngle(getState().ModuleStates[i].angle);
+             m_moduleDirections[i].setAngle(getState().ModuleStates[i].angle);
+             m_moduleSpeeds[i].setLength(getState().ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+    
+             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+          } 
+         }
         
     }
 

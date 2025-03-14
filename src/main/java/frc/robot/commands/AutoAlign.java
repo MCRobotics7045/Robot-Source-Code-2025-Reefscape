@@ -125,7 +125,7 @@ public class AutoAlign extends Command {
       double yawError = desiredYawDeg - currentYawDeg;
       double turnCmd = yawController.calculate(0, yawError);
       turnCmd = Math.max(Math.min(turnCmd, 0.4), -0.4);
-      swerveSubsystem.drive(0, 0, turnCmd);
+      swerveSubsystem.drive(0, 0, turnCmd, true);
       boolean yawAligned = Math.abs(yawError) < YAW_TOL_DEG;
       if (yawAligned || microTimer.hasElapsed(MICRO_TIMEOUT)) {
         currentState = State.DONE;
@@ -141,7 +141,7 @@ public class AutoAlign extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    swerveSubsystem.drive(0, 0, 0);
+    swerveSubsystem.drive(0, 0, 0, true);
     if (pathCommand != null) {
         pathCommand.end(true);
     }

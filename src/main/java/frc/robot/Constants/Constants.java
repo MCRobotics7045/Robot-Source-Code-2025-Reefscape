@@ -114,7 +114,7 @@ public final class Constants {
         public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt // 20.1 nominal 
         public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
-        public static final double SlewRate = 10;
+        public static final double SlewRate = 20;
     } 
 
     public static class LEDConstants {

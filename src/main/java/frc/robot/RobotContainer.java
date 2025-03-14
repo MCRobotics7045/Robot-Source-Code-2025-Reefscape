@@ -32,6 +32,7 @@ import frc.robot.Constants.TunerConstants;
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
 import frc.robot.commands.AutoAlign;
+import frc.robot.commands.RelativeAutoAlign;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
@@ -135,21 +136,21 @@ public class RobotContainer {
       
   
     //Test Controls
-      OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
+      // OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
 
-      OPERATOR_XBOX.leftBumper().onTrue(new AutoAlign(SWERVE, true, SENSORS, kTagLayout));
-      OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
-      OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
-      // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
-      OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
-      OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
-      OPERATOR_XBOX.povDown().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
-      OPERATOR_XBOX.povLeft().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
-      OPERATOR_XBOX.povRight().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
-      OPERATOR_XBOX.povUp().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
-      OPERATOR_XBOX.rightTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(0.3));
-      OPERATOR_XBOX.rightTrigger().onFalse(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1.0));
-      OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
+      OPERATOR_XBOX.leftBumper().onTrue(new RelativeAutoAlign(SWERVE, VISION.FRpostionCamera));
+      // OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
+      // OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
+      // // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
+      // OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
+      // OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
+      // OPERATOR_XBOX.povDown().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
+      // OPERATOR_XBOX.povLeft().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
+      // OPERATOR_XBOX.povRight().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+      // OPERATOR_XBOX.povUp().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
+      // OPERATOR_XBOX.rightTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(0.3));
+      // OPERATOR_XBOX.rightTrigger().onFalse(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1.0));
+      // OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
 
       
       //Sys ID
@@ -159,23 +160,24 @@ public class RobotContainer {
       OPERATOR_XBOX.start().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
 
-      OPERATOR_XBOX.a().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Extend());
-      OPERATOR_XBOX.x().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Retract());
+      // OPERATOR_XBOX.a().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Extend());
+      // OPERATOR_XBOX.x().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Retract());
       
       //Intake from Source
-      OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
-        new PrintCommand("Intake Run called"),
-        new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
-          ENDEFFECTOR.rollerOutCommand()
-        ),
-        new PrintCommand("Coral Grabbed Ready To Move"),
-        createRumbleCommand(2,1, 1),
-        new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
-          ENDEFFECTOR.SetRollerSpeed(0.5)
-        )
-      ));
+
+      // OPERATOR_XBOX.x().onTrue(new SequentialCommandGroup(
+      //   new PrintCommand("Intake Run called"),
+      //   new ParallelDeadlineGroup(
+      //     new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
+      //     ENDEFFECTOR.rollerOutCommand()
+      //   ),
+      //   new PrintCommand("Coral Grabbed Ready To Move"),
+      //   createRumbleCommand(2,1, 1),
+      //   new ParallelDeadlineGroup(
+      //     new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+      //     ENDEFFECTOR.SetRollerSpeed(0.5)
+      //   )
+      // ));
   
       
   

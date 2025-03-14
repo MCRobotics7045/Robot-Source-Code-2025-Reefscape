@@ -28,6 +28,10 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/GameFeild": "Field2d",
       "/SmartDashboard/Mech2d": "Mechanism2d",
+      "/SmartDashboard/Module 0": "Mechanism2d",
+      "/SmartDashboard/Module 1": "Mechanism2d",
+      "/SmartDashboard/Module 2": "Mechanism2d",
+      "/SmartDashboard/Module 3": "Mechanism2d",
       "/SmartDashboard/Swerve": "Field2d",
       "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d"
     },
@@ -67,6 +71,11 @@
         "right": 3466,
         "top": 291,
         "width": 17.54825210571289,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Module 1": {
         "window": {
           "visible": true
         }

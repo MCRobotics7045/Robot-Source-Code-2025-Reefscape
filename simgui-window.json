@@ -38,7 +38,7 @@
     },
     "###/SmartDashboard/GameFeild": {
       "Collapsed": "0",
-      "Pos": "107,358",
+      "Pos": "-10,528",
       "Size": "956,422"
     },
     "###/SmartDashboard/Mech2d": {
@@ -46,15 +46,25 @@
       "Pos": "1436,42",
       "Size": "209,563"
     },
+    "###/SmartDashboard/Module 0": {
+      "Collapsed": "0",
+      "Pos": "400,400",
+      "Size": "311,339"
+    },
+    "###/SmartDashboard/Module 1": {
+      "Collapsed": "0",
+      "Pos": "400,400",
+      "Size": "266,200"
+    },
     "###/SmartDashboard/VisionSystemSim-main/Sim Field": {
       "Collapsed": "0",
-      "Pos": "253,215",
+      "Pos": "496,298",
       "Size": "1913,740"
     },
     "###FMS": {
       "Collapsed": "0",
       "Pos": "5,540",
-      "Size": "202,214"
+      "Size": "336,158"
     },
     "###Joysticks": {
       "Collapsed": "0",
