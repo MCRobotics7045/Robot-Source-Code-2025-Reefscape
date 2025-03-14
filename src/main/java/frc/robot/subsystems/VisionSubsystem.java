@@ -46,7 +46,7 @@ import static frc.robot.RobotContainer.SENSORS;
 import static frc.robot.RobotContainer.SWERVE;
 public class VisionSubsystem extends SubsystemBase {
 
-  AprilTagFieldLayout fieldLayout;
+  public static AprilTagFieldLayout fieldLayout;
   /** Creates a new VisionSubsystem. */
   public static PhotonCamera FRpostionCamera; 
   public Transform3d FRcamPose;

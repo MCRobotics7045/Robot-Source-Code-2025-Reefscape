@@ -145,8 +145,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             .withSteerRequestType(SteerRequestType.Position);          
         setControl(drivRequest
             .withTargetDirection(new Rotation2d(
-                // Units.degreesToRadians(TargetDirection)
-                234
+                Units.degreesToRadians(TargetDirection)
+            
             ))
             .withVelocityX(xV)
             .withVelocityY(yV)

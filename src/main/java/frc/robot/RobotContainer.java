@@ -29,10 +29,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.Constants.Vision;
+
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
-import frc.robot.commands.AutoAlign;
-import frc.robot.commands.RelativeAutoAlign;
+import frc.robot.commands.AutoCommands.AutoAlign;
+import frc.robot.commands.AutoCommands.DriveForwardToTag;
+import frc.robot.commands.AutoCommands.LockHeadingCommand;
+import frc.robot.commands.AutoCommands.RelativeAutoAlign;
+import frc.robot.commands.AutoCommands.StrafeToTagCenter;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
@@ -138,7 +143,9 @@ public class RobotContainer {
     //Test Controls
       // OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
 
-      OPERATOR_XBOX.leftBumper().onTrue(new RelativeAutoAlign(SWERVE, VISION.FRpostionCamera));
+      OPERATOR_XBOX.leftBumper().onTrue(new LockHeadingCommand(SWERVE, VISION.FRpostionCamera,VISION.fieldLayout ));
+      OPERATOR_XBOX.rightBumper().onTrue((new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera)));
+      OPERATOR_XBOX.b().onTrue(new DriveForwardToTag(SWERVE, VISION.FRpostionCamera, 0));
       // OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
       // OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
       // // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
