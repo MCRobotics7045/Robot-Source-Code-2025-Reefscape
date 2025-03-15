@@ -85,7 +85,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Elevator Encoder Height", Elevator_encoder.getPosition());
     
-    SmartDashboard.putBoolean("Elevator Engaged", StowPostionSensorBoolean);
+    SmartDashboard.putBoolean("Elevator Engaged", StowPostionSensorBoolean);  
+    
     
   }
 
@@ -145,6 +146,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public Command ReefSetpointPositionCommand(double SetPoint) {
+    SmartDashboard.putNumber("Elv Setpoint", SetPoint);
     Command ElevatorCommand = Commands.startEnd(
       ()-> Elev_Motor_controller.setReference(SetPoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),

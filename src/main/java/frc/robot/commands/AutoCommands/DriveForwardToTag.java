@@ -3,7 +3,7 @@ package frc.robot.commands.AutoCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj.Timer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -17,8 +17,8 @@ public class DriveForwardToTag extends Command {
     private final double desiredDistanceMeters;
 
     private final PIDController forwardPid = new PIDController(2, 0.0, 0.0);
-    private static final double FORWARD_TOL = 0.5;  // how close in meters
-    private static final double FORWARD_CLAMP = .6;
+    private static final double FORWARD_TOL = 0;  // how close in meters
+    private static final double FORWARD_CLAMP = 2;
     private static final double TIMEOUT_SEC = 4.0;
 
     private final Timer timer = new Timer();
@@ -51,11 +51,9 @@ public class DriveForwardToTag extends Command {
         double forwardCmd = forwardPid.calculate(-currentDist, 0);
         forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
 
-        
-        System.out.print("DriveForwardToTag Calculated at : " + currentDist);
-
-
         swerve.drive(forwardCmd, 0.0, 0.0, false);
+
+        
     }
 
     @Override
@@ -68,6 +66,7 @@ public class DriveForwardToTag extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        swerve.drive(0.0, 0.0, 0.0, false);
+        swerve.drive(1, 0, 0, false);
+        
     }
 }

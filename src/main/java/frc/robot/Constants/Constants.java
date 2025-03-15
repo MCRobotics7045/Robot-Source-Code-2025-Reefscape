@@ -155,8 +155,8 @@ public final class Constants {
         public static final int HoldFromGroundSetpoint = 0;
 
         //Remebr this is NOT the Eleavtor Height This is the angle of attack on the Algee Manipulator 
-        public static final double L1Setpoint = 8;
-        public static final double L2Setpoint = 8; 
+        public static final double L1Setpoint = 0;
+        public static final double L2Setpoint = .8; 
         public static final double L3Setpoint = 8;
         public static final double L4Setpoint = 8;
         

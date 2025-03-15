@@ -15,6 +15,19 @@
       "ypos": "29"
     }
   },
+  "Table": {
+    "0x965B9C9E,2": {
+      "Column 0  Width": "160",
+      "Column 1  Weight": "1.0000",
+      "RefScale": "16"
+    },
+    "0xE56EC1C2,4": {
+      "Column 0  Weight": "1.0000",
+      "Column 1  Weight": "1.0000",
+      "Column 2  Weight": "1.0000",
+      "Column 3  Weight": "1.0000"
+    }
+  },
   "Window": {
     "###/SmartDashboard/Auto Chooser": {
       "Collapsed": "0",
@@ -28,17 +41,17 @@
     },
     "###/SmartDashboard/FR": {
       "Collapsed": "0",
-      "Pos": "905,471",
+      "Pos": "854,452",
       "Size": "1326,434"
     },
     "###/SmartDashboard/Field": {
       "Collapsed": "0",
-      "Pos": "1181,245",
+      "Pos": "854,245",
       "Size": "707,422"
     },
     "###/SmartDashboard/GameFeild": {
       "Collapsed": "0",
-      "Pos": "-10,528",
+      "Pos": "449,733",
       "Size": "956,422"
     },
     "###/SmartDashboard/Mech2d": {
@@ -58,23 +71,23 @@
     },
     "###/SmartDashboard/VisionSystemSim-main/Sim Field": {
       "Collapsed": "0",
-      "Pos": "420,154",
-      "Size": "1913,740"
+      "Pos": "31,-20",
+      "Size": "1897,963"
     },
     "###FMS": {
       "Collapsed": "0",
-      "Pos": "5,540",
-      "Size": "336,158"
+      "Pos": "106,530",
+      "Size": "202,214"
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "346,972",
+      "Pos": "135,450",
       "Size": "976,278"
     },
     "###NetworkTables": {
       "Collapsed": "0",
-      "Pos": "1039,96",
-      "Size": "750,320"
+      "Pos": "511,50",
+      "Size": "750,759"
     },
     "###NetworkTables Info": {
       "Collapsed": "0",
@@ -83,17 +96,17 @@
     },
     "###Other Devices": {
       "Collapsed": "0",
-      "Pos": "939,20",
+      "Pos": "546,24",
       "Size": "250,695"
     },
     "###System Joysticks": {
       "Collapsed": "0",
       "Pos": "41,327",
-      "Size": "232,254"
+      "Size": "177,38"
     },
     "###Timing": {
       "Collapsed": "0",
-      "Pos": "779,607",
+      "Pos": "779,452",
       "Size": "169,194"
     },
     "Debug##Default": {
@@ -103,7 +116,7 @@
     },
     "Robot State": {
       "Collapsed": "0",
-      "Pos": "109,33",
+      "Pos": "7,25",
       "Size": "118,134"
     }
   }

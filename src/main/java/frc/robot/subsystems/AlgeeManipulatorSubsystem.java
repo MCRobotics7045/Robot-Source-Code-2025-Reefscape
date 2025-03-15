@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,18 +44,28 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     closedLoopController = ManipulatorMotor.getClosedLoopController();
     manipulatorEncoder = ManipulatorMotor.getEncoder();
+
+    config.closedLoop.maxMotion
+      .maxVelocity(4)
+      .maxAcceleration(8)
+      .allowedClosedLoopError(1);
+
+    ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Algee Arm", manipulatorEncoder.getPosition());
   }
 
   public Command L1SetpointPositionCommand() {
     
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(L1Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
-      ()->StopMotor(),
+      ()-> closedLoopController.setReference(0, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()->StopMotor(),  
       this)
       .until(()-> false);
 
@@ -62,7 +73,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
 
   public Command L2SetpointPositionCommand() {
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(L2Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(340, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this)
       .until(()-> false);

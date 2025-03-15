@@ -13,13 +13,31 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignAprilTag"
+            "name": "AutoAlignLock"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 5.0
+            "name": "AutoAlignStrafe"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAlignFWD"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CoralL2Set"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire Coral"
           }
         },
         {
@@ -29,21 +47,15 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.0
+            "name": "Intake"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "RFNCKL"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AlignAprilTag"
           }
         }
       ]

@@ -13,6 +13,8 @@ import static frc.robot.Constants.Constants.InputConstants.OPERATOR_XBOX_CONTROL
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,6 +35,7 @@ import frc.robot.Constants.Constants.Vision;
 
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
+import frc.robot.commands.AutoCommands.AlignToPost;
 import frc.robot.commands.AutoCommands.AutoAlign;
 import frc.robot.commands.AutoCommands.DriveForwardToTag;
 import frc.robot.commands.AutoCommands.LockHeadingCommand;
@@ -71,6 +74,16 @@ public class RobotContainer {
         public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
           
         SendableChooser<Command> autoChooser = new SendableChooser<>();
+        public static AprilTagFieldLayout kTagLayouts = null;
+                
+         public static AprilTagFieldLayout getTagLayout() {
+            if (kTagLayouts == null) {
+              kTagLayouts = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+            }
+                return kTagLayouts;
+            }
+
+        
     public RobotContainer() {
         DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
         OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
@@ -85,15 +98,40 @@ public class RobotContainer {
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
-        SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
+        SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
       //**********************************************************************************
-      NamedCommands.registerCommand("CoralL3Set", ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+      NamedCommands.registerCommand("AutoAlignLock", new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION));
+      NamedCommands.registerCommand("AutoAlignStrafe", new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION));
+      NamedCommands.registerCommand("AutoAlignFWD", new DriveForwardToTag(SWERVE, VISION.FRpostionCamera, 0.5 ));
+      NamedCommands.registerCommand("AutoAlignRight", new SequentialCommandGroup(
+        new LockHeadingCommand(SWERVE, VISION.FLpostionCamera, VISION),
+        new StrafeToTagCenter(SWERVE, VISION.FLpostionCamera ,VISION),
+        new DriveForwardToTag(SWERVE, VISION.FLpostionCamera, 0.5 )
+      ) );
+
+      NamedCommands.registerCommand("Intake", new SequentialCommandGroup(
+        new PrintCommand("Intake Run called"),
+        new ParallelDeadlineGroup(
+          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
+          ENDEFFECTOR.rollerOutCommand()
+        ),
+        new PrintCommand("Coral Grabbed Ready To Move"),
+        createRumbleCommand(2,1, 1),
+        new ParallelDeadlineGroup(
+          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
+          ENDEFFECTOR.SetRollerSpeed(0.5)
+        )
+      ));
       NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
+      NamedCommands.registerCommand("CoralL1Set", ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
       NamedCommands.registerCommand("CoralL2Set", ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
+      NamedCommands.registerCommand("CoralL3Set", ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+      NamedCommands.registerCommand("CoralL4Set", ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
       // NamedCommands.registerCommand("AlignAprilTag", new DriveAndAlignReefCommand(SWERVE, VISION, true));
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);
       SmartDashboard.putNumber("Threashold", Threashold);
+      
       // NamedCommands.registerCommand("AlignWithAprilTag", new AlignWithAprilTag(drivetrain, drive,piCamera1));
       
       configureBindings();
@@ -106,18 +144,44 @@ public class RobotContainer {
     
   
     // //Normal Coral Setpoints
-    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
+   
+    DRIVER_XBOX.x().onTrue(
+      Commands.runOnce(() -> {
+          if (AlgeeCoralToggle) {
+              ELEVATOR.ReefSetpointPositionCommand(L1SetpointC).schedule();
+          } else {
+              ELEVATOR.ReefSetpointPositionCommand(L1SetpointA).schedule();
+          }
+      })
+    );
   
-    DRIVER_XBOX.y().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
+    DRIVER_XBOX.y().onTrue(
+      Commands.runOnce(() -> {
+          if (AlgeeCoralToggle) {
+              ELEVATOR.ReefSetpointPositionCommand(L2SetpointC).schedule();
+          } else {
+              ELEVATOR.ReefSetpointPositionCommand(L2SetpointA).schedule();
+          }
+      })
+    );
   
-    DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
+    DRIVER_XBOX.a().onTrue(
+    Commands.runOnce(() -> {
+        if (AlgeeCoralToggle) {
+            ELEVATOR.ReefSetpointPositionCommand(L3SetpointC).schedule();
+        } else {
+            ELEVATOR.ReefSetpointPositionCommand(L3SetpointA).schedule();
+        }
+    })
+  );
+    
       
     DRIVER_XBOX.b().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
     
-    DRIVER_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
-    DRIVER_XBOX.start().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
+    // DRIVER_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
+    DRIVER_XBOX.back().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
+    DRIVER_XBOX.start().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
     DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
-    DRIVER_XBOX.rightTrigger().onTrue(ELEVATOR.resetElevatorCommand());
     DRIVER_XBOX.leftBumper().onTrue(new SequentialCommandGroup(
       new PrintCommand("Intake Run called"),
       new ParallelDeadlineGroup(
@@ -129,9 +193,23 @@ public class RobotContainer {
       new ParallelDeadlineGroup(
         new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
         ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered()),
+        ENDEFFECTOR.SetRollerSpeed(-0.2)
       )
     ));
-  
+
+    DRIVER_XBOX.rightTrigger().whileTrue(new SequentialCommandGroup(
+      new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION),
+      new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION),
+      new DriveForwardToTag(SWERVE, VISION.FRpostionCamera, -3 )
+    ));
+    DRIVER_XBOX.leftTrigger().whileTrue(new SequentialCommandGroup(
+      new LockHeadingCommand(SWERVE, VISION.FLpostionCamera, VISION),
+      new StrafeToTagCenter(SWERVE, VISION.FLpostionCamera ,VISION),
+      new DriveForwardToTag(SWERVE, VISION.FLpostionCamera, 0.5 )
+    ));
     
     
     // DRIVER_XBOX.leftTrigger().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, true));
@@ -143,28 +221,25 @@ public class RobotContainer {
     //Test Controls
       // OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.L1SetpointPositionCommand());
 
-      OPERATOR_XBOX.leftBumper().onTrue(new LockHeadingCommand(SWERVE, VISION.FRpostionCamera,VISION.fieldLayout ));
-      OPERATOR_XBOX.rightBumper().onTrue((new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera)));
-      OPERATOR_XBOX.b().onTrue(new DriveForwardToTag(SWERVE, VISION.FRpostionCamera, 0));
-      // OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
-      // OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
-      // // OPERATOR_XBOX.a().toggleOnTrue(SWERVE.SlowSpeedCommand());
-      // OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
-      // OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
-      // OPERATOR_XBOX.povDown().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
-      // OPERATOR_XBOX.povLeft().onTrue(ELEVATOR.ReefSetpointPositionCommand(L2SetpointC));
-      // OPERATOR_XBOX.povRight().onTrue(ELEVATOR.ReefSetpointPositionCommand(L3SetpointC));
-      // OPERATOR_XBOX.povUp().onTrue(ELEVATOR.ReefSetpointPositionCommand(L4SetpointC));
-      // OPERATOR_XBOX.rightTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(0.3));
-      // OPERATOR_XBOX.rightTrigger().onFalse(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1.0));
-      // OPERATOR_XBOX.rightBumper().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
-
       
-      //Sys ID
-      OPERATOR_XBOX.back().and(OPERATOR_XBOX.y()).whileTrue(SWERVE.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      OPERATOR_XBOX.back().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      OPERATOR_XBOX.start().and(OPERATOR_XBOX.y()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      OPERATOR_XBOX.start().and(OPERATOR_XBOX.x()).whileTrue(SWERVE.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      OPERATOR_XBOX.b().whileTrue(ENDEFFECTOR.rollerOutCommand());
+      OPERATOR_XBOX.y().whileTrue(ENDEFFECTOR.rollerInCommand());
+
+
+      OPERATOR_XBOX.povDown().whileTrue(ELEVATOR.UnspoolCommand());
+      OPERATOR_XBOX.povUp().whileTrue(ELEVATOR.SpoolCommand());
+    
+      OPERATOR_XBOX.rightTrigger().onTrue(ELEVATOR.resetElevatorCommand());
+      OPERATOR_XBOX.leftTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1));
+      OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
+
+      OPERATOR_XBOX.rightBumper().onTrue(PNEUMATICS.Extend());
+      OPERATOR_XBOX.leftBumper().onTrue(PNEUMATICS.Retract());
+      
+      OPERATOR_XBOX.a().onTrue(new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION));
+      OPERATOR_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
+      // //Sys ID
+      
 
 
       // OPERATOR_XBOX.a().and(OPERATOR_XBOX.b()).onTrue(PNEUMATICS.Extend());

@@ -44,6 +44,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import static frc.robot.Constants.Constants.Vision.*;
 import static frc.robot.RobotContainer.SENSORS;
 import static frc.robot.RobotContainer.SWERVE;
+import static frc.robot.RobotContainer.VISION;
 public class VisionSubsystem extends SubsystemBase {
 
   public static AprilTagFieldLayout fieldLayout;
@@ -65,6 +66,7 @@ public class VisionSubsystem extends SubsystemBase {
    
   public Field2d bLposField2d = new Field2d();
 
+  public int AlignCommandSelectedTag;
 
   int FoundID; 
   int SelectedID;
@@ -86,16 +88,16 @@ public class VisionSubsystem extends SubsystemBase {
   
     List<Integer> RedreefTagIDs = List.of(6, 7, 8, 9, 10, 11);
     List<Integer> BluereefTagIDs = List.of(17, 18, 19, 20, 21,22);
-    List<Integer> BlueFeedStationIDs = List.of(12,13);
-    List<Integer> RedFeedStationIDs = List.of(1,2);
-    int BlueAlgeeProcs = 16;
-    int RedAlgeeProcs = 3;
+    //List<Integer> BlueFeedStationIDs = List.of(12,13);
+    //List<Integer> RedFeedStationIDs = List.of(1,2);
+    //int BlueAlgeeProcs = 16;
+    //int RedAlgeeProcs = 3;
 
     private final AddVisionMeasurement poseConsumer;
 
     private final PhotonPoseEstimator FRphotonPoseEstimator;
     
-      // private final PhotonPoseEstimator  FLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FLcamPose);
+     private final PhotonPoseEstimator  FLphotonPoseEstimator;
       // FLphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
       // private final PhotonPoseEstimator  BRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, BRcamPose);
@@ -142,8 +144,8 @@ public class VisionSubsystem extends SubsystemBase {
               PhotonCameraSim cameraSim = new PhotonCameraSim(FRpostionCamera, cameraProp);
               // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
               Translation3d robotToCameraTrl = new Translation3d(
-                Units.inchesToMeters(0), // convert inches to meters
-                Units.inchesToMeters(0),
+                Units.inchesToMeters(13), // convert inches to meters
+                Units.inchesToMeters(6.47),
                 Units.inchesToMeters(9.5));
               // 15 Degrees up
               Rotation3d robotToCameraRot = new Rotation3d(
@@ -167,8 +169,8 @@ public class VisionSubsystem extends SubsystemBase {
     
       FRcamPose = new Transform3d(
       new Translation3d(
-          Units.inchesToMeters(0), // convert inches to meters  
-          Units.inchesToMeters(-11.875),
+          Units.inchesToMeters(11.875), // convert inches to meters  
+          Units.inchesToMeters(0),
           Units.inchesToMeters(9.5)),
       new Rotation3d(
           0,
@@ -198,6 +200,9 @@ public class VisionSubsystem extends SubsystemBase {
       
 
     FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
+    FLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
+    FRphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
 
     }
   
@@ -207,42 +212,42 @@ public class VisionSubsystem extends SubsystemBase {
       visionSim.update(groundTruthRobotPose);
   }
   
-    public Pose2d CheckForAlignCommand(boolean isFeedStation) {
-      List<Integer> reefTagIDs = new ArrayList<>();
+    // public Pose2d CheckForAlignCommand(boolean isFeedStation) {
+    //   List<Integer> reefTagIDs = new ArrayList<>();
   
-      if (RobotContainer.IsRed()) { //red
-        if (isFeedStation) { //Target Red feed
-          reefTagIDs = RedFeedStationIDs;
-        } else { //red Procsesor 
-          reefTagIDs.add(RedAlgeeProcs);
-        }
-      } else { //blue
-        if (isFeedStation) { //Target blue feed
-          reefTagIDs = BlueFeedStationIDs;
-        } else { //blue Procsesor 
-          reefTagIDs.add(BlueAlgeeProcs);
-        }
-      }
-      var Results = FRpostionCamera.getLatestResult();
+    //   if (RobotContainer.IsRed()) { //red
+    //     if (isFeedStation) { //Target Red feed
+    //       reefTagIDs = RedFeedStationIDs;
+    //     } else { //red Procsesor 
+    //       reefTagIDs.add(RedAlgeeProcs);
+    //     }
+    //   } else { //blue
+    //     if (isFeedStation) { //Target blue feed
+    //       reefTagIDs = BlueFeedStationIDs;
+    //     } else { //blue Procsesor 
+    //       reefTagIDs.add(BlueAlgeeProcs);
+    //     }
+    //   }
+    //   var Results = FRpostionCamera.getLatestResult();
   
-      if (!Results.hasTargets()) {
-        return null;
-      }
-      Pose2d bestpose = null;
-      for (var target : Results.getTargets()) { 
-        int targetID = target.getFiducialId();
+    //   if (!Results.hasTargets()) {
+    //     return null;
+    //   }
+    //   Pose2d bestpose = null;
+    //   for (var target : Results.getTargets()) { 
+    //     int targetID = target.getFiducialId();
   
-        if (reefTagIDs.contains(targetID)) {
-          bestpose = fieldLayout.getTagPose(targetID).get().toPose2d();
-        } else {
-          System.out.print("No Good Tag. Check For Align Has tag but incorrect.");
-        }
+    //     if (reefTagIDs.contains(targetID)) {
+    //       bestpose = fieldLayout.getTagPose(targetID).get().toPose2d();
+    //     } else {
+    //       System.out.print("No Good Tag. Check For Align Has tag but incorrect.");
+    //     }
   
         
-      }
+    //   }
   
-      return bestpose;
-    }
+    //   return bestpose;
+    // }
   
     @Override
     public void periodic() {
@@ -250,6 +255,7 @@ public class VisionSubsystem extends SubsystemBase {
       SmartDashboard.putData("FL" ,fLposField2d);
       SmartDashboard.putData("BR" , bRposField2d);
       SmartDashboard.putData("BL",bLposField2d);
+      SmartDashboard.putNumber("LockTag", AlignCommandSelectedTag);
       SmartDashboard.putNumber("bestTargetID", bestTargetID());
       if (Robot.isSimulation()) {
         visionSim.update(SWERVE.getState().Pose);
@@ -258,7 +264,7 @@ public class VisionSubsystem extends SubsystemBase {
   
    
   public void useCamera() {
-    // integrateCamera(UseFL,FLpostionCamera,FLphotonPoseEstimator,fLposField2d,maxDistance);
+    // integrateCamera(UseFL,FLpostionCamera,FLphotonPoseEstimator,fLposField2d,maxDistance, fieldLayout);
     integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
     // integrateCamera(UseBL,BLpostionCamera,BLphotonPoseEstimator,bLposField2d,maxDistance);
     // integrateCamera(UseBR,BRpostionCamera,BRphotonPoseEstimator,bRposField2d,maxDistance);
