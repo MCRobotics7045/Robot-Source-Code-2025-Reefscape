@@ -144,8 +144,8 @@ public class VisionSubsystem extends SubsystemBase {
               PhotonCameraSim cameraSim = new PhotonCameraSim(FRpostionCamera, cameraProp);
               // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
               Translation3d robotToCameraTrl = new Translation3d(
-                Units.inchesToMeters(13), // convert inches to meters
-                Units.inchesToMeters(6.47),
+                Units.inchesToMeters(6), // convert inches to meters
+                Units.inchesToMeters(0),
                 Units.inchesToMeters(9.5));
               // 15 Degrees up
               Rotation3d robotToCameraRot = new Rotation3d(

@@ -35,9 +35,9 @@ import frc.robot.Constants.Constants.Vision;
 
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
 
-import frc.robot.commands.AutoCommands.AlignToPost;
 import frc.robot.commands.AutoCommands.AutoAlign;
 import frc.robot.commands.AutoCommands.DriveForwardToTag;
+import frc.robot.commands.AutoCommands.DriveToPostOffset;
 import frc.robot.commands.AutoCommands.LockHeadingCommand;
 import frc.robot.commands.AutoCommands.RelativeAutoAlign;
 import frc.robot.commands.AutoCommands.StrafeToTagCenter;
@@ -98,7 +98,7 @@ public class RobotContainer {
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
-        SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
+        SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
       //**********************************************************************************
       NamedCommands.registerCommand("AutoAlignLock", new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION));
       NamedCommands.registerCommand("AutoAlignStrafe", new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION));
@@ -236,8 +236,9 @@ public class RobotContainer {
       OPERATOR_XBOX.rightBumper().onTrue(PNEUMATICS.Extend());
       OPERATOR_XBOX.leftBumper().onTrue(PNEUMATICS.Retract());
       
-      OPERATOR_XBOX.a().onTrue(new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION));
-      OPERATOR_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
+      OPERATOR_XBOX.a().onTrue(new DriveToPostOffset(SWERVE, VISION.FRpostionCamera ,0.2,0.127));
+      OPERATOR_XBOX.povLeft().onTrue(new LockHeadingCommand(SWERVE, VISION.FRpostionCamera ,VISION));
+      OPERATOR_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));  
       // //Sys ID
       
 
