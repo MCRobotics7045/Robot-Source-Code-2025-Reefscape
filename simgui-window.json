@@ -6,7 +6,7 @@
     "GLOBAL": {
       "font": "Proggy Dotted",
       "fps": "120",
-      "height": "1057",
+      "height": "991",
       "maximized": "1",
       "style": "0",
       "userScale": "2",
@@ -29,10 +29,15 @@
     }
   },
   "Window": {
+    "###/FMSInfo": {
+      "Collapsed": "0",
+      "Pos": "60,60",
+      "Size": "202,194"
+    },
     "###/SmartDashboard/Auto Chooser": {
       "Collapsed": "0",
       "Pos": "156,201",
-      "Size": "254,54"
+      "Size": "307,60"
     },
     "###/SmartDashboard/Elevator Mech2d": {
       "Collapsed": "0",
@@ -77,16 +82,21 @@
     "###FMS": {
       "Collapsed": "0",
       "Pos": "106,530",
-      "Size": "169,184"
+      "Size": "210,214"
     },
     "###Joysticks": {
       "Collapsed": "0",
       "Pos": "171,449",
-      "Size": "796,240"
+      "Size": "976,272"
+    },
+    "###Keyboard 0 Settings": {
+      "Collapsed": "0",
+      "Pos": "10,50",
+      "Size": "300,560"
     },
     "###NetworkTables": {
       "Collapsed": "0",
-      "Pos": "511,50",
+      "Pos": "1117,192",
       "Size": "750,759"
     },
     "###NetworkTables Info": {
@@ -107,7 +117,7 @@
     "###Timing": {
       "Collapsed": "0",
       "Pos": "779,452",
-      "Size": "141,173"
+      "Size": "169,194"
     },
     "Debug##Default": {
       "Collapsed": "0",
@@ -117,7 +127,7 @@
     "Robot State": {
       "Collapsed": "0",
       "Pos": "7,25",
-      "Size": "99,116"
+      "Size": "118,134"
     }
   }
 }

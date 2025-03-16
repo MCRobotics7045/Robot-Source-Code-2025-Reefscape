@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -45,6 +46,7 @@ import frc.robot.commands.AutoCommands.StrafeToTagCenter;
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
+import frc.robot.commands.DriveCommands.DriveWithJoystick;
 // import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
 // import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeManipulatorSubsystem;
@@ -61,6 +63,7 @@ import static frc.robot.Constants.Constants.Vision.*;
 public class RobotContainer {
 
   public static  CommandXboxController  DRIVER_XBOX;
+  public static CommandJoystick DRIVER_JOYSTICK;
     public static CommandXboxController OPERATOR_XBOX;
     public static SwerveSubsystem SWERVE;
     public final ElevatorSubsystem ELEVATOR;
@@ -87,8 +90,8 @@ public class RobotContainer {
     public RobotContainer() {
         DRIVER_XBOX = new CommandXboxController(DRIVER_XBOX_CONTROLLER_PORT);
         OPERATOR_XBOX = new CommandXboxController(OPERATOR_XBOX_CONTROLLER_PORT);
-
-        ELEVATOR = new ElevatorSubsystem();
+        DRIVER_JOYSTICK = new CommandJoystick(DRIVER_XBOX_CONTROLLER_PORT);
+        ELEVATOR = new ElevatorSubsystem(); 
         ENDEFFECTOR = new EndEffectorSubsystem();
        
         SWERVE = TunerConstants.createDrivetrain();
@@ -98,7 +101,8 @@ public class RobotContainer {
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
-        SWERVE.setDefaultCommand(new DefaultDrive(OPERATOR_XBOX,SWERVE));
+        SWERVE.setDefaultCommand(new DefaultDrive(DRIVER_XBOX,SWERVE));
+        // SWERVE.setDefaultCommand(new DriveWithJoystick(DRIVER_JOYSTICK, SWERVE));
       //**********************************************************************************
       NamedCommands.registerCommand("AutoAlignLock", new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION));
       NamedCommands.registerCommand("AutoAlignStrafe", new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION));
@@ -293,5 +297,12 @@ public class RobotContainer {
  
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Command ClearAlgeeFromVision() {
+    return new SequentialCommandGroup(
+      ELEVATOR.ReefSetpointPositionCommand(L1SetpointA),
+      ALGEE.HoldCommand()
+    );
   }
 }

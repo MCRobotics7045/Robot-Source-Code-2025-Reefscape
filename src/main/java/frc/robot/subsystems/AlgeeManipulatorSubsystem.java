@@ -61,7 +61,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Algee Arm", manipulatorEncoder.getPosition());
   }
 
-  public Command L1SetpointPositionCommand() {
+  public Command dropOutCommand() {
     
     return Commands.startEnd(
       ()-> closedLoopController.setReference(0, SparkBase.ControlType.kMAXMotionPositionControl),
@@ -71,7 +71,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
 
   }
 
-  public Command L2SetpointPositionCommand() {
+  public Command HoldCommand() {
     return Commands.startEnd(
       ()-> closedLoopController.setReference(340, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
@@ -80,7 +80,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
 
   }
 
-  public Command L3SetpointPositionCommand() {
+  public Command StowPostion() {
     
     return Commands.startEnd(
       ()-> closedLoopController.setReference(L3Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
@@ -89,15 +89,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
       .until(()-> false);
 
   }
-  public Command L4SetpointPositionCommand() {
-    
-    return Commands.startEnd(
-      ()-> closedLoopController.setReference(L4Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
-      ()->StopMotor(),
-      this)
-      .until(()-> false);
 
-  }
 
   public double getPosition() {
     return manipulatorEncoder.getPosition();

@@ -56,7 +56,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     Elev_Motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     //JACK IF YOU DONT SEE CHANGES WHEN PID GETS CHANGED CREATE A NEW CONFIG PARAMETER CAUSE ITS PROPALLY NOT SEQUENTIAL 1/27/2025
     config.closedLoop // pid pid pid help 
-      .p(2.5)
+      .p(2)
       .i(0)
       .d(1.3);
 
@@ -151,20 +151,26 @@ public class ElevatorSubsystem extends SubsystemBase {
       ()-> Elev_Motor_controller.setReference(SetPoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this )
-      .until(()-> { 
-        if (SENSORS.ElevatorStowPostiontSensor.get()) { // No Switch
-          return false;
-        } else { //Yes Switch 
-          if (Elevator_encoder.getPosition() > -1) { // If Its moving or if the encoder is just WAYYYY Offf
-            ZeroEncoder();
-            return true;
-          }
-          return false;
-        }
-        });
+      .until(()-> false
+        // ()-> { 
+        // if (SENSORS.ElevatorStowPostiontSensor.get()) { // No Switch
+        //   return false;
+        // } else { //Yes Switch 
+        //   if (Elevator_encoder.getPosition() > -1) { // If Its moving or if the encoder is just WAYYYY Offf
+        //     ZeroEncoder();
+        //     return true;
+        //   }
+        //   return false;
+        // }
+        // }
+        );
 
 
       return ElevatorCommand.andThen(RobotContainer.createRumbleCommand(1,1,0.7));
   }
   
+
+  public Command DropElevator() {
+    return Commands.run(()-> Elev_Motor_controller.setReference(0,SparkBase.ControlType.kMAXMotionPositionControl),this).untill(()-> return !SENSORS.ElevatorStowPostiontSensor.get());
+  }
 }

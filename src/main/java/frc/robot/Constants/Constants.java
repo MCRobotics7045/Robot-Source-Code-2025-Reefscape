@@ -176,8 +176,8 @@ public final class Constants {
         //All encoder values
         public static final double L1SetpointC = -20; //Pov Down
         public static final double L2SetpointC = -70;  // Pov Left
-        public static final double L3SetpointC = -130; //Pov Right 
-        public static final double L4SetpointC = -220; //Pov Up
+        public static final double L3SetpointC = -100; //Pov Right 
+        public static final double L4SetpointC = -150; //Pov Up
          
         public static final double GEARBOX_RATIO = 75.0;  
         public static final double SPOOL_DIAMETER_METERS = 0.05;
@@ -200,6 +200,7 @@ public final class Constants {
         public static final double ExtrustionThickness = 10; // Not Correct at all but it was too small so you get 10 
 
     }
+
 
     public static class Vision {
 
