@@ -161,14 +161,7 @@ public final class Constants {
         public static final double L4Setpoint = 8;
         
     }
-    public static class EndEffectorConstants {
-        public static final int Top_MotorID = 33; //33 
-        public static final int Bottom_MotorID = 31; 
-        public static final double MotorReverseSpeed = 1;
-        public static final double MotorFowardSpeed = -1;
-        public static final int MotorIntakeSpeed = 100;
-        
-    }
+    
 
     public static class ElevatorConstants {
         public static final int Elevator_MotorID = 35; //32 
@@ -178,15 +171,23 @@ public final class Constants {
         public static final double L2SetpointC = -70;  // Pov Left
         public static final double L3SetpointC = -100; //Pov Right 
         public static final double L4SetpointC = -150; //Pov Up
-         
-        public static final double GEARBOX_RATIO = 75.0;  
-        public static final double SPOOL_DIAMETER_METERS = 0.05;
-        //Encoder Height For ALGEEE NOT FOR CORAL
+       
+        //Encoder Height For ALGEEE NOT FOR CORAL TODO SET THIS 
         public static final double L1SetpointA = 0;
         public static final double L2SetpointA = -23; 
         public static final double L3SetpointA = 0;
         public static final double L4SetpointA = -280;
  
+        //Time for Algee Arms to deploy for each Level
+        public static final double TimeToClearforL1 = 0;
+        public static final double TimeToClearforL2 = 0;
+        public static final double TimeToClearforL3 = 0;
+        public static final double TimeToClearforL4 = 0;
+
+
+          
+        public static final double GEARBOX_RATIO = 75.0;  
+        public static final double SPOOL_DIAMETER_METERS = 0.05;
 
         //stupid not important things
 
@@ -201,6 +202,14 @@ public final class Constants {
 
     }
 
+    public static class EndEffectorConstants {
+        public static final int Top_MotorID = 33; //33 
+        public static final int Bottom_MotorID = 31; 
+        public static final double MotorReverseSpeed = 1;
+        public static final double MotorFowardSpeed = -1;
+        public static final int MotorIntakeSpeed = 100;
+        
+    }
 
     public static class Vision {
 

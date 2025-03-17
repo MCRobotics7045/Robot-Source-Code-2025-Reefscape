@@ -171,6 +171,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   
 
   public Command DropElevator() {
-    return Commands.run(()-> Elev_Motor_controller.setReference(0,SparkBase.ControlType.kMAXMotionPositionControl),this).untill(()-> return !SENSORS.ElevatorStowPostiontSensor.get());
+    return Commands.run(()-> Elev_Motor_controller.setReference(0,SparkBase.ControlType.kMAXMotionPositionControl),this).until(()-> !SENSORS.ElevatorStowPostiontSensor.get());
   }
 }

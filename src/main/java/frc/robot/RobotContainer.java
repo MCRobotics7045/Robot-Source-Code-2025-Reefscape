@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -58,6 +59,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import frc.robot.subsystems.PneumaticSubsytem;
 
 import static frc.robot.Constants.Constants.SensorIOConstants.*;
+import static frc.robot.Constants.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.Constants.Vision.*;
 
 public class RobotContainer {
@@ -149,22 +151,20 @@ public class RobotContainer {
   
     // //Normal Coral Setpoints
    
-    DRIVER_XBOX.x().onTrue(
-      Commands.runOnce(() -> {
-          if (AlgeeCoralToggle) {
-              ELEVATOR.ReefSetpointPositionCommand(L1SetpointC).schedule();
-          } else {
-              ELEVATOR.ReefSetpointPositionCommand(L1SetpointA).schedule();
-          }
-      })
-    );
+    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
   
     DRIVER_XBOX.y().onTrue(
       Commands.runOnce(() -> {
           if (AlgeeCoralToggle) {
               ELEVATOR.ReefSetpointPositionCommand(L2SetpointC).schedule();
           } else {
-              ELEVATOR.ReefSetpointPositionCommand(L2SetpointA).schedule();
+            new ParallelCommandGroup(
+              ELEVATOR.ReefSetpointPositionCommand(L2SetpointA),
+          new SequentialCommandGroup(
+              new WaitCommand(TimeToClearforL2),
+              ALGEE.HoldCommand()
+          )
+        );
           }
       })
     );
@@ -174,7 +174,13 @@ public class RobotContainer {
         if (AlgeeCoralToggle) {
             ELEVATOR.ReefSetpointPositionCommand(L3SetpointC).schedule();
         } else {
-            ELEVATOR.ReefSetpointPositionCommand(L3SetpointA).schedule();
+          new ParallelCommandGroup(
+            ELEVATOR.ReefSetpointPositionCommand(L3SetpointA),
+        new SequentialCommandGroup(
+            new WaitCommand(TimeToClearforL3),
+            ALGEE.HoldCommand()
+        )
+      );
         }
     })
   );
@@ -184,7 +190,7 @@ public class RobotContainer {
     
     // DRIVER_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
     DRIVER_XBOX.back().onTrue(Commands.runOnce(() -> {AlgeeCoralToggle = !AlgeeCoralToggle;}));
-    DRIVER_XBOX.start().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));
+    DRIVER_XBOX.start().onTrue(ELEVATOR.DropElevator());
     DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
     DRIVER_XBOX.leftBumper().onTrue(new SequentialCommandGroup(
       new PrintCommand("Intake Run called"),
@@ -193,7 +199,7 @@ public class RobotContainer {
         ENDEFFECTOR.rollerOutCommand()
       ),
       new PrintCommand("Coral Grabbed Ready To Move"),
-      createRumbleCommand(2,1, 1),
+      createRumbleCommand(1,1, 1),
       new ParallelDeadlineGroup(
         new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
         ENDEFFECTOR.SetRollerSpeed(0.5)
@@ -300,9 +306,19 @@ public class RobotContainer {
   }
 
   public Command ClearAlgeeFromVision() {
-    return new SequentialCommandGroup(
+    return new ParallelCommandGroup(
       ELEVATOR.ReefSetpointPositionCommand(L1SetpointA),
       ALGEE.HoldCommand()
     );
   }
+
+  public Command DropElevatorToStowPostion() {
+    return new ParallelCommandGroup(
+      ALGEE.StowPostion(),
+      ELEVATOR.DropElevator()
+    );
+  }
+
+
+
 }
