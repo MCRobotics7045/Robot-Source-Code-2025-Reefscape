@@ -64,7 +64,7 @@ public class Robot extends LoggedRobot {
 
     if (Robot.isReal()) {
       vision.useCamera();
-      System.out.print("Use Cam Called");
+      
     }
   
   }

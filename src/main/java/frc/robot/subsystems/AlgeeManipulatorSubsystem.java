@@ -35,22 +35,17 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
     config = new SparkMaxConfig();
     config.smartCurrentLimit(30).idleMode(IdleMode.kBrake).openLoopRampRate(0.1).inverted(false);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    config.closedLoop.p(0.1).i(0.0).d(0.0);
+    config.closedLoop.p(2).i(0.0).d(0.0);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.closedLoop.maxMotion
-      .maxVelocity(3) //rotations per second
-      .maxAcceleration(2) //rotations per second
+      .maxVelocity(2000) //rotations per second
+      .maxAcceleration(500) //rotations per second
       .allowedClosedLoopError(0.1);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     closedLoopController = ManipulatorMotor.getClosedLoopController();
     manipulatorEncoder = ManipulatorMotor.getEncoder();
 
-    config.closedLoop.maxMotion
-      .maxVelocity(4)
-      .maxAcceleration(8)
-      .allowedClosedLoopError(1);
-
-    ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
 
 
   }
@@ -64,7 +59,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   public Command dropOutCommand() {
     
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(0, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(-6, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),  
       this)
       .until(()-> false);
@@ -73,7 +68,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
 
   public Command HoldCommand() {
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(340, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(-4.6, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this)
       .until(()-> false);
@@ -83,7 +78,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   public Command StowPostion() {
     
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(L3Setpoint, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(-0.6, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this)
       .until(()-> false);

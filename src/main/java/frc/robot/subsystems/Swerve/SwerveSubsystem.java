@@ -230,9 +230,12 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             double SteerMotorTurnAngle = getModule(i).getSteerMotor().getPosition().getValueAsDouble();
             double SteerMotorVoltage = getModule(i).getSteerMotor().getMotorVoltage().getValueAsDouble();
             double SteerMotorVelocity = getModule(i).getSteerMotor().getVelocity().getValueAsDouble();
+            double SteerSetPostion = getModule(i).getTargetState().angle.getRotations();
             Logger.recordOutput("Module:" + i + " SteerMotorPos", SteerMotorTurnAngle);
             Logger.recordOutput("Module:" + i + " SteerMotorVoltage", SteerMotorVoltage);
             Logger.recordOutput("Module:" + i + " SteerMotorVelocity", SteerMotorVelocity);
+            Logger.recordOutput("Moudle:" + i + "SteerSetSpeed", SteerSetPostion);
+            
         }
     }
 

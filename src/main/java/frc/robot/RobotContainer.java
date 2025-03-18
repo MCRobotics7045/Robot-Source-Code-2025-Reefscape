@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -220,7 +221,10 @@ public class RobotContainer {
       new StrafeToTagCenter(SWERVE, VISION.FLpostionCamera ,VISION),
       new DriveForwardToTag(SWERVE, VISION.FLpostionCamera, 0.5 )
     ));
-    
+    DRIVER_XBOX.povDown().onTrue(ALGEE.StowPostion());
+    DRIVER_XBOX.povUp().onTrue(ALGEE.HoldCommand());
+    DRIVER_XBOX.povLeft().onTrue(ALGEE.dropOutCommand());
+    DRIVER_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerInCommand());
     
     // DRIVER_XBOX.leftTrigger().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, true));
   

@@ -20,25 +20,24 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
     // Both sets of gains need to be tuned to your individual robot.
-
+  
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(100)
-        .withKI(0)
-        .withKD(2)
-        .withKS(0.1)
-        .withKV(2.66)
-        .withKA(0)
-        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    private static final Slot0Configs steerGains =
+        new Slot0Configs()
+            .withKP(40)
+            .withKI(0)
+            .withKD(0)
+            .withKS(0.1)
+            .withKV(2.66)
+            .withKA(0)
+            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.10195)
-        .withKI(0)
-        .withKD(0)
-        .withKS(0)
-        .withKV(0.124);
+    private static final Slot0Configs driveGains =
+        new Slot0Configs().withKP(0.10195).withKI(0).withKD(0).withKS(0.12330).withKV(0.78308);
+  
+
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -46,56 +45,59 @@ public class TunerConstants {
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
     private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
-
+  
     // The type of motor used for the drive motor
-    private static final DriveMotorArrangement kDriveMotorType = DriveMotorArrangement.TalonFX_Integrated;
+    private static final DriveMotorArrangement kDriveMotorType =
+        DriveMotorArrangement.TalonFX_Integrated;
     // The type of motor used for the drive motor
-    private static final SteerMotorArrangement kSteerMotorType = SteerMotorArrangement.TalonFX_Integrated;
-
+    private static final SteerMotorArrangement kSteerMotorType =
+        SteerMotorArrangement.TalonFX_Integrated;
+  
     // The remote sensor feedback type to use for the steer motors;
     // When not Pro-licensed, Fused*/Sync* automatically fall back to Remote*
     private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANcoder;
-
+  
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current kSlipCurrent = Amps.of(120.0);
-
+    private static final Current kSlipCurrent = Amps.of(120);
+  
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
     private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
-    private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
-        .withCurrentLimits(
-            new CurrentLimitsConfigs()
-                // Swerve azimuth does not require much torque output, so we can set a relatively low
-                // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(Amps.of(60))
-                .withStatorCurrentLimitEnable(true)
-        );
+    private static final TalonFXConfiguration steerInitialConfigs =
+        new TalonFXConfiguration()
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    // Swerve azimuth does not require much torque output, so we can set a relatively
+                    // low
+                    // stator current limit to help avoid brownouts without impacting performance.
+                    .withStatorCurrentLimit(Amps.of(60))
+                    .withStatorCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
-
+  
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
     public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
-
+  
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
     public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(9.46);
-
+  
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5714285714285716;
-
+  
     private static final double kDriveGearRatio = 6.746031746031747;
     private static final double kSteerGearRatio = 21.428571428571427;
-    private static final Distance kWheelRadius = Inches.of(4);
-
+    private static final Distance kWheelRadius = Inches.of(2);
+  
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;
-
+  
     private static final int kPigeonId = 54;
-
+  
     // These are only used for simulation
     private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.01);
     private static final MomentOfInertia kDriveInertia = KilogramSquareMeters.of(0.01);
