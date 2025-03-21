@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.819500000000001,
-        "y": 4.03475
+        "x": 7.22858606557377,
+        "y": 4.0445
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.981,
-        "y": 4.61975
+        "x": 6.39008606557377,
+        "y": 4.6295
       },
       "isLocked": false,
       "linkedName": "Driver Middle Start"

@@ -35,12 +35,12 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
     config = new SparkMaxConfig();
     config.smartCurrentLimit(30).idleMode(IdleMode.kBrake).openLoopRampRate(0.1).inverted(false);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    config.closedLoop.p(2).i(0.0).d(0.0);
+    config.closedLoop.p(2.5).i(0.0).d(1);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.closedLoop.maxMotion
-      .maxVelocity(2000) //rotations per second
-      .maxAcceleration(500) //rotations per second
-      .allowedClosedLoopError(0.1);
+      .maxVelocity(10000) //rotations per second
+      .maxAcceleration(1000) //rotations per second
+      .allowedClosedLoopError(1);
     ManipulatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     closedLoopController = ManipulatorMotor.getClosedLoopController();
     manipulatorEncoder = ManipulatorMotor.getEncoder();

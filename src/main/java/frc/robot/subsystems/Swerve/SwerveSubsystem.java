@@ -1,7 +1,7 @@
 package frc.robot.subsystems.Swerve;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.Constants.SwerveConstants.MaxSpeed;
+// import static frc.robot.Constants.Constants.SwerveConstants.MaxSpeed;
 import static frc.robot.RobotContainer.SWERVE;
 
 import java.util.Optional;
@@ -24,6 +24,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.SysIdSwerveTranslation;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -51,6 +52,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005;
@@ -68,6 +70,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private SysIdRoutine m_sysIdRoutineToApply;
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
+
+    private final SwerveRequest.ApplyRobotSpeeds m_applyRobotSpeeds =
+    new SwerveRequest.ApplyRobotSpeeds()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
         new Mechanism2d(1, 1),
@@ -93,6 +100,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         m_moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
             .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
     };
+
+    
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(dtConstants, modules);
@@ -165,6 +174,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
                 .withRotationalRate(rotationalVelocity)
+                
             );
         } else {
             SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
@@ -244,7 +254,16 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
 
 
+    public SwerveRequest driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
+        return m_applyRobotSpeeds
+                .withSpeeds(speeds)
+                .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons());
+    }
 
+    public SwerveRequest driveRobotRelative(ChassisSpeeds speeds) {
+        return m_applyRobotSpeeds.withSpeeds(speeds);
+    }
 
     private void configurePathPlanner() {
         try {
@@ -289,15 +308,15 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         }
 
 
-        if (Robot.isSimulation()) {
-             for (int i = 0; i < 4; ++i) {
-             m_moduleSpeeds[i].setAngle(getState().ModuleStates[i].angle);
-             m_moduleDirections[i].setAngle(getState().ModuleStates[i].angle);
-             m_moduleSpeeds[i].setLength(getState().ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+        // if (Robot.isSimulation()) {
+        //      for (int i = 0; i < 4; ++i) {
+        //      m_moduleSpeeds[i].setAngle(getState().ModuleStates[i].angle);
+        //      m_moduleDirections[i].setAngle(getState().ModuleStates[i].angle);
+        //      m_moduleSpeeds[i].setLength(getState().ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
     
-             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
-          } 
-         }
+        //      SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+        //   } 
+        //  }
         
     }
 

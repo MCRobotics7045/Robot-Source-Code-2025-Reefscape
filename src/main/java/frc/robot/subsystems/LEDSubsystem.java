@@ -35,19 +35,19 @@ public class LEDSubsystem extends SubsystemBase {
   private static final LEDPattern pattern = base.scrollAtRelativeSpeed(Percent.per(Second).of(25));
   public LEDSubsystem() {
     
-    LeftSide = new AddressableLED(1);
-    RightSide = new AddressableLED(2);
+    LeftSide = new AddressableLED(7);
+    // RightSide = new AddressableLED(8);
 
     LEDbuffer = new AddressableLEDBuffer(60);
 
     LeftSide.setLength(LEDbuffer.getLength());
-    RightSide.setLength(LEDbuffer.getLength());
+    // RightSide.setLength(LEDbuffer.getLength());
 
     LeftSide.setData(LEDbuffer);
-    RightSide.setData(LEDbuffer);
+    // RightSide.setData(LEDbuffer);
 
     LeftSide.start();
-    RightSide.start();
+    // RightSide.start();
 
     m_rainbow = LEDPattern.rainbow(255, 128);
     m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
@@ -55,14 +55,15 @@ public class LEDSubsystem extends SubsystemBase {
     
     
 
-    setDefaultCommand(runPattern(m_scrollingRainbow));
+    setDefaultCommand(PulseCrusader());
 
   }
 
   @Override
   public void periodic() {
     LeftSide.setData(LEDbuffer);
-    RightSide.setData(LEDbuffer);
+    // RightSide.setData(LEDbuffer);
+
     if (!isLEDrunning) {
       
     } 

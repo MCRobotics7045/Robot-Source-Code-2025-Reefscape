@@ -48,16 +48,18 @@ import frc.robot.commands.AutoCommands.StrafeToTagCenter;
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
 import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
-import frc.robot.commands.DriveCommands.DriveWithJoystick;
+import frc.robot.commands.DriveCommands.WheelRadiusCharacterization;
+// import frc.robot.commands.DriveCommands.DriveWithJoystick;
 // import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
 // import frc.robot.Simulation.SimulationTele;
 import frc.robot.subsystems.AlgeeManipulatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-import frc.robot.subsystems.PneumaticSubsytem;
+
 
 import static frc.robot.Constants.Constants.SensorIOConstants.*;
 import static frc.robot.Constants.Constants.ElevatorConstants.*;
@@ -68,15 +70,17 @@ public class RobotContainer {
   public static  CommandXboxController  DRIVER_XBOX;
   public static CommandJoystick DRIVER_JOYSTICK;
     public static CommandXboxController OPERATOR_XBOX;
+
     public static SwerveSubsystem SWERVE;
     public final ElevatorSubsystem ELEVATOR;
     public final EndEffectorSubsystem ENDEFFECTOR;
     public static VisionSubsystem VISION; 
    
-    public final PneumaticSubsytem PNEUMATICS;
+    // public final PneumaticSubsytem PNEUMATICS;
   
         public final AlgeeManipulatorSubsystem ALGEE;
         public static SensorsIO SENSORS;
+        public final LEDSubsystem LED;
         public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
           
         SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -96,10 +100,10 @@ public class RobotContainer {
         DRIVER_JOYSTICK = new CommandJoystick(DRIVER_XBOX_CONTROLLER_PORT);
         ELEVATOR = new ElevatorSubsystem(); 
         ENDEFFECTOR = new EndEffectorSubsystem();
-       
+        LED = new LEDSubsystem();
         SWERVE = TunerConstants.createDrivetrain();
         VISION = new VisionSubsystem(SWERVE::addVisionMeasurement); 
-        PNEUMATICS = new PneumaticSubsytem();
+        // PNEUMATICS = new PneumaticSubsytem();
         ALGEE = new AlgeeManipulatorSubsystem();
         SENSORS = new SensorsIO();
         
@@ -152,9 +156,9 @@ public class RobotContainer {
   
     // //Normal Coral Setpoints
    
-    DRIVER_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
+    DRIVER_XBOX.a().onTrue(ELEVATOR.ReefSetpointPositionCommand(L1SetpointC));
   
-    DRIVER_XBOX.y().onTrue(
+    DRIVER_XBOX.x().onTrue(
       Commands.runOnce(() -> {
           if (AlgeeCoralToggle) {
               ELEVATOR.ReefSetpointPositionCommand(L2SetpointC).schedule();
@@ -170,7 +174,7 @@ public class RobotContainer {
       })
     );
   
-    DRIVER_XBOX.a().onTrue(
+    DRIVER_XBOX.y().onTrue(
     Commands.runOnce(() -> {
         if (AlgeeCoralToggle) {
             ELEVATOR.ReefSetpointPositionCommand(L3SetpointC).schedule();
@@ -206,25 +210,32 @@ public class RobotContainer {
         ENDEFFECTOR.SetRollerSpeed(0.5)
       ),
       new ParallelDeadlineGroup(
-        new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered()),
-        ENDEFFECTOR.SetRollerSpeed(-0.2)
+        new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered()).andThen(new WaitCommand(0.05)),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
       )
     ));
 
-    DRIVER_XBOX.rightTrigger().whileTrue(new SequentialCommandGroup(
-      new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION),
-      new StrafeToTagCenter(SWERVE, VISION.FRpostionCamera ,VISION),
-      new DriveForwardToTag(SWERVE, VISION.FRpostionCamera, -3 )
-    ));
-    DRIVER_XBOX.leftTrigger().whileTrue(new SequentialCommandGroup(
-      new LockHeadingCommand(SWERVE, VISION.FLpostionCamera, VISION),
-      new StrafeToTagCenter(SWERVE, VISION.FLpostionCamera ,VISION),
-      new DriveForwardToTag(SWERVE, VISION.FLpostionCamera, 0.5 )
-    ));
+    DRIVER_XBOX.rightTrigger().whileTrue(
+      new SequentialCommandGroup(
+        // new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION),
+        new DriveToPostOffset(SWERVE, VISION.FRpostionCamera, 0.2, -0.3)
+        )
+      
+    );
+    //TODO MAKE ALGEE CORAL TOGGLE FOR AUTO ALIGN
+    DRIVER_XBOX.leftTrigger().whileTrue(
+      new SequentialCommandGroup(
+        // new LockHeadingCommand(SWERVE, VISION.FRpostionCamera, VISION),
+        new DriveToPostOffset(SWERVE, VISION.FRpostionCamera, 0.2, -0.15)
+        )
+    );
+
     DRIVER_XBOX.povDown().onTrue(ALGEE.StowPostion());
     DRIVER_XBOX.povUp().onTrue(ALGEE.HoldCommand());
     DRIVER_XBOX.povLeft().onTrue(ALGEE.dropOutCommand());
-    DRIVER_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerInCommand());
+    
+
+    // DRIVER_XBOX.povRight().onTrue(new WheelRadiusCharacterization(, SWERVE));
     
     // DRIVER_XBOX.leftTrigger().onTrue(new DriveAndAlignReefCommand(SWERVE, VISION, true));
   
@@ -247,11 +258,7 @@ public class RobotContainer {
       OPERATOR_XBOX.leftTrigger().whileTrue(ENDEFFECTOR.ChangeEndEffectorRollerSpeed(1));
       OPERATOR_XBOX.back().onTrue(SENSORS.ZeroPigeonIMU());
 
-      OPERATOR_XBOX.rightBumper().onTrue(PNEUMATICS.Extend());
-      OPERATOR_XBOX.leftBumper().onTrue(PNEUMATICS.Retract());
-      
-      OPERATOR_XBOX.a().onTrue(new DriveToPostOffset(SWERVE, VISION.FRpostionCamera ,0.2,0.127));
-      OPERATOR_XBOX.povLeft().onTrue(new LockHeadingCommand(SWERVE, VISION.FRpostionCamera ,VISION));
+    
       OPERATOR_XBOX.x().onTrue(ELEVATOR.ReefSetpointPositionCommand(0));  
       // //Sys ID
       
@@ -309,12 +316,7 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  public Command ClearAlgeeFromVision() {
-    return new ParallelCommandGroup(
-      ELEVATOR.ReefSetpointPositionCommand(L1SetpointA),
-      ALGEE.HoldCommand()
-    );
-  }
+  
 
   public Command DropElevatorToStowPostion() {
     return new ParallelCommandGroup(

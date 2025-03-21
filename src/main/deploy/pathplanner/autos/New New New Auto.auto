@@ -13,18 +13,6 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoAlignStrafe"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoAlignFWD"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "CoralL2Set"
           }
         },

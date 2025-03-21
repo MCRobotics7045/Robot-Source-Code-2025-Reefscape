@@ -50,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     config
       .smartCurrentLimit(60)
       .idleMode(IdleMode.kBrake)
-      .openLoopRampRate(0.1)
+      .openLoopRampRate(1)
       .inverted(false);
 
     Elev_Motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

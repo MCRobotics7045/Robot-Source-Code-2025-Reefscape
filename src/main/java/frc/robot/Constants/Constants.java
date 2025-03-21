@@ -111,9 +111,10 @@ public final class Constants {
         public static final int DSOL4_PORT_REV = 0;
     }
     public static class SwerveConstants {
-        public static final double MaxSpeed = Units.feetToMeters(20.1); // The best go 20 feet a second - Watt // 20.1 nominal 
+        public static final double MaxSpeed = Units.feetToMeters(20.1); 
         public static final double MaxRotationSpeed = 4 * Math.PI;
         public static final double angularSpeed = MaxSpeed / (Math.hypot(robotLengthMeters, robotWidthMeters) / 2) / MaxRotationSpeed;
+        public static double speedMultiplier = 1;
         public static final double SlewRate = 20;
     } 
 

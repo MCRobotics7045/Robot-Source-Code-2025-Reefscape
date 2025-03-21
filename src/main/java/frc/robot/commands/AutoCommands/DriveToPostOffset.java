@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.List;
 
@@ -35,12 +36,12 @@ public class DriveToPostOffset extends Command {
      */
     private final double forwardOffset;  
     private final double sideOffset;
-    private final PIDController forwardPID = new PIDController(0.5, 0.0, 0.0);
-    private final PIDController sidePID    = new PIDController(1.0, 0.0, 0.0);
+    private final PIDController forwardPID = new PIDController(1.0, 0.0, 0);
+    private final PIDController sidePID    = new PIDController(1.0, 0.0, 0);
     private static final double FORWARD_TOL = 0.05; // meters
     private static final double SIDE_TOL    = 0.05; // meters
-    private static final double FORWARD_CLAMP = 1.0; // m/s
-    private static final double SIDE_CLAMP    = 1.0; // m/s
+    private static final double FORWARD_CLAMP = 0.2; // m/s
+    private static final double SIDE_CLAMP    = 0.2; // m/s
     private static final double TIMEOUT_SEC = 4.0;
     private final Timer timer = new Timer();
 
@@ -67,6 +68,7 @@ public class DriveToPostOffset extends Command {
         forwardPID.reset();
         sidePID.reset();
         RedAlliance = RobotContainer.IsRed();
+        System.out.println("COMMAND RUNNING");
     }
 
     @Override
@@ -74,28 +76,33 @@ public class DriveToPostOffset extends Command {
         PhotonPipelineResult result = camera.getLatestResult();
         if (!result.hasTargets()) {
             end(true);
+            System.out.println("COMMAND NO TARGET");
             return;
         }
         PhotonTrackedTarget bestTarget = result.getBestTarget();
         if (RedAlliance) {
             if(redReefList.contains(bestTarget.getFiducialId())){
+                System.out.println("RED REEF TARGET");
               double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
               double rawSideDist = bestTarget.getBestCameraToTarget().getY();
               double forwardError = -rawForwardDist - forwardOffset;
               double forwardCmd = forwardPID.calculate(forwardError, 0.0);
               forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
 
-              double sideError = -rawSideDist - sideOffset;
-              double sideCmd = sidePID.calculate(sideError, 0.0);
+              
+              double sideCmd = sidePID.calculate(-rawSideDist, 0.0);
               sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-
+              SmartDashboard.putNumber("FWD PID ", forwardCmd);
+              SmartDashboard.putNumber("SIDE PID ", sideCmd);
               swerve.drive(forwardCmd, sideCmd, 0.0, false);
             } else {
+                System.out.println("RED REEF NO TARGET");
               end(true);
               return;
             }
         }else {
             if(blueReefList.contains(bestTarget.getFiducialId())) {
+                System.out.println("BLUE REEF TARGET");
               double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
               double rawSideDist = bestTarget.getBestCameraToTarget().getY();
               double forwardError = -rawForwardDist - forwardOffset;
@@ -105,9 +112,11 @@ public class DriveToPostOffset extends Command {
               double sideError = -rawSideDist - sideOffset;
               double sideCmd = sidePID.calculate(sideError, 0.0);
               sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-              
+              SmartDashboard.putNumber("FWD PID ", forwardCmd);
+              SmartDashboard.putNumber("SIDE PID ", sideCmd);
               swerve.drive(forwardCmd, sideCmd, 0.0, false);
             } else {
+                System.out.println("BLUE REEF NO TARGET");
               end(true);
               return;
             }
@@ -135,6 +144,6 @@ public class DriveToPostOffset extends Command {
     @Override
     public void end(boolean interrupted) {
         // Stop the robot
-        swerve.drive(0.0, 0.0, 0.0, false);
+        swerve.drive(0.0, 0.0, 0.0, true);
     }
 }
