@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -40,8 +41,8 @@ public class DriveToPostOffset extends Command {
     private final PIDController sidePID    = new PIDController(1.0, 0.0, 0);
     private static final double FORWARD_TOL = 0.05; // meters
     private static final double SIDE_TOL    = 0.05; // meters
-    private static final double FORWARD_CLAMP = 0.2; // m/s
-    private static final double SIDE_CLAMP    = 0.2; // m/s
+    private static final double FORWARD_CLAMP = 1; // m/s
+    private static final double SIDE_CLAMP    = 1; // m/s
     private static final double TIMEOUT_SEC = 4.0;
     private final Timer timer = new Timer();
 
@@ -73,6 +74,8 @@ public class DriveToPostOffset extends Command {
 
     @Override
     public void execute() {
+
+        //Filter Alliance First 
         PhotonPipelineResult result = camera.getLatestResult();
         if (!result.hasTargets()) {
             end(true);
@@ -80,21 +83,22 @@ public class DriveToPostOffset extends Command {
             return;
         }
         PhotonTrackedTarget bestTarget = result.getBestTarget();
+
         if (RedAlliance) {
             if(redReefList.contains(bestTarget.getFiducialId())){
-                System.out.println("RED REEF TARGET");
-              double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
-              double rawSideDist = bestTarget.getBestCameraToTarget().getY();
-              double forwardError = -rawForwardDist - forwardOffset;
-              double forwardCmd = forwardPID.calculate(forwardError, 0.0);
-              forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
-
-              
-              double sideCmd = sidePID.calculate(-rawSideDist, 0.0);
-              sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-              SmartDashboard.putNumber("FWD PID ", forwardCmd);
-              SmartDashboard.putNumber("SIDE PID ", sideCmd);
-              swerve.drive(forwardCmd, sideCmd, 0.0, false);
+                System.out.println("RED REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
+                double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
+                double rawSideDist = bestTarget.getBestCameraToTarget().getY();
+                double forwardError = -rawForwardDist - forwardOffset;
+                double forwardCmd = forwardPID.calculate(forwardError, 0.0);
+                forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
+  
+                double sideError = -rawSideDist - sideOffset;
+                double sideCmd = sidePID.calculate(sideError, 0.0);
+                sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
+                Logger.recordOutput("FWD PID", forwardCmd);
+                Logger.recordOutput("SIDE PID", sideCmd);
+                swerve.drive(forwardCmd, sideCmd, 0.0, false);
             } else {
                 System.out.println("RED REEF NO TARGET");
               end(true);
@@ -102,7 +106,7 @@ public class DriveToPostOffset extends Command {
             }
         }else {
             if(blueReefList.contains(bestTarget.getFiducialId())) {
-                System.out.println("BLUE REEF TARGET");
+                System.out.println("BLUE REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
               double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
               double rawSideDist = bestTarget.getBestCameraToTarget().getY();
               double forwardError = -rawForwardDist - forwardOffset;
@@ -112,8 +116,8 @@ public class DriveToPostOffset extends Command {
               double sideError = -rawSideDist - sideOffset;
               double sideCmd = sidePID.calculate(sideError, 0.0);
               sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-              SmartDashboard.putNumber("FWD PID ", forwardCmd);
-              SmartDashboard.putNumber("SIDE PID ", sideCmd);
+              Logger.recordOutput("FWD PID", forwardCmd);
+              Logger.recordOutput("SIDE PID", sideCmd);
               swerve.drive(forwardCmd, sideCmd, 0.0, false);
             } else {
                 System.out.println("BLUE REEF NO TARGET");

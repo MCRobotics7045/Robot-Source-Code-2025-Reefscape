@@ -23,6 +23,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import static frc.robot.Constants.Constants.AlgeeManipulatorConstants.*;
 
+import org.littletonrobotics.junction.Logger;
+
 public class AlgeeManipulatorSubsystem extends SubsystemBase {
   public SparkMax ManipulatorMotor;
   public SparkClosedLoopController closedLoopController;
@@ -53,7 +55,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Algee Arm", manipulatorEncoder.getPosition());
+    Logger.recordOutput("Algee Arm", manipulatorEncoder.getPosition());
   }
 
   public Command dropOutCommand() {

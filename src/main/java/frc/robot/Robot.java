@@ -58,14 +58,11 @@ public class Robot extends LoggedRobot {
 
 
 
-    // Logger.recordOutput("Pose/BotPose", RobotContainer.SWERVE.getPose());
+    Logger.recordOutput("Pose/BotPose", RobotContainer.SWERVE.getState().Pose);
 
 
 
-    if (Robot.isReal()) {
-      vision.useCamera();
-      
-    }
+ 
   
   }
 

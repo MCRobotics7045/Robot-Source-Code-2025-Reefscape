@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.814036885245901,
+        "y": 3.887141393442622
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.156029685354071,
+        "y": 3.8671051350327867
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.130737704918032,
+        "y": 1.573514344262295
+      },
+      "prevControl": {
+        "x": 5.5266768613886486,
+        "y": 1.9197970259868606
+      },
+      "nextControl": {
+        "x": 4.466229167853183,
+        "y": 0.9923447517045549
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.4864754098360655,
+        "y": 0.6864241803278684
+      },
+      "prevControl": {
+        "x": 2.402037608514659,
+        "y": 0.937868264020455
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "BotFeed"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 50.19442890773504
+  },
+  "reversed": false,
+  "folder": "Reef To Feed",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

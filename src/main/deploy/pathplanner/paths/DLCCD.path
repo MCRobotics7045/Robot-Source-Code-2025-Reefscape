@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.761,
-        "y": 7.262
+        "x": 7.254000000000001,
+        "y": 7.5642499999999995
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.234153697358114,
-        "y": 7.2785098426708785
+        "x": 7.727153697358115,
+        "y": 7.580759842670878
       },
       "isLocked": false,
       "linkedName": "Driver Leftside Start"

@@ -11,8 +11,12 @@ import static frc.robot.Constants.Constants.SwerveConstants.angularSpeed;
 import static frc.robot.Constants.Constants.SwerveConstants.speedMultiplier;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import org.littletonrobotics.junction.Logger;
+
 import static java.lang.Math.cos;
- import static java.lang.Math.sin;
+import static java.lang.Math.signum;
+import static java.lang.Math.sin;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,9 +38,9 @@ public class DefaultDrive extends Command {
   private double yVelocity;
   private double rotationalVelocity;
 
-  SlewRateLimiter xVelocityFilter = new SlewRateLimiter(2);
-  SlewRateLimiter yVelocityFilter = new SlewRateLimiter(2);
-  SlewRateLimiter xRotateFilter = new SlewRateLimiter(5);
+  SlewRateLimiter xVelocityFilter = new SlewRateLimiter(7);
+  SlewRateLimiter yVelocityFilter = new SlewRateLimiter(7);
+  SlewRateLimiter xRotateFilter = new SlewRateLimiter(10);
 
 
   public DefaultDrive(CommandXboxController  XBOX, SwerveSubsystem SWERVE) {
@@ -70,18 +74,23 @@ public class DefaultDrive extends Command {
 
     // SWERVE.drive(yVelocity, xVelocity, rotationalVelocity, true);
 
+    double InputX = MathUtil.applyDeadband(-XBOX.getLeftX(), .15) * 3;
+    double InputY = MathUtil.applyDeadband(XBOX.getLeftY(), .15) * 3;
+    double InputZ = MathUtil.applyDeadband(-XBOX.getRightX(), .15) * 4;
 
-    double InputX = Math.pow(MathUtil.applyDeadband(XBOX.getLeftX(), .1),3);
-    double InputY = Math.pow(MathUtil.applyDeadband(XBOX.getLeftY(), .1),3);
-    double InputZ = Math.pow(MathUtil.applyDeadband(XBOX.getRightX(), .1),3);
+
+    // double InputX = Math.pow(MathUtil.applyDeadband(XBOX.getLeftX(), .15),2);
+    // double InputY = Math.pow(MathUtil.applyDeadband(XBOX.getLeftY(), .15),2);
+    // double InputZ = Math.pow(MathUtil.applyDeadband(XBOX.getRightX(), .12),2);
     xVelocity = xVelocityFilter.calculate(InputX);
     yVelocity = yVelocityFilter.calculate(InputY);
     rotationalVelocity = xRotateFilter.calculate(InputZ);
     
-    SmartDashboard.putNumber("Input X Out", xVelocity);
-    SmartDashboard.putNumber("Input Y Out", yVelocity);
-    SmartDashboard.putNumber("Input Z Out", InputZ);
-    SWERVE.drive(yVelocity, xVelocity, -rotationalVelocity, true);
+    Logger.recordOutput("Input X Out", xVelocity);
+    Logger.recordOutput("Input Y Out", yVelocity);
+    Logger.recordOutput("Input Z Out", InputZ);
+
+    SWERVE.drive(xVelocity, yVelocity, -rotationalVelocity, true);
     
     
     

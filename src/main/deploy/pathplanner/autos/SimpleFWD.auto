@@ -9,18 +9,6 @@
           "data": {
             "pathName": "DMCGH"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CoralL2Set"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire Coral"
-          }
         }
       ]
     }

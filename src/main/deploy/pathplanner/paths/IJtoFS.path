@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.45025,
+        "y": 4.9415
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.323499999999998,
+        "y": 5.92625
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.861,
+        "y": 6.2285
+      },
+      "prevControl": {
+        "x": 4.297921875,
+        "y": 6.077984375000001
+      },
+      "nextControl": {
+        "x": 3.4240781250000007,
+        "y": 6.379015625
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.092,
+        "y": 6.930499999999999
+      },
+      "prevControl": {
+        "x": 2.5349999999999997,
+        "y": 6.4137499999999985
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -55.49147701233156
+  },
+  "reversed": false,
+  "folder": "Reef To Feed",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -119.87599269168948
+  },
+  "useDefaultConstraints": true
+}

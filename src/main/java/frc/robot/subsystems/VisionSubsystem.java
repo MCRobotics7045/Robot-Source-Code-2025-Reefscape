@@ -23,6 +23,8 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import static edu.wpi.first.units.Units.Meters;
+
+import org.littletonrobotics.junction.Logger;
 import org.opencv.features2d.Features2d;
 import org.photonvision.EstimatedRobotPose;
 
@@ -49,23 +51,14 @@ public class VisionSubsystem extends SubsystemBase {
 
   public static AprilTagFieldLayout fieldLayout;
   /** Creates a new VisionSubsystem. */
-  public static PhotonCamera FRpostionCamera; 
-  public Transform3d FRcamPose;
-  
+  public static PhotonCamera bPCamera; 
+  public Transform3d bPCameraPose;
   public Field2d fRposField2d = new Field2d();
-  public static PhotonCamera FLpostionCamera;
-  public Transform3d FLcamPose;
-  
-  public Field2d fLposField2d = new Field2d();
-  public static PhotonCamera BRpostionCamera; 
-  public Transform3d BRcamPose;
-  
-  public Field2d bRposField2d = new Field2d();
-  public static PhotonCamera BLpostionCamera; 
-  public Transform3d BLcamPose;
-   
-  public Field2d bLposField2d = new Field2d();
 
+  public static PhotonCamera elevatorCamera;
+  public Transform3d elevatorCameraPose;
+  public Field2d fLposField2d = new Field2d();
+  
   public int AlignCommandSelectedTag;
 
   int FoundID; 
@@ -124,7 +117,7 @@ public class VisionSubsystem extends SubsystemBase {
   
   //----------------------------------------------------------------------------------
   
-      FRpostionCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+  bPCamera = new PhotonCamera("Arducam_OV9281_Camera");
   //---------------------------------------------------------------------------------
       
   //Simulaton 
@@ -141,7 +134,7 @@ public class VisionSubsystem extends SubsystemBase {
               cameraProp.setAvgLatencyMs(35);
               cameraProp.setLatencyStdDevMs(5);
               System.out.println("Cam Set Up Comp");
-              PhotonCameraSim cameraSim = new PhotonCameraSim(FRpostionCamera, cameraProp);
+              PhotonCameraSim cameraSim = new PhotonCameraSim(bPCamera, cameraProp);
               // X is forward and back and Y is Left and right and Z is Up and Down This is at floor level cause Z=0
               Translation3d robotToCameraTrl = new Translation3d(
                 Units.inchesToMeters(6), // convert inches to meters
@@ -167,7 +160,7 @@ public class VisionSubsystem extends SubsystemBase {
   
       fieldLayout =  AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     
-      FRcamPose = new Transform3d(
+      bPCameraPose = new Transform3d(
       new Translation3d(
           Units.inchesToMeters(11.875), // convert inches to meters  
           Units.inchesToMeters(0),
@@ -179,7 +172,7 @@ public class VisionSubsystem extends SubsystemBase {
   
       )
   );
-       FLcamPose = new Transform3d(
+       elevatorCameraPose = new Transform3d(
       new Translation3d(
           Units.inchesToMeters(9.875), // convert inches to meters  
           Units.inchesToMeters(11.875),
@@ -199,8 +192,8 @@ public class VisionSubsystem extends SubsystemBase {
         
       
 
-    FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
-    FLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, FRcamPose);
+    FRphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, bPCameraPose);
+    FLphotonPoseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, elevatorCameraPose);
     FRphotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
 
@@ -251,12 +244,9 @@ public class VisionSubsystem extends SubsystemBase {
   
     @Override
     public void periodic() {
-      SmartDashboard.putData("FR" ,fRposField2d);
-      SmartDashboard.putData("FL" ,fLposField2d);
-      SmartDashboard.putData("BR" , bRposField2d);
-      SmartDashboard.putData("BL",bLposField2d);
-      SmartDashboard.putNumber("LockTag", AlignCommandSelectedTag);
-      SmartDashboard.putNumber("bestTargetID", bestTargetID());
+   
+      Logger.recordOutput("LockTag", AlignCommandSelectedTag);
+      Logger.recordOutput("bestTargetID", bestTargetID());
       if (Robot.isSimulation()) {
         visionSim.update(SWERVE.getState().Pose);
       }
@@ -265,7 +255,7 @@ public class VisionSubsystem extends SubsystemBase {
    
   public void useCamera() {
     // integrateCamera(UseFL,FLpostionCamera,FLphotonPoseEstimator,fLposField2d,maxDistance, fieldLayout);
-    integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
+    // integrateCamera(UseFR,FRpostionCamera,FRphotonPoseEstimator,fRposField2d,maxDistance, fieldLayout);
     // integrateCamera(UseBL,BLpostionCamera,BLphotonPoseEstimator,bLposField2d,maxDistance);
     // integrateCamera(UseBR,BRpostionCamera,BRphotonPoseEstimator,bRposField2d,maxDistance);
   }
@@ -354,7 +344,7 @@ private static Matrix<N3, N1> getEstimationStdDevs(
 
 
   public boolean seesTagID(int TargetID) {
-    var result = FRpostionCamera.getLatestResult();
+    var result = bPCamera.getLatestResult();
     if (!result.hasTargets()) {
       return false;
     } else {
@@ -365,7 +355,7 @@ private static Matrix<N3, N1> getEstimationStdDevs(
     }
   }
   public double getBestTagYaw(int TargetID) {
-    var result = FRpostionCamera.getLatestResult();
+    var result = bPCamera.getLatestResult();
     if (!result.hasTargets()) {
       return 0;
     } else {
@@ -377,7 +367,7 @@ private static Matrix<N3, N1> getEstimationStdDevs(
   }
 
   public int bestTargetID() {
-    var result = FRpostionCamera.getLatestResult();
+    var result = bPCamera.getLatestResult();
     if (!result.hasTargets()) {
       return 0;
     } else {
@@ -394,7 +384,7 @@ private static Matrix<N3, N1> getEstimationStdDevs(
       reefTagIDs = BluereefTagIDs;
     }
 
-    var result = FRpostionCamera.getLatestResult();
+    var result = bPCamera.getLatestResult();
 
     if (!result.hasTargets()) {
       return null;

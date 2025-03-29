@@ -17,10 +17,13 @@ import static frc.robot.Constants.Constants.EndEffectorConstants.*;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.RobotContainer;
 // import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -38,12 +41,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public SparkMaxConfig config;
   public SparkMaxConfig Invertconfig;
   SparkFlexConfig configClosedLoop ;
-
+  public Servo FlippyDoodleServoControl;
   
   public double SpeedLimiterEndEffector = 1.0; // 1 is full 0 is none
 
 
   public EndEffectorSubsystem() {
+    FlippyDoodleServoControl = new Servo(ServoID);
     TopMotor = new SparkMax(Top_MotorID, MotorType.kBrushless);
     BottomMotor = new SparkMax(Bottom_MotorID, MotorType.kBrushless);
     config = new SparkMaxConfig();
@@ -84,8 +88,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // Logger.recordOutput("Gripper Encoder Speed", Top_Encoder.getVelocity());
-    // Logger.recordOutput("Is Gripper Enaged", RollerEngaged());
+    Logger.recordOutput("End Effector Encoder Speed", Top_Encoder.getVelocity());
+    Logger.recordOutput("Is End Effector Enaged", RollerEngaged());
     SmartDashboard.putNumber("End Effector Encoder Speed", Top_Encoder.getVelocity());
     
 
@@ -96,6 +100,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 // i dont know what to call it. Spit out? Exhast? Get rid of? 
 
+  public Command ChangeServoAngle(double SetServoAngle) {
+    return Commands.runOnce(()-> FlippyDoodleServoControl.set(SetServoAngle), this);
+  }
   public void RollerOut() {
     TopMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
     BottomMotor.set(MotorFowardSpeed * SpeedLimiterEndEffector);
@@ -105,8 +112,14 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return Commands.startEnd(() -> RollerOut(),() -> StopRoller(), this);
   } 
 
+  public Command LaunchCommand() {
+    return Commands.startEnd(() -> LaunchVoid(),() -> StopRoller(), this);
+  } 
 
-  
+  public void LaunchVoid() {
+    TopMotor.set(1 );
+    BottomMotor.set(-1 );
+  }
   public Command rollerRunCommand() {
     return Commands.run(() -> RollerOut(), this);
   } 
@@ -133,6 +146,18 @@ public class EndEffectorSubsystem extends SubsystemBase {
     BottomMotor.set(speedSet);
   }
 
+
+
+
+  public void SetSpeed2(double speedSet, double SetSpeed2) {
+    TopMotor.set(speedSet);
+    BottomMotor.set(SetSpeed2);
+  }
+
+  public Command SetDiffrentSpeed(double speedSet, double speedSet1) {
+    return Commands.startEnd(()-> 
+    SetSpeed2(speedSet,speedSet1),()-> StopRoller(), this);
+  }
   public Command SetRollerSpeed(double speedSet) {
     return Commands.startEnd(()-> SetSpeed(speedSet), ()-> StopRoller(), this);
   }

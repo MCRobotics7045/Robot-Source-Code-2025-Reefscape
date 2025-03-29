@@ -81,7 +81,8 @@ public final class Constants {
         public static final int CoralEnterSensorID = 2;
         public static final int CoralExitSensorID = 9;
         public static final int MaxHeightSensorID = 3;
-        public static final int StowPostiontSensorID = 4;
+        public static final int StowPostiontSensorID = 7;
+        public static final int LiDARSensorID = 6;
 
         public static final int FrontRight = 0;
         public static final int FrontLeft = 1;
@@ -168,16 +169,17 @@ public final class Constants {
         public static final int Elevator_MotorID = 35; //32 
         
         //All encoder values
-        public static final double L1SetpointC = -20; //Pov Down
-        public static final double L2SetpointC = -70;  // Pov Left
-        public static final double L3SetpointC = -100; //Pov Right 
-        public static final double L4SetpointC = -150; //Pov Up
+        public static final double L1SetpointC = -143; //Pov Down
+        public static final double L2SetpointC = -43.2;  // Pov Left
+        public static final double L3SetpointC = -79.1; //Pov Right 
+        public static final double L4SetpointC = -130.5; //Pov Up
        
-        //Encoder Height For ALGEEE NOT FOR CORAL TODO SET THIS 
-        public static final double L1SetpointA = 0;
-        public static final double L2SetpointA = -23; 
-        public static final double L3SetpointA = 0;
-        public static final double L4SetpointA = -280;
+
+        public static final double HoldBelowL2 = -15;
+        public static final double L2SetpointA = -20; 
+        public static final double HoldBelowL3 = -55;
+        public static final double L3SetpointA = -60;
+
  
         //Time for Algee Arms to deploy for each Level
         public static final double TimeToClearforL1 = 0;
@@ -206,9 +208,11 @@ public final class Constants {
     public static class EndEffectorConstants {
         public static final int Top_MotorID = 33; //33 
         public static final int Bottom_MotorID = 31; 
+        public static final int ServoID = 2;
         public static final double MotorReverseSpeed = 1;
         public static final double MotorFowardSpeed = -1;
         public static final int MotorIntakeSpeed = 100;
+
         
     }
 

@@ -8,9 +8,14 @@ import static frc.robot.Constants.Constants.SensorIOConstants.*;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.config.LimitSwitchConfig;
+import edu.wpi.first.wpilibj.Counter;
+import edu.wpi.first.wpilibj.DigitalSource;
+
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -29,35 +34,50 @@ public class SensorsIO extends SubsystemBase {
   public static AnalogInput frontRightUltrasonic;
   public static AnalogInput rearLeftUltrasonic;
   public static AnalogInput rearRightUltrasonic;
-
+  private static final int CALIBRATION_OFFSET = -18;
+  private Counter counter;
+  private int printedWarningCount = 5;
+  private DigitalInput LiDAR;
 
   public SensorsIO() {
     PigeonIMU = new Pigeon2(Pigeon2Iid);
+    LiDAR = new DigitalInput(LiDARSensorID);
     ElevatorStowPostiontSensor = new DigitalInput(StowPostiontSensorID);
     CoralEndEffectorEnterSensor = new DigitalInput(CoralEnterSensorID);
     CoralRampEnterSensor = new DigitalInput(CoralExitSensorID);
-    frontLeftUltrasonic = new AnalogInput(FrontLeft);
-    frontRightUltrasonic = new AnalogInput(FrontRight);
-    rearLeftUltrasonic = new AnalogInput(RearLeft);
+    counter = new Counter(LiDAR);
+    counter.setMaxPeriod(1.0);
+    counter.setSemiPeriodMode(true);
+    counter.reset();
+
+    // frontLeftUltrasonic = new AnalogInput(FrontLeft);
+    // frontRightUltrasonic = new AnalogInput(FrontRight);
+    // rearLeftUltrasonic = new AnalogInput(RearLeft);
     
     
   }
 
   @Override
   public void periodic() {
+    
       SmartDashboard.putBoolean("Elevator Stowed", ElevatorStowPostiontSensor.get());
       SmartDashboard.putBoolean("Coral Ramp", CoralRampEnterSensor.get());
       SmartDashboard.putBoolean("Coral End Effector", CoralEndEffectorEnterSensor.get());
-      // SmartDashboard.putNumber("Front Right Ultra", ReadSensorinCM(frontRightUltrasonic));
-      // SmartDashboard.putNumber("Front Left Ultra", ReadSensorinCM(frontLeftUltrasonic));
-      // SmartDashboard.putNumber("Rear Left Ultra", ReadSensorinCM(rearLeftUltrasonic));
-      // SmartDashboard.putNumber("Rear Right Ultra", ReadSensorinCM(rearRightUltrasonic));
+      Logger.recordOutput("Elevator Stowed", ElevatorStowPostiontSensor.get());
+      Logger.recordOutput("Coral Ramp", CoralRampEnterSensor.get());
+      Logger.recordOutput("Coral End Effector", CoralEndEffectorEnterSensor.get());
       SmartDashboard.putNumber("Pigeon 2 Yaw", PigeonIMU.getAngle());
+      Logger.recordOutput("Pigeon 2 Yaw", PigeonIMU.getAngle());
+      SmartDashboard.putNumber("LiDAR", getLiDARDistance());
+      SmartDashboard.putBoolean("ReefDetected", isReefThreshold());
   }
    public BooleanSupplier getStowPositionSupplier() {
-      return () -> ElevatorStowPostiontSensor.get();
+      return () -> !ElevatorStowPostiontSensor.get();
    }
 
+   public boolean BoolStowPos() {
+    return !ElevatorStowPostiontSensor.get();
+   }
    public BooleanSupplier CoralRampEnterSensorTriggered() {
     return () -> !CoralRampEnterSensor.get();
    }
@@ -75,6 +95,26 @@ public class SensorsIO extends SubsystemBase {
     return Commands.runOnce(()-> PigeonIMU.setYaw(0));
    }
 
+
+   public boolean isReefThreshold() {
+      if (getLiDARDistance() > 70 && getLiDARDistance() < 79 ) {
+        return true;
+      } else {
+        return false;
+      }
+   }
+
+   public double getLiDARDistance() {
+    double cm;
+    if (counter.get() < 1) {
+      if (printedWarningCount-- > 0) {
+        System.out.println("LidarLitePWM: waiting for distance measurement");
+      }
+      return 0;
+    }
+    cm = (counter.getPeriod() * 1000000.0 / 10.0) + CALIBRATION_OFFSET;
+    return cm;
+  }
 
 //    public static double ReadSensorinCM(AnalogInput Sensor) {
 //     double Voltage = Sensor.getVoltage();

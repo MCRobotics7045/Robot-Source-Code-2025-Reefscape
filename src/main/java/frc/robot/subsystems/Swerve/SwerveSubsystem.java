@@ -71,6 +71,15 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
 
+
+    public SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+    .withDriveRequestType(DriveRequestType.Velocity)
+    .withSteerRequestType(SteerRequestType.Position);
+    
+    SwerveRequest.RobotCentric RdriveRequest = new SwerveRequest.RobotCentric()
+                    .withDriveRequestType(DriveRequestType.Velocity)
+                    .withSteerRequestType(SteerRequestType.Position);
+
     private final SwerveRequest.ApplyRobotSpeeds m_applyRobotSpeeds =
     new SwerveRequest.ApplyRobotSpeeds()
             .withDriveRequestType(DriveRequestType.Velocity)
@@ -115,6 +124,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
         configurePathPlanner();
         SmartDashboard.putData("Swerve" ,field);
+        
     }
 
     public SwerveSubsystem(SwerveDrivetrainConstants dtConstants, double odometryUpdateFrequency,
@@ -164,11 +174,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public void drive(double xVelocity, double yVelocity, double rotationalVelocity, boolean FeildCentric) {
 
         if (FeildCentric) {
-                SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
-                    .withDriveRequestType(DriveRequestType.Velocity)
-                    .withSteerRequestType(SteerRequestType.Position);
-            
-            
             setControl(
                 driveRequest
                 .withVelocityX(xVelocity)
@@ -177,13 +182,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
                 
             );
         } else {
-            SwerveRequest.RobotCentric driveRequest = new SwerveRequest.RobotCentric()
-                    .withDriveRequestType(DriveRequestType.Velocity)
-                    .withSteerRequestType(SteerRequestType.Position);
-            
-            
             setControl(
-                driveRequest
+                RdriveRequest
                 .withVelocityX(xVelocity)
                 .withVelocityY(yVelocity)
                 .withRotationalRate(rotationalVelocity)

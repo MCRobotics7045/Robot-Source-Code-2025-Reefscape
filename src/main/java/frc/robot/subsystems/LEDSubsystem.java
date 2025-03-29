@@ -78,5 +78,49 @@ public class LEDSubsystem extends SubsystemBase {
     return run(() -> pattern.applyTo(LEDbuffer));
   }
 
+  public Command ChangeColor(int colorID) {
+    return runOnce(() -> {
+      Color selectedColor;
+
+      switch (colorID) {
+        case 1:
+          selectedColor = Color.kRed;
+          break;
+        case 2:
+          selectedColor = Color.kOrange;
+          break;
+        case 3:
+          selectedColor = Color.kYellow;
+          break;
+        case 4:
+          selectedColor = Color.kGreen;
+          break;
+        case 5:
+          selectedColor = Color.kBlue;
+          break;
+        case 6:
+          selectedColor = Color.kPurple;
+          break;
+        case 7:
+          selectedColor = Color.kPink;
+          break;
+        case 8:
+          selectedColor = Color.kCyan;
+          break;
+        case 9:
+          selectedColor = Color.kLime;
+          break;
+        case 10:
+          selectedColor = Color.kDarkBlue;
+          break; 
+        default:
+          selectedColor = Color.kWhite; // Default to white if invalid number
+      }
+
+      for (int i = 0; i < LEDbuffer.getLength(); i++) {
+        LEDbuffer.setLED(i, selectedColor);
+      }
+    });
+  }
 }
 
