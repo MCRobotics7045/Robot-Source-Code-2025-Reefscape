@@ -17,7 +17,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AutoAlignLeftL4"
+                  "name": "RLAutoAlignLeftL4"
                 }
               },
               {
@@ -90,6 +90,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Red",
   "choreoAuto": false
 }

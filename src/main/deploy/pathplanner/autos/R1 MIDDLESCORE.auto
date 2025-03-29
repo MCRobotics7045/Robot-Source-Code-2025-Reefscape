@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DRCEF"
+            "pathName": "DMCGH"
           }
         },
         {
@@ -17,7 +17,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AutoAlignLeftL4"
+                  "name": "RMAutoAlignLeftL4"
                 }
               },
               {
@@ -90,6 +90,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Red",
   "choreoAuto": false
 }

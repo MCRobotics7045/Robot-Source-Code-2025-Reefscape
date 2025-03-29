@@ -17,7 +17,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AutoAlignLeftL4"
+                  "name": "RMAutoAlignLeftL3-L2"
                 }
               },
               {
@@ -36,7 +36,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "CoralL4Set"
+                  "name": "CoralL2Set"
                 }
               },
               {
@@ -90,6 +90,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Red",
   "choreoAuto": false
 }

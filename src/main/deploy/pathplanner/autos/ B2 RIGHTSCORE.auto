@@ -7,64 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DMCGH"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "AutoAlignLeftL4"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.4
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "CoralL4Set"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.4
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Fire Coral"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              }
-            ]
+            "pathName": "DRCEF"
           }
         },
         {
@@ -78,53 +21,35 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "LowerElevator"
+                        "name": "BRAutoAlignLeftL4"
                       }
                     },
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 4.3
+                        "waitTime": 2.5
                       }
                     }
                   ]
                 }
               },
               {
-                "type": "path",
+                "type": "race",
                 "data": {
-                  "pathName": "GH to FS"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FStoCD"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "AutoAlignLeftL4"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.4
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CoralL2Set"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -143,7 +68,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.4
+                  "waitTime": 0.95
                 }
               }
             ]
@@ -162,7 +87,115 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.5
+                  "waitTime": 0.45
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "EF to FS"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerElevator"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FStoCD"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "BR2AutoAlignLeftL4"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CoralL2Set"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "CoralL4Set"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.95
                 }
               }
             ]
@@ -178,6 +211,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Blue",
   "choreoAuto": false
 }
