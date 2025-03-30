@@ -10,7 +10,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static frc.robot.Constants.Constants.ElevatorConstants.HoldBelowL2;
 import static frc.robot.Constants.Constants.ElevatorConstants.L1SetpointC;
 import static frc.robot.Constants.Constants.ElevatorConstants.L2SetpointC;
 import static frc.robot.Constants.Constants.ElevatorConstants.L3SetpointC;
@@ -33,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -45,23 +45,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.button.POVButton;
 // import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoCommands.DriveForwardToTag;
-import frc.robot.commands.AutoCommands.DriveOffset;
 import frc.robot.commands.AutoCommands.DriveToPostOffset;
+import frc.robot.commands.AutoCommands.SelectiveDriveToPostOffset;
 //Commands
 // import frc.robot.commands.ParallelCommandGroup.IntakeCoralFromFeedStation;
 import frc.robot.commands.DriveCommands.DefaultDrive;
-// import frc.robot.commands.DriveCommands.DriveWithJoystick;
-// import frc.robot.commands.DriveCommands.DriveAndAlignReefCommand;
-// import frc.robot.Simulation.SimulationTele;
-// import frc.robot.subsystems.AlgeeManipulatorSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.TalonFXElevatorSubsytem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Swerve.SensorsIO;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
-import frc.robot.subsystems.TalonFXElevatorSubsytem;
 
 public class RobotContainer {
 
@@ -138,30 +132,59 @@ public class RobotContainer {
         )
       ));
       NamedCommands.registerCommand("LowerElevator", elevatorSubsytem.DropElevator());
-      NamedCommands.registerCommand("Intake Coral", new SequentialCommandGroup(
-        new PrintCommand("Intake Run called"),
-        // ELEVATOR.DropElevator(), // IF IT BREAKS IT OR COMMAND DOESNT RUN REMOVE THIS 
-        new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()).andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered())),
-          ENDEFFECTOR.rollerOutCommand()
-        ),
-        new PrintCommand("Coral Grabbed Ready To Move"),
-        new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered()),
-          ENDEFFECTOR.SetRollerSpeed(0.5)
-        ),
-        new ParallelDeadlineGroup(
-          new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered()).andThen(new WaitCommand(0.1)),
-          ENDEFFECTOR.SetRollerSpeed(-0.3)
-        )
-      ));
+      NamedCommands.registerCommand("Intake Coral", intakeCoralCommand());
       NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
       NamedCommands.registerCommand("CoralL1Set", elevatorSubsytem.ReefSetpointPositionCommand(L1SetpointC));
       NamedCommands.registerCommand("CoralL2Set", elevatorSubsytem.ReefSetpointPositionCommand(L2SetpointC));
       NamedCommands.registerCommand("CoralL3Set", elevatorSubsytem.ReefSetpointPositionCommand(L3SetpointC));
       NamedCommands.registerCommand("CoralL4Set", elevatorSubsytem.ReefSetpointPositionCommand(L4SetpointC));
-      NamedCommands.registerCommand("AutoAlignLeftL4", new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10));
-      NamedCommands.registerCommand("AutoAlignLeftL3-L2", new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06));
+//Blue- Mid
+      NamedCommands.registerCommand("BMAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,21,LED));
+      NamedCommands.registerCommand("BMAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,21,LED));
+//Right
+      NamedCommands.registerCommand("BRAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,22,LED));
+      NamedCommands.registerCommand("BRAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,22,LED));
+
+      //2 pecie command 
+      NamedCommands.registerCommand("BR2AutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));
+//Left
+      NamedCommands.registerCommand("BLAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,20,LED));
+      NamedCommands.registerCommand("BLAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,20,LED));
+
+//Red- Mid
+      NamedCommands.registerCommand("RMAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,10,LED)); //10
+      NamedCommands.registerCommand("RMAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,10,LED));
+//Right
+      NamedCommands.registerCommand("RRAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,9,LED));
+      NamedCommands.registerCommand("RRAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,9,LED));
+
+      NamedCommands.registerCommand("RR2AutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,8,LED));
+//Left
+      NamedCommands.registerCommand("RLAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,11,LED));
+      NamedCommands.registerCommand("RLAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,11,LED));
+
+//FeedStation Blue
+//Left Feed
+      NamedCommands.registerCommand("BLFAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,19,LED));
+      NamedCommands.registerCommand("BLFAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,19,LED));
+//Right Feed
+      NamedCommands.registerCommand("BRFAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));
+      NamedCommands.registerCommand("BRFAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,17,LED));
+
+//FeedStation Red
+//Left Feed
+      NamedCommands.registerCommand("RLFAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,6,LED));
+      NamedCommands.registerCommand("RLFAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,6,LED));
+//Right Feed
+      NamedCommands.registerCommand("RRFAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,8,LED));
+      NamedCommands.registerCommand("RRFAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,8,LED));
+
+
+
+
+
+      NamedCommands.registerCommand("AutoAlignLeftL4", new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,LED));
+      NamedCommands.registerCommand("AutoAlignLeftL3-L2", new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED));
       // NamedCommands.registerCommand("AlignAprilTag", new DriveAndAlignReefCommand(SWERVE, VISION, true));
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -184,7 +207,7 @@ public class RobotContainer {
   //       .withRotationalRate(-DRIVER_XBOX.getRightX() * 1) // Drive counterclockwise with negative X (left)
   // )); 
     //DRIVER CONTROLS -- David  
-    rightTrigger = new Trigger(()-> DRIVER_XBOX.getRightTriggerAxis() > 0.1);
+    rightTrigger = new Trigger(()-> DRIVER_XBOX.getRightTriggerAxis() > 0.5);
     leftTrigger = new Trigger(()-> DRIVER_XBOX.getLeftTriggerAxis() > 0.1);
   
     // //Normal Coral Setpoints
@@ -193,36 +216,24 @@ public class RobotContainer {
 
 
     DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
-    //A 0
-    //X .04 // NOT L2 
-    //Y .06
-    //B .10
+    DRIVER_XBOX.rightBumper().whileTrue(LED.breathProgres());
+   
+    //10 Red Middle
+    //21 Blue Middle
+    rightTrigger.onTrue(new InstantCommand(() -> SWERVE.MaxSpeed = 0.75 ));
+    rightTrigger.onTrue(new InstantCommand(() -> SWERVE.MaxRotSpeed = 1 ));
+    rightTrigger.onTrue(new InstantCommand(() -> System.out.print("Swerve Slowdown command hit")));
+    rightTrigger.whileTrue(LED.SlowMode());
     
-    rightTrigger.and(DRIVER_XBOX.x()).whileTrue(new DriveOffset(SWERVE, VISION.bPCamera, true));
-    
-    leftTrigger.and(DRIVER_XBOX.b()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.10)); // L4 B
-    leftTrigger.and(DRIVER_XBOX.y()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06)); //L2 X
-    leftTrigger.and(DRIVER_XBOX.x()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06)); //L3 Y
+    rightTrigger.onFalse(new InstantCommand(() -> SWERVE.MaxSpeed = 4.5 ));
+    rightTrigger.onFalse(new InstantCommand(() -> SWERVE.MaxRotSpeed = 4 ));
+    // rightTrigger.onFalse(new InstantCommand(() -> System.out.print("Swerve Slowdown command Relased")));
 
-    // DRIVER_XBOX.povDown().onTrue(ALGEE.StowPostion());
-    // DRIVER_XBOX.povUp().onTrue(ALGEE.HoldCommand());
-    // DRIVER_XBOX.povLeft().onTrue(ALGEE.dropOutCommand());
+    leftTrigger.and(DRIVER_XBOX.b()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.10,LED)); // L4 B
+    leftTrigger.and(DRIVER_XBOX.y()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED)); //L2 X
+    leftTrigger.and(DRIVER_XBOX.x()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED)); //L3 Y
 
-      // OPERATOR_XBOX.povDown().onTrue(Commands.runOnce(()-> { 
-      //   ElevatorSet--;
-      //   System.out.println("New Elevator SetPoint" + ElevatorSet);
-      //   ELEVATOR.ReefSetpointPositionCommand(ElevatorSet).schedule();
-      //   })
-      // );
-      // OPERATOR_XBOX.povUp().onTrue(Commands.runOnce(()-> { 
-      //   ElevatorSet++;
-      //   System.out.println("New Elevator SetPoint" + ElevatorSet);
-      //   ELEVATOR.ReefSetpointPositionCommand(ElevatorSet).schedule();
-      //   })
-      // );
-      
-      // OPERATOR_XBOX.povDown().whileTrue(elevatorSubsytem.UnspoolCommand()
-      // );
+   
       OPERATOR_XBOX.povUp().whileTrue(ENDEFFECTOR.LaunchCommand()
       );
       OPERATOR_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerOutCommand());
@@ -243,11 +254,14 @@ public class RobotContainer {
       OPERATOR_XBOX.x().whileTrue(elevatorSubsytem.ReefSetpointPositionCommand(L2SetpointC));
       OPERATOR_XBOX.y().whileTrue(elevatorSubsytem.ReefSetpointPositionCommand(L3SetpointC)); //OLD 100
       OPERATOR_XBOX.b().whileTrue(elevatorSubsytem.ReefSetpointPositionCommand(L4SetpointC)); // -150
-
+      OPERATOR_XBOX.a().whileTrue(LED.BlinkGoodC());
+      OPERATOR_XBOX.x().whileTrue(LED.BlinkGoodC());
+      OPERATOR_XBOX.y().whileTrue(LED.BlinkGoodC());
+      OPERATOR_XBOX.b().whileTrue(LED.BlinkGoodC());
 
       OPERATOR_XBOX.rightBumper().whileTrue(elevatorSubsytem.DropElevator());
       OPERATOR_XBOX.leftBumper().onTrue(intakeCoralCommand());
-  
+      OPERATOR_XBOX.rightBumper().whileTrue(LED.BlinkBadC());
       
   
     }

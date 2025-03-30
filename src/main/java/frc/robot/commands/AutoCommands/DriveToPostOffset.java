@@ -14,6 +14,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
 /**
@@ -23,7 +24,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 public class DriveToPostOffset extends Command {
     private final SwerveSubsystem swerve;
     private final PhotonCamera camera;
-
+    private final LEDSubsystem ledSubsystem;
     /**
      * If your camera coordinate system is:
      *   - Z forward
@@ -50,12 +51,12 @@ public class DriveToPostOffset extends Command {
     List<Integer> redReefList = java.util.List.of(6,7,8,9,10,11);
 
     public boolean RedAlliance;
-    public DriveToPostOffset(SwerveSubsystem swerve,PhotonCamera camera,double forwardOffset, double sideOffset) {
+    public DriveToPostOffset(SwerveSubsystem swerve,PhotonCamera camera,double forwardOffset, double sideOffset,LEDSubsystem ledSubsystem) {
         this.swerve = swerve;
         this.camera = camera;
         this.forwardOffset = forwardOffset;
         this.sideOffset = sideOffset;
-
+        this.ledSubsystem = ledSubsystem;
         addRequirements(swerve);
 
 
@@ -76,6 +77,7 @@ public class DriveToPostOffset extends Command {
     public void execute() {
 
         //Filter Alliance First 
+   
         PhotonPipelineResult result = camera.getLatestResult();
         if (!result.hasTargets()) {
             end(true);
@@ -83,7 +85,7 @@ public class DriveToPostOffset extends Command {
             return;
         }
         PhotonTrackedTarget bestTarget = result.getBestTarget();
-
+        ledSubsystem.breathProgres();
         if (RedAlliance) {
             if(redReefList.contains(bestTarget.getFiducialId())){
                 System.out.println("RED REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
@@ -136,9 +138,6 @@ public class DriveToPostOffset extends Command {
     @Override
     public boolean isFinished() {
         boolean timedOut = timer.hasElapsed(TIMEOUT_SEC);
-
-        // Check if forward and side errors are small enough
-        // If you used atSetpoint(), you could do forwardPID.atSetpoint() etc.
         boolean forwardOk = Math.abs(forwardPID.getPositionError()) < FORWARD_TOL;
         boolean sideOk    = Math.abs(sidePID.getPositionError())    < SIDE_TOL;
 
@@ -148,6 +147,12 @@ public class DriveToPostOffset extends Command {
     @Override
     public void end(boolean interrupted) {
         // Stop the robot
+        if(interrupted) {
+            
+            ledSubsystem.BlinkBad();
+        } else {
+            ledSubsystem.BlinkGood();
+        }
         swerve.drive(0.0, 0.0, 0.0, true);
     }
 }

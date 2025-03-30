@@ -74,9 +74,9 @@ public class DefaultDrive extends Command {
 
     // SWERVE.drive(yVelocity, xVelocity, rotationalVelocity, true);
 
-    double InputX = MathUtil.applyDeadband(-XBOX.getLeftX(), .15) * 3;
-    double InputY = MathUtil.applyDeadband(XBOX.getLeftY(), .15) * 3;
-    double InputZ = MathUtil.applyDeadband(-XBOX.getRightX(), .15) * 4;
+    double InputX = MathUtil.applyDeadband(-XBOX.getLeftX(), .15) * SWERVE.MaxSpeed;
+    double InputY = MathUtil.applyDeadband(XBOX.getLeftY(), .15) * SWERVE.MaxSpeed;
+    double InputZ = MathUtil.applyDeadband(-XBOX.getRightX(), .15) * SWERVE.MaxRotSpeed;
 
 
     // double InputX = Math.pow(MathUtil.applyDeadband(XBOX.getLeftX(), .15),2);
@@ -90,7 +90,7 @@ public class DefaultDrive extends Command {
     Logger.recordOutput("Input Y Out", yVelocity);
     Logger.recordOutput("Input Z Out", InputZ);
 
-    SWERVE.drive(xVelocity, yVelocity, -rotationalVelocity, true);
+    SWERVE.drive(xVelocity, yVelocity, rotationalVelocity, true);
     
     
     

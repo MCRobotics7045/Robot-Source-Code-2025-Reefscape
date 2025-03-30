@@ -71,6 +71,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Field2d field = new Field2d();
     private VisionSubsystem VISION;
 
+    public static double MaxSpeed = 4.5;
+    public static double MaxRotSpeed = 4 ;
 
     public SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
     .withDriveRequestType(DriveRequestType.Velocity)
@@ -300,7 +302,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
+        Logger.recordOutput("MaxSpeed",MaxSpeed);
+        Logger.recordOutput("MaxRotSpeed",MaxRotSpeed);
         GraphMotorData();
 
         if (getState().Pose != null) {

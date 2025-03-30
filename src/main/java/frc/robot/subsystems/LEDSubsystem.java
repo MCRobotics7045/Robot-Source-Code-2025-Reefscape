@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +19,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Map;
 
@@ -33,6 +35,21 @@ public class LEDSubsystem extends SubsystemBase {
 
   private static final LEDPattern base = LEDPattern.steps(Map.of(0, Color.kWhite, 0.5, Color.kBlue));
   private static final LEDPattern pattern = base.scrollAtRelativeSpeed(Percent.per(Second).of(25));
+
+  private static final LEDPattern SlowBase = LEDPattern.steps(Map.of(0, Color.kRed, 0.5, Color.kDarkOrange));
+  private static final LEDPattern SLOW_PATTERN = SlowBase.scrollAtRelativeSpeed(Percent.per(Second).of(10));
+  
+  private static final LEDPattern BreathBase = LEDPattern.gradient(GradientType.kDiscontinuous,Color.kRed, Color.kBlue);
+  private static final LEDPattern BREATH_LED_PATTERN = BreathBase.breathe(Seconds.of(1));
+
+  private static final LEDPattern Blink = LEDPattern.solid(Color.kRed);
+  private static final LEDPattern BlinkBad = Blink.blink(Seconds.of(1));
+
+  private static final LEDPattern BlinkG = LEDPattern.solid(Color.kGreen);
+  private static final LEDPattern BlinkGood = BlinkG.blink(Seconds.of(1));
+
+  
+  
   public LEDSubsystem() {
     
     LeftSide = new AddressableLED(7);
@@ -76,6 +93,32 @@ public class LEDSubsystem extends SubsystemBase {
 
   public Command PulseCrusader() {
     return run(() -> pattern.applyTo(LEDbuffer));
+  }
+
+  public Command SlowMode() {
+    return run(() -> SLOW_PATTERN.applyTo(LEDbuffer));
+  }
+
+
+  public Command breathProgres() {
+    return run(() -> BREATH_LED_PATTERN.applyTo(LEDbuffer));
+  }
+
+
+
+  public Command BlinkBadC() {
+    return run(() -> BlinkBad());
+  }
+
+  public Command BlinkGoodC() {
+    return run(() -> BlinkGood());
+  }
+  public void BlinkBad() {
+    BlinkBad.applyTo(LEDbuffer);
+  }
+
+  public void BlinkGood() {
+    BlinkGood.applyTo(LEDbuffer);
   }
 
   public Command ChangeColor(int colorID) {

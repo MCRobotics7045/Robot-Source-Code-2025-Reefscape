@@ -14,6 +14,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Swerve.SwerveSubsystem;
 
 /**
@@ -23,7 +24,7 @@ import frc.robot.subsystems.Swerve.SwerveSubsystem;
 public class SelectiveDriveToPostOffset extends Command {
     private final SwerveSubsystem swerve;
     private final PhotonCamera camera;
-
+    private final LEDSubsystem ledSubsystem;
     /**
      * If your camera coordinate system is:
      *   - Z forward
@@ -45,17 +46,18 @@ public class SelectiveDriveToPostOffset extends Command {
     private static final double SIDE_CLAMP    = 1; // m/s
     private static final double TIMEOUT_SEC = 4.0;
     private final Timer timer = new Timer();
-
+    private final int SelectedID;
     List<Integer> blueReefList = java.util.List.of(17,18,19,20,21,22);
     List<Integer> redReefList = java.util.List.of(6,7,8,9,10,11);
 
     public boolean RedAlliance;
-    public SelectiveDriveToPostOffset (SwerveSubsystem swerve,PhotonCamera camera,double forwardOffset, double sideOffset) {
+    public SelectiveDriveToPostOffset (SwerveSubsystem swerve,PhotonCamera camera,double forwardOffset, double sideOffset, int SelectedID, LEDSubsystem ledSubsystem) {
         this.swerve = swerve;
         this.camera = camera;
         this.forwardOffset = forwardOffset;
         this.sideOffset = sideOffset;
-
+        this.SelectedID = SelectedID;
+        this.ledSubsystem = ledSubsystem;
         addRequirements(swerve);
 
 
@@ -69,7 +71,8 @@ public class SelectiveDriveToPostOffset extends Command {
         forwardPID.reset();
         sidePID.reset();
         RedAlliance = RobotContainer.IsRed();
-        System.out.println("COMMAND RUNNING");
+        System.out.println("SELECTIVE COMMAND RUNNING");
+        System.out.println("Searching for Tag..."+ SelectedID);
     }
 
     @Override
@@ -82,51 +85,56 @@ public class SelectiveDriveToPostOffset extends Command {
             System.out.println("COMMAND NO TARGET");
             return;
         }
+        ledSubsystem.breathProgres();
         PhotonTrackedTarget bestTarget = result.getBestTarget();
-
-        if (RedAlliance) {
-            if(redReefList.contains(bestTarget.getFiducialId())){
-                System.out.println("RED REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
-                double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
-                double rawSideDist = bestTarget.getBestCameraToTarget().getY();
-                double forwardError = -rawForwardDist - forwardOffset;
-                double forwardCmd = forwardPID.calculate(forwardError, 0.0);
-                forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
-  
-                double sideError = -rawSideDist - sideOffset;
-                double sideCmd = sidePID.calculate(sideError, 0.0);
-                sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-                Logger.recordOutput("FWD PID", forwardCmd);
-                Logger.recordOutput("SIDE PID", sideCmd);
-                swerve.drive(forwardCmd, sideCmd, 0.0, false);
-            } else {
-                System.out.println("RED REEF NO TARGET");
-              end(true);
-              return;
-            }
-        }else {
-            if(blueReefList.contains(bestTarget.getFiducialId())) {
-                System.out.println("BLUE REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
-              double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
-              double rawSideDist = bestTarget.getBestCameraToTarget().getY();
-              double forwardError = -rawForwardDist - forwardOffset;
-              double forwardCmd = forwardPID.calculate(forwardError, 0.0);
-              forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
-
-              double sideError = -rawSideDist - sideOffset;
-              double sideCmd = sidePID.calculate(sideError, 0.0);
-              sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
-              Logger.recordOutput("FWD PID", forwardCmd);
-              Logger.recordOutput("SIDE PID", sideCmd);
-              swerve.drive(forwardCmd, sideCmd, 0.0, false);
-            } else {
-                System.out.println("BLUE REEF NO TARGET");
-              end(true);
-              return;
-            }
-        }
-
+        System.out.println("BEST FOUND ID:"+ bestTarget.getFiducialId());
+        for (PhotonTrackedTarget target : result.getTargets()) {
+            if (target.getFiducialId() == SelectedID) {
+                if (RedAlliance) {
+                    if(redReefList.contains(bestTarget.getFiducialId())){
+                        System.out.println("RED REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
+                        double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
+                        double rawSideDist = bestTarget.getBestCameraToTarget().getY();
+                        double forwardError = -rawForwardDist - forwardOffset;
+                        double forwardCmd = forwardPID.calculate(forwardError, 0.0);
+                        forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
         
+                        double sideError = -rawSideDist - sideOffset;
+                        double sideCmd = sidePID.calculate(sideError, 0.0);
+                        sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
+                        Logger.recordOutput("FWD PID", forwardCmd);
+                        Logger.recordOutput("SIDE PID", sideCmd);
+                        swerve.drive(forwardCmd, sideCmd, 0.0, false);
+                    } else {
+                        System.out.println("RED REEF NO TARGET");
+                    end(true);
+                    return;
+                    }
+            }else {
+                if(blueReefList.contains(bestTarget.getFiducialId())) {
+                        System.out.println("BLUE REEF TARGET FOUND ID:"+ bestTarget.getFiducialId());
+                    double rawForwardDist = bestTarget.getBestCameraToTarget().getX();
+                    double rawSideDist = bestTarget.getBestCameraToTarget().getY();
+                    double forwardError = -rawForwardDist - forwardOffset;
+                    double forwardCmd = forwardPID.calculate(forwardError, 0.0);
+                    forwardCmd = MathUtil.clamp(forwardCmd, -FORWARD_CLAMP, FORWARD_CLAMP);
+
+                    double sideError = -rawSideDist - sideOffset;
+                    double sideCmd = sidePID.calculate(sideError, 0.0);
+                    sideCmd  = MathUtil.clamp(sideCmd, -SIDE_CLAMP, SIDE_CLAMP);
+                    Logger.recordOutput("FWD PID", forwardCmd);
+                    Logger.recordOutput("SIDE PID", sideCmd);
+                    swerve.drive(forwardCmd, sideCmd, 0.0, false);
+                } else {
+                        System.out.println("BLUE REEF NO TARGET");
+                    end(true);
+                    return;
+                }
+            }
+        } else {
+            System.out.println("Target "+ SelectedID+" May not be in Frame. The Found ID is " + target.getFiducialId());
+        }
+   }
 
         
   
@@ -137,8 +145,7 @@ public class SelectiveDriveToPostOffset extends Command {
     public boolean isFinished() {
         boolean timedOut = timer.hasElapsed(TIMEOUT_SEC);
 
-        // Check if forward and side errors are small enough
-        // If you used atSetpoint(), you could do forwardPID.atSetpoint() etc.
+
         boolean forwardOk = Math.abs(forwardPID.getPositionError()) < FORWARD_TOL;
         boolean sideOk    = Math.abs(sidePID.getPositionError())    < SIDE_TOL;
 
@@ -147,7 +154,12 @@ public class SelectiveDriveToPostOffset extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        // Stop the robot
+
+        if(interrupted) {
+            ledSubsystem.BlinkBad();
+        } else {
+            ledSubsystem.BlinkGood();
+        }
         swerve.drive(0.0, 0.0, 0.0, true);
     }
 }
