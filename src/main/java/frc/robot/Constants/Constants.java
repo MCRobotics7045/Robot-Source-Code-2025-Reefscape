@@ -149,11 +149,11 @@ public final class Constants {
     }
 
     public static class AlgeeManipulatorConstants {
-        public static final int Algee_Motor_ID = 34;
+        public static final int Algee_Motor_ID = 38;
         public static final int CoralReefSetpoint = 0;
         public static final int StowPostionSetpoint = 0;
-        public static final int ProccsesorSetpoint = 0;
-        public static final int HoldFromReefSetpoint = 0;
+        public static final double GrabAlgaeFromReefSetPoint = -3.5;
+        public static final double HoldFromReefSetpoint = -4.5;
         public static final int HoldFromGroundSetpoint = 0;
 
         //Remebr this is NOT the Eleavtor Height This is the angle of attack on the Algee Manipulator 
@@ -170,7 +170,7 @@ public final class Constants {
         
         //All encoder values
         public static final double L1SetpointC = -143; //Pov Down
-        public static final double L2SetpointC = -43.2;  // Pov Left
+        public static final double L2SetpointC = -42.2;  // Pov Left
         public static final double L3SetpointC = -79.1; //Pov Right 
         public static final double L4SetpointC = -133.5; //Old -130.5
        

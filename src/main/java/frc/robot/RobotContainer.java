@@ -23,7 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
+import frc.robot.subsystems.AlgeeManipulatorSubsystem;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -72,7 +72,7 @@ public class RobotContainer {
     public static int ElevatorSet;
     // public final PneumaticSubsytem PNEUMATICS;
   
-        // public final AlgeeManipulatorSubsystem ALGEE;
+        public final AlgeeManipulatorSubsystem ALGEE;
         public static SensorsIO SENSORS;
         public final LEDSubsystem LED;
         public boolean AlgeeCoralToggle = true; // True Means Coral is selected 
@@ -107,7 +107,7 @@ public class RobotContainer {
         SWERVE = TunerConstants.createDrivetrain();
         VISION = new VisionSubsystem(SWERVE::addVisionMeasurement); 
         // PNEUMATICS = new PneumaticSubsytem();
-        // ALGEE = new AlgeeManipulatorSubsystem();
+        ALGEE = new AlgeeManipulatorSubsystem();
         SENSORS = new SensorsIO();
         
       //**********************************************************************************
@@ -132,23 +132,25 @@ public class RobotContainer {
         )
       ));
       NamedCommands.registerCommand("LowerElevator", elevatorSubsytem.DropElevator());
-      NamedCommands.registerCommand("Intake Coral", intakeCoralCommand());
+      NamedCommands.registerCommand("Intake Coral", AutointakeCoralCommand());
+      NamedCommands.registerCommand("FixCoral", AutoFixCoral());
       NamedCommands.registerCommand("Fire Coral", ENDEFFECTOR.rollerOutCommand());
       NamedCommands.registerCommand("CoralL1Set", elevatorSubsytem.ReefSetpointPositionCommand(L1SetpointC));
       NamedCommands.registerCommand("CoralL2Set", elevatorSubsytem.ReefSetpointPositionCommand(L2SetpointC));
       NamedCommands.registerCommand("CoralL3Set", elevatorSubsytem.ReefSetpointPositionCommand(L3SetpointC));
       NamedCommands.registerCommand("CoralL4Set", elevatorSubsytem.ReefSetpointPositionCommand(L4SetpointC));
 //Blue- Mid
-      NamedCommands.registerCommand("BMAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,21,LED));
+      NamedCommands.registerCommand("BMAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));//Old 21
       NamedCommands.registerCommand("BMAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,21,LED));
 //Right
-      NamedCommands.registerCommand("BRAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,22,LED));
+      NamedCommands.registerCommand("BRAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));
       NamedCommands.registerCommand("BRAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,22,LED));
 
       //2 pecie command 
       NamedCommands.registerCommand("BR2AutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));
+      NamedCommands.registerCommand("BL2AutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,19,LED));
 //Left
-      NamedCommands.registerCommand("BLAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,20,LED));
+      NamedCommands.registerCommand("BLAutoAlignLeftL4", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -0.10,17,LED));
       NamedCommands.registerCommand("BLAutoAlignLeftL3-L2", new SelectiveDriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,20,LED));
 
 //Red- Mid
@@ -227,22 +229,26 @@ public class RobotContainer {
     
     rightTrigger.onFalse(new InstantCommand(() -> SWERVE.MaxSpeed = 4.5 ));
     rightTrigger.onFalse(new InstantCommand(() -> SWERVE.MaxRotSpeed = 4 ));
+
     // rightTrigger.onFalse(new InstantCommand(() -> System.out.print("Swerve Slowdown command Relased")));
 
     leftTrigger.and(DRIVER_XBOX.b()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.10,LED)); // L4 B
     leftTrigger.and(DRIVER_XBOX.y()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED)); //L2 X
     leftTrigger.and(DRIVER_XBOX.x()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED)); //L3 Y
 
-   
-      OPERATOR_XBOX.povUp().whileTrue(ENDEFFECTOR.LaunchCommand()
-      );
+
       OPERATOR_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerOutCommand());
       OPERATOR_XBOX.povLeft().whileTrue(ENDEFFECTOR.rollerInCommand());
 
       // OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
       OPERATOR_XBOX.back().onTrue(SWERVE.runOnce(()-> SWERVE.seedFieldCentric()));
 
-
+    OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.rollerDownCommand());
+    OPERATOR_XBOX.rightTrigger().whileTrue(ALGEE.rollerUpCommand());
+    DRIVER_XBOX.povDown().onTrue(ALGEE.StowPostion());
+    DRIVER_XBOX.povUp().onTrue(ALGEE.GrabCommand());
+    DRIVER_XBOX.povLeft().onTrue(ALGEE.HoldFromReef());
+    DRIVER_XBOX.povRight().onTrue(ALGEE.ZeroRest());
       // //Sys ID
       
 
@@ -305,6 +311,35 @@ public class RobotContainer {
   }
 
 
+  public Command AutointakeCoralCommand() {
+    return new SequentialCommandGroup(
+      new ParallelDeadlineGroup(
+        new WaitUntilCommand(SENSORS.CoralRampEnterSensorTriggered())
+        .andThen(new WaitUntilCommand(SENSORS.OppCoralRampEnterSensorTriggered()))
+        .andThen(new WaitCommand(0.05)),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      ),
+      //Find Close Angle
+      new PrintCommand("Coral Grabbed Ready To Move")
+      
+     
+    );
+  }
+
+  public Command AutoFixCoral() {
+    return new SequentialCommandGroup(
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      )
+    );
+  }
+
+
   public Command intakeCoralCommand() {
     return new SequentialCommandGroup(
       new PrintCommand("Intake Run called"),
@@ -328,6 +363,39 @@ public class RobotContainer {
         new WaitCommand(0.05),
         ENDEFFECTOR.SetRollerSpeed(-0.5)
       ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(0.5)
+      ),
+      new ParallelDeadlineGroup(
+        new WaitCommand(0.05),
+        ENDEFFECTOR.SetRollerSpeed(-0.5)
+      ),
+
       LED.ChangeColor(4)
       
     );

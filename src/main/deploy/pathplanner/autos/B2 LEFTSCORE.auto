@@ -85,7 +85,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.2
+                        "waitTime": 2.0
                       }
                     },
                     {
@@ -180,6 +180,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LowerElevator"
           }
         }
       ]

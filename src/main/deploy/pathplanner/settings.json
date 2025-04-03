@@ -3,6 +3,7 @@
   "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
+    "Algae Remove",
     "Reef To Feed"
   ],
   "autoFolders": [

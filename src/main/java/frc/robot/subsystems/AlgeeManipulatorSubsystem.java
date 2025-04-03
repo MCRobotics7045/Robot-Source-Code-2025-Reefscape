@@ -58,19 +58,27 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Algee Arm", manipulatorEncoder.getPosition());
   }
 
-  public Command dropOutCommand() {
+  public Command HoldFromReef() {
     
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(-6, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(HoldFromReefSetpoint, SparkBase.ControlType.kPosition),
       ()->StopMotor(),  
       this)
       .until(()-> false);
 
   }
 
-  public Command HoldCommand() {
+  public Command rollerUpCommand() {
+    return Commands.startEnd(() -> ManipulatorMotor.set(-0.1),() -> StopMotor(), this);
+  } 
+
+  public Command rollerDownCommand() {
+    return Commands.startEnd(() -> ManipulatorMotor.set(0.1),() -> StopMotor(), this);
+  } 
+
+  public Command GrabCommand() {
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(-4.6, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(GrabAlgaeFromReefSetPoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this)
       .until(()-> false);
@@ -80,13 +88,23 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   public Command StowPostion() {
     
     return Commands.startEnd(
-      ()-> closedLoopController.setReference(-0.6, SparkBase.ControlType.kMAXMotionPositionControl),
+      ()-> closedLoopController.setReference(StowPostionSetpoint, SparkBase.ControlType.kMAXMotionPositionControl),
       ()->StopMotor(),
       this)
       .until(()-> false);
 
   }
 
+
+  public Command ZeroRest() {
+    
+    return Commands.startEnd(
+      ()-> manipulatorEncoder.setPosition(0),
+      ()->StopMotor(),
+      this)
+      .until(()-> false);
+
+  }
 
   public double getPosition() {
     return manipulatorEncoder.getPosition();
