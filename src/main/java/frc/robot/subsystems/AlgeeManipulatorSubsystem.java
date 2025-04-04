@@ -69,7 +69,7 @@ public class AlgeeManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command rollerUpCommand() {
-    return Commands.startEnd(() -> ManipulatorMotor.set(-0.1),() -> StopMotor(), this);
+    return Commands.startEnd(() -> ManipulatorMotor.set(-0.15),() -> StopMotor(), this);
   } 
 
   public Command rollerDownCommand() {

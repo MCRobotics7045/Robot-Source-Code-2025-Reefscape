@@ -84,15 +84,20 @@
       "Pos": "31,-20",
       "Size": "1897,963"
     },
+    "###Addressable LEDs": {
+      "Collapsed": "0",
+      "Pos": "290,100",
+      "Size": "197,274"
+    },
     "###FMS": {
       "Collapsed": "0",
       "Pos": "106,530",
-      "Size": "202,214"
+      "Size": "336,158"
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "171,449",
-      "Size": "976,278"
+      "Pos": "774,530",
+      "Size": "976,179"
     },
     "###Keyboard 0 Settings": {
       "Collapsed": "0",
@@ -101,7 +106,7 @@
     },
     "###NetworkTables": {
       "Collapsed": "0",
-      "Pos": "1117,192",
+      "Pos": "1086,217",
       "Size": "750,759"
     },
     "###NetworkTables Info": {
@@ -117,7 +122,7 @@
     "###System Joysticks": {
       "Collapsed": "0",
       "Pos": "41,327",
-      "Size": "177,38"
+      "Size": "232,254"
     },
     "###Timing": {
       "Collapsed": "0",
