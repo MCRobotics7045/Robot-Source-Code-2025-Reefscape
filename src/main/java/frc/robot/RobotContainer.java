@@ -211,14 +211,14 @@ public class RobotContainer {
   //       .withVelocityY(-DRIVER_XBOX.getLeftX() * 2) // Drive left with negative X (left)
   //       .withRotationalRate(-DRIVER_XBOX.getRightX() * 1) // Drive counterclockwise with negative X (left)
   // )); 
-    //DRIVER CONTROLS -- David  
+    //DRIVER CONTROLS -- Jack
     rightTrigger = new Trigger(()-> DRIVER_XBOX.getRightTriggerAxis() > 0.5);
     leftTrigger = new Trigger(()-> DRIVER_XBOX.getLeftTriggerAxis() > 0.1);
   
     // //Normal Coral Setpoints
    
-  
-
+    DRIVER_XBOX.povUp().whileTrue(elevatorSubsytem.SpoolCommand());
+    DRIVER_XBOX.povDown().whileTrue(elevatorSubsytem.UnspoolCommand());
 
     DRIVER_XBOX.rightBumper().whileTrue(ENDEFFECTOR.rollerOutCommand());
     DRIVER_XBOX.rightBumper().whileTrue(LED.breathProgres());
@@ -240,20 +240,15 @@ public class RobotContainer {
     leftTrigger.and(DRIVER_XBOX.x()).whileTrue(new DriveToPostOffset(SWERVE, VISION.bPCamera, 0.2, -.06,LED)); //L3 Y
 
 
-      OPERATOR_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerOutCommand());
-      OPERATOR_XBOX.povLeft().whileTrue(ENDEFFECTOR.rollerInCommand());
+    OPERATOR_XBOX.povRight().whileTrue(ENDEFFECTOR.rollerOutCommand());
+    OPERATOR_XBOX.povLeft().whileTrue(ENDEFFECTOR.rollerInCommand());
 
-      // OPERATOR_XBOX.start().onTrue(ELEVATOR.resetElevatorCommand());
-      OPERATOR_XBOX.back().onTrue(SWERVE.runOnce(()-> SWERVE.seedFieldCentric()));
+    DRIVER_XBOX.back().onTrue(elevatorSubsytem.ElevatorResetButtonCommand());
+    DRIVER_XBOX.start().onTrue(SWERVE.runOnce(()-> SWERVE.seedFieldCentric()));
 
     OPERATOR_XBOX.leftTrigger().whileTrue(ALGEE.rollerDownCommand());
     OPERATOR_XBOX.rightTrigger().whileTrue(ALGEE.rollerUpCommand());
-    // DRIVER_XBOX.povDown().onTrue(ALGEE.StowPostion());
-    // DRIVER_XBOX.povUp().onTrue(ALGEE.GrabCommand());
-    // DRIVER_XBOX.povLeft().onTrue(ALGEE.HoldFromReef());
-    // DRIVER_XBOX.povRight().onTrue(ALGEE.ZeroRest());
-      // //Sys ID
-      
+
 
       //A L1
       //X L2

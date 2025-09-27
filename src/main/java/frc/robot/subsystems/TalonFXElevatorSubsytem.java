@@ -55,7 +55,12 @@ public class TalonFXElevatorSubsytem extends SubsystemBase {
 
     Logger.recordOutput("Elevator Height", ElevatorMotor.get());
   }
-  
+  public Command ElevatorResetButtonCommand() {
+    return Commands.startEnd(
+      ()-> ElevatorMotor.setPosition(0),
+      ()->System.out.println("SetPoint Reset On Button Command"),
+        this);
+  }
   public Command ReefSetpointPositionCommand(double SetPoint) {
     return Commands.startEnd(
       ()-> ElevatorMotor.setControl(m_request.withPosition(SetPoint)),
@@ -79,6 +84,8 @@ public class TalonFXElevatorSubsytem extends SubsystemBase {
   public Command UnspoolCommand() {
     return Commands.runOnce(()-> ElevatorMotor.set(1));
   }
+
+
   public void StopMotor() {
     ElevatorMotor.stopMotor();
   }
